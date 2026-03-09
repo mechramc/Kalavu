@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Ruff
+.ruff_cache/
+
+# ML artifacts (large files — use git-lfs or don't commit)
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+*.model
+checkpoints/
+wandb/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+
+# Firecrawl
+.firecrawl/
+
+# Misc
+*.log
