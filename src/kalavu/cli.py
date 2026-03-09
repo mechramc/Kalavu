@@ -60,18 +60,55 @@ def create(
 
 
 @coop.command()
-@click.argument("cooperative")
+@click.argument("cooperative", type=click.Path(exists=True, path_type=Path))
 @click.option("--claim-module", type=int, required=True, help="Module slot to claim")
-def join(cooperative: str, claim_module: int):
+@click.option(
+    "--contributor",
+    default=None,
+    help="Contributor name (default: OS username)",
+)
+@click.option(
+    "--work-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Working directory (default: ./module-<id>/)",
+)
+def join(
+    cooperative: Path,
+    claim_module: int,
+    contributor: str | None,
+    work_dir: Path | None,
+):
     """Join a cooperative and claim a module slot."""
-    click.echo(f"Joining '{cooperative}', claiming module {claim_module}...")
+    import getpass
+
+    from kalavu.coop.join import join_cooperative
+
+    if contributor is None:
+        contributor = getpass.getuser()
+
+    join_cooperative(
+        cooperative_dir=cooperative,
+        module_id=claim_module,
+        contributor_name=contributor,
+        work_dir=work_dir,
+    )
 
 
 @coop.command()
-@click.argument("cooperative")
-def status(cooperative: str):
+@click.argument("cooperative", type=click.Path(exists=True, path_type=Path))
+@click.option("--json", "as_json", is_flag=True, help="Output status as JSON")
+def status(cooperative: Path, as_json: bool):
     """Show cooperative status and module alignment."""
-    click.echo(f"Status for cooperative '{cooperative}'...")
+    import json as json_mod
+
+    from kalavu.coop.status import get_cooperative_status, print_cooperative_status
+
+    if as_json:
+        data = get_cooperative_status(cooperative)
+        click.echo(json_mod.dumps(data, indent=2))
+    else:
+        print_cooperative_status(cooperative)
 
 
 @coop.command()
