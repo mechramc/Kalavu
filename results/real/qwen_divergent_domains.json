@@ -1,0 +1,188 @@
+{
+  "experiment": "qwen_divergent_domains",
+  "model_id": "Qwen/Qwen2.5-1.5B",
+  "domains": [
+    "code",
+    "fiction"
+  ],
+  "config": {
+    "freeze_layers": 2,
+    "lr": 2e-05,
+    "max_steps": 1000,
+    "batch_size": 2,
+    "grad_accum": 2,
+    "seq_len": 512,
+    "n_train_samples": 5000,
+    "n_eval_samples": 500,
+    "router_steps": 300
+  },
+  "seeds": [
+    42,
+    137,
+    2026
+  ],
+  "per_seed": [
+    {
+      "seed": 42,
+      "divergence_passed": true,
+      "divergence_checks": {
+        "code_beats_base_on_code": true,
+        "fiction_beats_base_on_fiction": true,
+        "code_worse_than_base_on_fiction": true,
+        "divergence_gap": true
+      },
+      "divergence_losses": {
+        "base": {
+          "code": 1.340131,
+          "fiction": 2.578742
+        },
+        "code": {
+          "code": 1.316568,
+          "fiction": 2.585193
+        },
+        "fiction": {
+          "code": 1.3544,
+          "fiction": 2.461145
+        }
+      },
+      "eval_heldout": {
+        "Base model": {
+          "code": 1.340131,
+          "fiction": 2.578742,
+          "mixed": 1.360005
+        },
+        "Specialist (code)": {
+          "code": 1.316568,
+          "fiction": 2.585193,
+          "mixed": 1.336786
+        },
+        "Specialist (fiction)": {
+          "code": 1.3544,
+          "fiction": 2.461145,
+          "mixed": 1.372102
+        },
+        "Weight averaged": {
+          "code": 1.316805,
+          "fiction": 2.493735,
+          "mixed": 1.335626
+        },
+        "MoE fused": {
+          "code": 1.349616,
+          "fiction": 2.415492,
+          "mixed": 1.349616
+        }
+      },
+      "improvement_pct": -0.9598
+    },
+    {
+      "seed": 137,
+      "divergence_passed": true,
+      "divergence_checks": {
+        "code_beats_base_on_code": true,
+        "fiction_beats_base_on_fiction": true,
+        "code_worse_than_base_on_fiction": true,
+        "divergence_gap": true
+      },
+      "divergence_losses": {
+        "base": {
+          "code": 1.340131,
+          "fiction": 2.578742
+        },
+        "code": {
+          "code": 1.315973,
+          "fiction": 2.584871
+        },
+        "fiction": {
+          "code": 1.352898,
+          "fiction": 2.461584
+        }
+      },
+      "eval_heldout": {
+        "Base model": {
+          "code": 1.340131,
+          "fiction": 2.578742,
+          "mixed": 1.360005
+        },
+        "Specialist (code)": {
+          "code": 1.315973,
+          "fiction": 2.584871,
+          "mixed": 1.33624
+        },
+        "Specialist (fiction)": {
+          "code": 1.352898,
+          "fiction": 2.461584,
+          "mixed": 1.370642
+        },
+        "Weight averaged": {
+          "code": 1.31632,
+          "fiction": 2.493213,
+          "mixed": 1.335145
+        },
+        "MoE fused": {
+          "code": 1.349344,
+          "fiction": 2.41547,
+          "mixed": 1.349344
+        }
+      },
+      "improvement_pct": -0.9807
+    },
+    {
+      "seed": 2026,
+      "divergence_passed": true,
+      "divergence_checks": {
+        "code_beats_base_on_code": true,
+        "fiction_beats_base_on_fiction": true,
+        "code_worse_than_base_on_fiction": true,
+        "divergence_gap": true
+      },
+      "divergence_losses": {
+        "base": {
+          "code": 1.340131,
+          "fiction": 2.578742
+        },
+        "code": {
+          "code": 1.315716,
+          "fiction": 2.584557
+        },
+        "fiction": {
+          "code": 1.352923,
+          "fiction": 2.461395
+        }
+      },
+      "eval_heldout": {
+        "Base model": {
+          "code": 1.340131,
+          "fiction": 2.578742,
+          "mixed": 1.360005
+        },
+        "Specialist (code)": {
+          "code": 1.315716,
+          "fiction": 2.584557,
+          "mixed": 1.335957
+        },
+        "Specialist (fiction)": {
+          "code": 1.352923,
+          "fiction": 2.461395,
+          "mixed": 1.370663
+        },
+        "Weight averaged": {
+          "code": 1.316304,
+          "fiction": 2.493525,
+          "mixed": 1.33519
+        },
+        "MoE fused": {
+          "code": 1.348722,
+          "fiction": 2.415644,
+          "mixed": 1.348722
+        }
+      },
+      "improvement_pct": -0.9555
+    }
+  ],
+  "summary": {
+    "seeds_passed_divergence": 3,
+    "improvement_mean": -0.9653,
+    "improvement_std": 0.0135
+  },
+  "timestamp": "2026-03-13T17:21:35Z"
+}
