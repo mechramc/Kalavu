@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
 """
 KALAVU: Real-Model Specialist Divergence Experiment
 =====================================================
@@ -328,16 +331,16 @@ def check_divergence(spec_code, spec_fiction, base_model,
         return (new - base) / base * 100
 
     def check_sym(v):
-        return "✓" if v else "✗"
+        return "\u2713" if v else "\u2717"
 
     print(f"  Code specialist on code:         {spec_c_code:.4f} "
-          f"(base: {base_code:.4f}, Δ = {delta_pct(spec_c_code, base_code):+.2f}%)  "
+          f"(base: {base_code:.4f}, d = {delta_pct(spec_c_code, base_code):+.2f}%)  "
           f"{check_sym(checks['code_beats_base_on_code'])}")
     print(f"  Code specialist on fiction:      {spec_c_fict:.4f} "
-          f"(base: {base_fiction:.4f}, Δ = {delta_pct(spec_c_fict, base_fiction):+.2f}%)  "
+          f"(base: {base_fiction:.4f}, d = {delta_pct(spec_c_fict, base_fiction):+.2f}%)  "
           f"{check_sym(checks['code_worse_than_base_on_fiction'])}")
     print(f"  Fiction specialist on fiction:   {spec_f_fict:.4f} "
-          f"(base: {base_fiction:.4f}, Δ = {delta_pct(spec_f_fict, base_fiction):+.2f}%)  "
+          f"(base: {base_fiction:.4f}, d = {delta_pct(spec_f_fict, base_fiction):+.2f}%)  "
           f"{check_sym(checks['fiction_beats_base_on_fiction'])}")
     print(f"  Divergence gap (code cross-domain): "
           f"{spec_c_fict - spec_c_code:.4f} > {DIVERGENCE_GAP_THRESHOLD}  "
@@ -400,7 +403,7 @@ def train_router(moe: TwoExpertMoE, train_code: PackedChunkDataset,
 def print_results_table(results: dict, seed: int):
     domains = ["code", "fiction", "mixed"]
     col_w = 10
-    print(f"\nFUSION RESULTS — Held-Out Eval (seed={seed}):")
+    print(f"\nFUSION RESULTS \u2014 Held-Out Eval (seed={seed}):")
     header = f"{'Model':<25}" + "".join(f"{d:>{col_w}}" for d in ["Code", "Fiction", "Mixed", "Average"])
     print(header)
     print("\u2500" * len(header))
