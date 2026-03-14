@@ -1,0 +1,64 @@
+{
+  "seed": 2026,
+  "eval_heldout": {
+    "base": {
+      "code": 2.087168,
+      "science": 2.89201,
+      "fiction": 2.973911,
+      "mixed": 2.248017
+    },
+    "code_spec": {
+      "code": 1.879962,
+      "science": 2.908737,
+      "fiction": 2.977547,
+      "mixed": 2.089823
+    },
+    "science_spec": {
+      "code": 2.173996,
+      "science": 2.556508,
+      "fiction": 3.061316,
+      "mixed": 2.245333
+    },
+    "fiction_spec": {
+      "code": 2.101956,
+      "science": 2.889335,
+      "fiction": 2.227745,
+      "mixed": 2.259091
+    },
+    "weight_avg": {
+      "code": 2.014463,
+      "science": 2.731971,
+      "fiction": 2.716308,
+      "mixed": 2.157812
+    },
+    "moe": {
+      "code": 1.793715,
+      "science": 2.550024,
+      "fiction": 2.460291,
+      "mixed": 1.793715
+    }
+  },
+  "improvement_pct": 14.169,
+  "router_distribution": {
+    "code": [
+      0.9971,
+      0.0,
+      0.0029
+    ],
+    "science": [
+      0.0,
+      0.9998,
+      0.0002
+    ],
+    "fiction": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "mixed": [
+      0.9971,
+      0.0,
+      0.0029
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "seed": 2026,
+  "passed": true,
+  "loss_matrix": {
+    "base": {
+      "code": 2.087168,
+      "science": 2.89201,
+      "fiction": 2.973911
+    },
+    "code": {
+      "code": 1.879962,
+      "science": 2.908737,
+      "fiction": 2.977547
+    },
+    "science": {
+      "code": 2.173996,
+      "science": 2.556508,
+      "fiction": 3.061316
+    },
+    "fiction": {
+      "code": 2.101956,
+      "science": 2.889335,
+      "fiction": 2.227745
+    }
+  },
+  "checks": {
+    "code_beats_base": {
+      "passed": true,
+      "base_loss": 2.087168,
+      "spec_loss": 1.879962,
+      "delta_pct": -9.93
+    },
+    "science_beats_base": {
+      "passed": true,
+      "base_loss": 2.89201,
+      "spec_loss": 2.556508,
+      "delta_pct": -11.6
+    },
+    "fiction_beats_base": {
+      "passed": true,
+      "base_loss": 2.973911,
+      "spec_loss": 2.227745,
+      "delta_pct": -25.09
+    }
+  }
+}
