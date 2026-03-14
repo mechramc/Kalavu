@@ -1,0 +1,46 @@
+{
+  "experiment": "monolithic_baseline",
+  "model_id": "EleutherAI/pythia-410m",
+  "revision": "step10000",
+  "total_steps": 6000,
+  "equivalent_compute": "3 specialists \u00d7 2000 steps",
+  "freeze_layers": 4,
+  "seeds": [
+    42,
+    137,
+    2026
+  ],
+  "base_losses": {
+    "code": 2.087168,
+    "science": 2.89201,
+    "fiction": 2.973911,
+    "mixed": 2.248017
+  },
+  "results": {
+    "mean": {
+      "monolithic_mixed": 2.098324,
+      "moe_fused_mixed": 1.79309,
+      "fused_vs_monolithic_pct": 14.5466,
+      "monolithic_vs_base_pct": 6.6589
+    },
+    "std": {
+      "monolithic_mixed": 0.000968,
+      "fused_vs_monolithic_pct": null
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 42,
+      "final_mixed": 2.098787
+    },
+    {
+      "seed": 137,
+      "final_mixed": 2.097211
+    },
+    {
+      "seed": 2026,
+      "final_mixed": 2.098974
+    }
+  ],
+  "timestamp": "2026-03-14T02:11:30Z"
+}
