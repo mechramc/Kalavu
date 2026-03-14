@@ -503,7 +503,8 @@ def main():
     print("KALAVU: Pythia-410M Specialist Training Curves (Eval Checkpoints)")
     print("=" * 70)
     print(f"Config: seed={SEED}, freeze={FREEZE_LAYERS}, steps={MAX_STEPS}, eval_every={EVAL_INTERVAL}")
-    print(f"Figure C (fusion trajectory): {'YES' if GENERATE_FIGURE_C else 'NO'}")
+    generate_figure_c = GENERATE_FIGURE_C
+    print(f"Figure C (fusion trajectory): {'YES' if generate_figure_c else 'NO'}")
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -578,7 +579,7 @@ def main():
             individual_trajectories[domain][c["step"]] = c["held_out"]
 
         # Save final checkpoint for Figure C snapshots
-        if GENERATE_FIGURE_C:
+        if generate_figure_c:
             # Store state dict snapshots at each eval step — but that's too much memory.
             # Instead, save the final trained model and run Figure C differently below.
             pass
@@ -614,10 +615,10 @@ def main():
                 print(f"  Loaded {domain} from {ckpt}")
             else:
                 print(f"  WARNING: {ckpt} not found, skipping Figure C")
-                GENERATE_FIGURE_C = False
+                generate_figure_c = False
                 break
 
-        if GENERATE_FIGURE_C and len(specialists) == 3:
+        if generate_figure_c and len(specialists) == 3:
             print(f"  Quick fusion at step=2000 ({ROUTER_STEPS_TRAJ} router steps)...")
             fused_2000 = quick_fuse_and_eval(
                 specialists["code"], specialists["science"], specialists["fiction"],
