@@ -1,0 +1,29 @@
+{
+  "step": 1,
+  "model_id": "EleutherAI/pythia-6.9b",
+  "revision": "step10000",
+  "data_stats": {
+    "code": {
+      "train_chunks": 1256,
+      "indist_chunks": 157,
+      "held_out_chunks": 157
+    },
+    "science": {
+      "train_chunks": 531,
+      "indist_chunks": 66,
+      "held_out_chunks": 67
+    },
+    "fiction": {
+      "train_chunks": 6222,
+      "indist_chunks": 778,
+      "held_out_chunks": 778
+    }
+  },
+  "base_held_out_losses": {
+    "code": 1.835753,
+    "science": 2.588247,
+    "fiction": 2.694671,
+    "mixed": 1.835753
+  },
+  "timestamp": "2026-03-14T21:14:19Z"
+}
