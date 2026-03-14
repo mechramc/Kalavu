@@ -1,0 +1,164 @@
+{
+  "experiment": "freeze_depth_ablation",
+  "base_model": "pythia-410m-step10000",
+  "router_type": "simple_linear",
+  "freeze_sweep": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    12
+  ],
+  "phase1_seed42_results": [
+    {
+      "freeze_layers": 0,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.073719,
+      "moe_mixed_loss": 1.765792,
+      "improvement_pct": 14.849,
+      "divergence_gap": 0.4991
+    },
+    {
+      "freeze_layers": 2,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.080672,
+      "moe_mixed_loss": 1.778857,
+      "improvement_pct": 14.5057,
+      "divergence_gap": 0.4843
+    },
+    {
+      "freeze_layers": 4,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.089038,
+      "moe_mixed_loss": 1.794146,
+      "improvement_pct": 14.1162,
+      "divergence_gap": 0.4671
+    },
+    {
+      "freeze_layers": 6,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.097825,
+      "moe_mixed_loss": 1.809221,
+      "improvement_pct": 13.7573,
+      "divergence_gap": 0.4394
+    },
+    {
+      "freeze_layers": 8,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.107941,
+      "moe_mixed_loss": 1.827805,
+      "improvement_pct": 13.2896,
+      "divergence_gap": 0.4074
+    },
+    {
+      "freeze_layers": 12,
+      "seed": 42,
+      "base_mixed_loss": 2.248017,
+      "best_individual_mixed": 2.129714,
+      "moe_mixed_loss": 1.866378,
+      "improvement_pct": 12.3648,
+      "divergence_gap": 0.3223
+    }
+  ],
+  "top2_freeze_depths": [
+    0,
+    2
+  ],
+  "multi_seed_results": {
+    "0": {
+      "seeds": [
+        42,
+        137,
+        2026
+      ],
+      "per_seed": [
+        {
+          "freeze_layers": 0,
+          "seed": 42,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.073719,
+          "moe_mixed_loss": 1.765792,
+          "improvement_pct": 14.849,
+          "divergence_gap": 0.4991
+        },
+        {
+          "freeze_layers": 0,
+          "seed": 137,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.073908,
+          "moe_mixed_loss": 1.765626,
+          "improvement_pct": 14.8648,
+          "divergence_gap": 0.4954
+        },
+        {
+          "freeze_layers": 0,
+          "seed": 2026,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.074555,
+          "moe_mixed_loss": 1.766536,
+          "improvement_pct": 14.8475,
+          "divergence_gap": 0.4967
+        }
+      ],
+      "mean": 14.8538,
+      "std": 0.0096
+    },
+    "2": {
+      "seeds": [
+        42,
+        137,
+        2026
+      ],
+      "per_seed": [
+        {
+          "freeze_layers": 2,
+          "seed": 42,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.080672,
+          "moe_mixed_loss": 1.778857,
+          "improvement_pct": 14.5057,
+          "divergence_gap": 0.4843
+        },
+        {
+          "freeze_layers": 2,
+          "seed": 137,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.081001,
+          "moe_mixed_loss": 1.778816,
+          "improvement_pct": 14.5211,
+          "divergence_gap": 0.4799
+        },
+        {
+          "freeze_layers": 2,
+          "seed": 2026,
+          "base_mixed_loss": 2.248017,
+          "best_individual_mixed": 2.081578,
+          "moe_mixed_loss": 1.779905,
+          "improvement_pct": 14.4925,
+          "divergence_gap": 0.4819
+        }
+      ],
+      "mean": 14.5064,
+      "std": 0.0143
+    },
+    "4": {
+      "seeds": [
+        42,
+        137,
+        2026
+      ],
+      "mean": 14.1778,
+      "std": 0.0157,
+      "note": "from main experiment (2-layer router, reported for reference)"
+    }
+  },
+  "optimal_freeze_layers": 0,
+  "btx_baseline_improvement_pct": 14.849,
+  "timestamp": "2026-03-14T00:03:36Z"
+}
