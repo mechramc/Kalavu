@@ -1,0 +1,36 @@
+{
+  "revision": "step5000",
+  "step_n": 5000,
+  "training_pct": 3.5,
+  "seed": 2026,
+  "base_losses": {
+    "code": 2.241251,
+    "science": 3.077052,
+    "fiction": 3.247817,
+    "mixed": 2.408596
+  },
+  "best_individual_mixed": 2.195436,
+  "weight_avg_mixed": 2.289252,
+  "moe_mixed_loss": 1.866132,
+  "improvement_pct": 14.9995,
+  "specialist_beats_base": {
+    "code": {
+      "beats_base": true,
+      "spec_loss": 1.962895,
+      "base_loss": 2.241251,
+      "delta_pct": -12.42
+    },
+    "science": {
+      "beats_base": true,
+      "spec_loss": 2.70637,
+      "base_loss": 3.077052,
+      "delta_pct": -12.05
+    },
+    "fiction": {
+      "beats_base": true,
+      "spec_loss": 2.306376,
+      "base_loss": 3.247817,
+      "delta_pct": -28.99
+    }
+  }
+}
