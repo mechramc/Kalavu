@@ -1,0 +1,51 @@
+{
+  "revision": "step5000",
+  "training_pct": 3.5,
+  "seed": 42,
+  "base_losses": {
+    "code": 2.137527,
+    "science": 2.964278,
+    "fiction": 3.006427,
+    "mixed": 2.30116
+  },
+  "eval_heldout": {
+    "base": {
+      "code": 2.137527,
+      "science": 2.964278,
+      "fiction": 3.006427,
+      "mixed": 2.30116
+    },
+    "code_spec": {
+      "code": 1.85064,
+      "science": 2.99168,
+      "fiction": 3.024267,
+      "mixed": 2.083188
+    },
+    "science_spec": {
+      "code": 2.248114,
+      "science": 2.65254,
+      "fiction": 3.145828,
+      "mixed": 2.321731
+    },
+    "fiction_spec": {
+      "code": 2.164293,
+      "science": 2.970551,
+      "fiction": 2.077205,
+      "mixed": 2.323528
+    },
+    "weight_avg": {
+      "code": 2.02892,
+      "science": 2.783814,
+      "fiction": 2.61599,
+      "mixed": 2.178384
+    },
+    "moe": {
+      "code": 1.752959,
+      "science": 2.645418,
+      "fiction": 2.354192,
+      "mixed": 1.752959
+    }
+  },
+  "improvement_pct": 15.8521,
+  "timestamp": "2026-03-14T07:09:25Z"
+}
