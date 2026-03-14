@@ -177,28 +177,26 @@ def load_math_texts(n):
 
 
 def load_multilingual_texts(n):
-    # mc4 Spanish — genuinely OOD for English-trained Pythia
+    # Spanish/French/German Wikipedia — genuinely OOD for English-trained Pythia
+    # Uses wikimedia/wikipedia (standard parquet, no legacy loading script)
     from datasets import load_dataset
-    print(f"  Loading multilingual/mc4-es (n={n})...")
-    try:
-        ds = load_dataset("mc4", "es", split="train", streaming=True)
-        texts = []
-        for item in ds:
-            content = item["text"][:3000]
-            if len(content) >= 500:
-                texts.append(content)
-            if len(texts) >= n: break
-        return texts
-    except Exception as e:
-        print(f"  mc4 Spanish failed ({e}), falling back to French (fr)")
-        ds = load_dataset("mc4", "fr", split="train", streaming=True)
-        texts = []
-        for item in ds:
-            content = item["text"][:3000]
-            if len(content) >= 500:
-                texts.append(content)
-            if len(texts) >= n: break
-        return texts
+    for lang_config in ["20231101.es", "20231101.fr", "20231101.de"]:
+        try:
+            print(f"  Loading multilingual/wikipedia ({lang_config}) (n={n})...")
+            ds = load_dataset("wikimedia/wikipedia", lang_config, split="train", streaming=True)
+            texts = []
+            for item in ds:
+                content = item["text"][:3000]
+                if len(content) >= 500:
+                    texts.append(content)
+                if len(texts) >= n:
+                    break
+            if texts:
+                print(f"  Loaded {len(texts)} multilingual texts ({lang_config})")
+                return texts
+        except Exception as e:
+            print(f"  wikipedia {lang_config} failed ({e}), trying next...")
+    raise RuntimeError("All multilingual dataset options exhausted")
 
 
 # ============================================================================
