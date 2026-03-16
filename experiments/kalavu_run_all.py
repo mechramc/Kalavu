@@ -30,10 +30,10 @@ LOG_FILE = Path("logs/orchestrator_run.log")
 LOG_FILE.parent.mkdir(exist_ok=True)
 
 SCRIPTS = [
-    ("kalavu_pythia_maturity_sweep.py",    "maturity sweep 410M"),
-    ("kalavu_pythia_1b_experiment.py",     "Pythia-1B main result"),
-    ("kalavu_pythia_1b_maturity_sweep.py", "Pythia-1B maturity sweep"),
-    ("kalavu_pythia_5domain_experiment.py","5-domain specialist scaling"),
+    ("experiments/kalavu_pythia_maturity_sweep.py",    "maturity sweep 410M"),
+    ("experiments/kalavu_pythia_1b_experiment.py",     "Pythia-1B main result"),
+    ("experiments/kalavu_pythia_1b_maturity_sweep.py", "Pythia-1B maturity sweep"),
+    ("experiments/kalavu_pythia_5domain_experiment.py","5-domain specialist scaling"),
 ]
 
 RESULTS_DIR = Path("results/pythia")
@@ -277,9 +277,9 @@ def generate_hero_figure():
 
 def run_audit():
     """Run the results audit script."""
-    audit_script = Path("kalavu_results_audit.py")
+    audit_script = Path("experiments/kalavu_results_audit.py")
     if audit_script.exists():
-        run_script("kalavu_results_audit.py", "Results audit")
+        run_script("experiments/kalavu_results_audit.py", "Results audit")
     else:
         log("Audit script not found — skipping")
 

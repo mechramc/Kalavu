@@ -1,0 +1,16 @@
+{
+  "base_loss": 2.420161,
+  "moe_loss": 2.079685,
+  "classifier_loss": 2.931461,
+  "moe_improvement_pct": 14.0683,
+  "classifier_improvement_pct": -21.1267,
+  "classifier_accuracy": 0.9933,
+  "seeds": [
+    42,
+    137,
+    2026
+  ],
+  "model": "EleutherAI/pythia-410m@step10000",
+  "freeze_layers": 4,
+  "timestamp": "2026-03-16T11:41:27Z"
+}
