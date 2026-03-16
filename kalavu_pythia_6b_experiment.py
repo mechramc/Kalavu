@@ -118,6 +118,28 @@ def step_completed(result_path: Path) -> bool:
     return result_path.exists()
 
 
+def clear_hf_cache():
+    """Remove pythia-6.9b entries from the HuggingFace cache to free ~14GB disk."""
+    import pathlib
+    import shutil
+    cache_dir = os.path.expanduser("~/.cache/huggingface/hub")
+    if not os.path.exists(cache_dir):
+        return
+    for entry in os.listdir(cache_dir):
+        if "pythia-6.9b" in entry or "pythia-6_9b" in entry:
+            path = os.path.join(cache_dir, entry)
+            try:
+                size = sum(
+                    f.stat().st_size
+                    for f in pathlib.Path(path).rglob("*")
+                    if f.is_file()
+                ) / 1e9
+                print(f"  Clearing HF cache: {entry} ({size:.1f}GB)")
+                shutil.rmtree(path)
+            except Exception as e:
+                print(f"  Warning: could not clear {entry}: {e}")
+
+
 def checkpoint_path(domain: str, seed: int, revision: str = REVISION_EARLY) -> Path:
     suffix = "_maturity" if revision == REVISION_FULL else ""
     return CHECKPOINT_DIR / f"{domain}_specialist_seed{seed}{suffix}.pt"
@@ -325,15 +347,8 @@ def freeze_layers(model, n: int):
 
 
 def save_specialist_checkpoint(model, domain: str, seed: int, revision: str = REVISION_EARLY):
-    """Save full model state_dict to checkpoint. Commit + push immediately."""
-    CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-    ckpt = checkpoint_path(domain, seed, revision)
-    torch.save(model.state_dict(), ckpt)
-    print(f"  Saved checkpoint: {ckpt}")
-    suffix = "_maturity" if revision == REVISION_FULL else ""
-    git_commit_push(
-        f"[kalavu] 6.9B {domain} specialist seed={seed}{' maturity' if suffix else ''} checkpoint"
-    )
+    """Checkpoint save disabled — specialists kept in memory to save disk space."""
+    print(f"  Skipping checkpoint save for {domain} seed={seed} (disk space)")
 
 
 def load_specialist_model(domain: str, seed: int, device: str,
@@ -965,26 +980,36 @@ def run_seed_experiment(seed: int, tokenizer, device: str,
     print(f"EXPERIMENT: seed={seed}, revision={revision}")
     print(f"{'='*70}")
 
-    # ── Train specialists ────────────────────────────────────────────────────
-    for domain in DOMAINS:
-        ckpt = checkpoint_path(domain, seed, revision)
-        if ckpt.exists():
-            print(f"\n  [skip] {domain} specialist already trained: {ckpt}")
-            continue
+    # ── Resume: skip entire seed if fusion result already exists ─────────────
+    if step_completed(fusion_path):
+        print(f"\n  [skip] Seed {seed} already complete: {fusion_path}")
+        return json.loads(fusion_path.read_text(encoding="utf-8"))
 
+    # ── Train specialists, keep completed ones on CPU (safety valve) ─────────
+    # Completed specialists sit in CPU RAM while the next one trains on GPU.
+    # Each 6.9B bf16 model is ~14GB; CPU RAM on RunPod is typically 100-200GB.
+    trained: dict = {}
+    for domain in DOMAINS:
         print(f"\n  Training {domain} specialist (seed={seed}, revision={revision})...")
         model = load_model(revision, device, gradient_checkpointing=True)
         train_chunks = all_domain_chunks[domain]["train"]
-        loss_hist = train_specialist(model, domain, train_chunks, device, seed)
-        save_specialist_checkpoint(model, domain, seed, revision)
-        del model
+        train_specialist(model, domain, train_chunks, device, seed)
+        model.eval()
+        # Move to CPU so the next specialist can train on GPU without OOM
+        model.to("cpu")
         torch.cuda.empty_cache()
+        print(f"  {domain} specialist moved to CPU (frees ~14GB GPU)")
+        trained[domain] = model
 
-    # ── Load specialists for eval ────────────────────────────────────────────
-    print(f"\n  Loading specialists for evaluation (seed={seed})...")
-    spec_code    = load_specialist_model("code",    seed, device, revision)
-    spec_science = load_specialist_model("science", seed, device, revision)
-    spec_fiction = load_specialist_model("fiction", seed, device, revision)
+    # Move all three back to GPU for eval/fusion
+    print(f"\n  Moving specialists back to GPU for evaluation (seed={seed})...")
+    for domain in DOMAINS:
+        trained[domain].to(device)
+    torch.cuda.empty_cache()
+
+    spec_code    = trained["code"]
+    spec_science = trained["science"]
+    spec_fiction = trained["fiction"]
 
     # ── Divergence check ─────────────────────────────────────────────────────
     if step_completed(divergence_path):
@@ -1254,6 +1279,10 @@ def phase1_2_base_and_seeds(tokenizer, device: str, code_texts, science_texts, f
             seed, tokenizer, device, all_domain_chunks, REVISION_EARLY
         )
         seed_results[seed] = seed_result
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+        print(f"Memory cleared after seed {seed}")
 
     # ── Aggregate summary ─────────────────────────────────────────────────────
     summary_path = RESULTS_DIR / "summary.json"
@@ -1363,10 +1392,26 @@ def phase4_benchmarks(tokenizer, device: str, all_domain_chunks: dict):
     del base_model
     torch.cuda.empty_cache()
 
-    # Load specialists (already trained in Phase 1)
-    spec_code    = load_specialist_model("code",    42, device, REVISION_EARLY)
-    spec_science = load_specialist_model("science", 42, device, REVISION_EARLY)
-    spec_fiction = load_specialist_model("fiction", 42, device, REVISION_EARLY)
+    # Re-train seed=42 specialists for benchmarks (no checkpoints on disk).
+    # Same safety-valve pattern: train one at a time, park on CPU between.
+    print("\nTraining seed=42 specialists for benchmark evaluation...")
+    bench_trained: dict = {}
+    for domain in DOMAINS:
+        print(f"\n  Training {domain} specialist (seed=42, benchmarks)...")
+        m = load_model(REVISION_EARLY, device, gradient_checkpointing=True)
+        train_specialist(m, domain, all_domain_chunks[domain]["train"], device, 42)
+        m.eval()
+        m.to("cpu")
+        torch.cuda.empty_cache()
+        print(f"  {domain} specialist moved to CPU")
+        bench_trained[domain] = m
+    print("\n  Moving benchmark specialists back to GPU...")
+    for domain in DOMAINS:
+        bench_trained[domain].to(device)
+    torch.cuda.empty_cache()
+    spec_code    = bench_trained["code"]
+    spec_science = bench_trained["science"]
+    spec_fiction = bench_trained["fiction"]
 
     # MoE (re-train router)
     print("\nBuilding MoE and training router for benchmarks...")
@@ -1429,6 +1474,13 @@ def main():
     print(f"Time: {time.strftime('%Y-%m-%dT%H:%M:%SZ')}")
     print("=" * 70)
 
+    # Verify disk space
+    import shutil as _shutil
+    _disk = _shutil.disk_usage("/workspace")
+    print(f"\nDisk: {_disk.free/1e9:.1f}GB free / {_disk.total/1e9:.1f}GB total")
+    if _disk.free < 20e9:
+        print("WARNING: Less than 20GB free. Clear caches before proceeding.")
+
     # Verify GPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"\nDevice: {device}")
@@ -1465,6 +1517,10 @@ def main():
     all_domain_chunks, seed_results = phase1_2_base_and_seeds(
         tokenizer, device, code_texts, science_texts, fiction_texts
     )
+
+    # ── Clear step10000 HF cache before loading step143000 (~14GB freed) ────
+    print("\nClearing step10000 HF cache before maturity phase...")
+    clear_hf_cache()
 
     # ── Phase 3: Maturity at step143000 ─────────────────────────────────────
     phase3_maturity(tokenizer, device, all_domain_chunks)
