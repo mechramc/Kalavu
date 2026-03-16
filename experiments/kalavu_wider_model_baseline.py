@@ -434,8 +434,8 @@ def main():
         print(f"\nLoading MoE 410M reference from {summary_path}...")
         with open(summary_path) as f:
             summary = json.load(f)
-        imp_mean = summary.get("improvement_mean_pct", None)
-        moe_raw = summary.get("moe_mixed_loss_mean", None)
+        imp_mean = summary.get("summary", {}).get("improvement_mean_pct", None)
+        moe_raw = summary.get("summary", {}).get("moe_mixed_loss_mean", None)
         if moe_raw is not None:
             moe_410m_loss = float(moe_raw)
         if imp_mean is not None:
