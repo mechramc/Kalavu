@@ -59,38 +59,56 @@ kalavu --help
 
 ```
 kalavu/
-├── src/kalavu/
-│   ├── __init__.py
-│   ├── cli.py              # CLI entry point (click/typer)
-│   ├── coop/               # Cooperative Manager subsystem
-│   │   ├── __init__.py
-│   │   ├── create.py       # coop create logic
-│   │   ├── join.py         # coop join logic
-│   │   ├── status.py       # coop status display
-│   │   └── publish.py      # coop publish to HF Hub
-│   ├── train/              # Module Trainer subsystem
-│   │   ├── __init__.py
-│   │   ├── start.py        # Training loop with CKA anchor loss
-│   │   ├── submit.py       # Module submission + validation
-│   │   └── hardware.py     # Hardware auto-detection
-│   ├── check/              # Alignment Monitor subsystem
-│   │   ├── __init__.py
-│   │   └── alignment.py    # CKA computation + reporting
-│   ├── fuse/               # Fusion Pipeline subsystem
-│   │   ├── __init__.py
-│   │   ├── cluster.py      # Pairwise CKA clustering
-│   │   ├── build.py        # Fusion architecture assembly
-│   │   └── train.py        # Post-training curriculum
-│   └── core/               # Shared utilities
-│       ├── __init__.py
-│       ├── config.py        # kalavu.yaml parsing
-│       ├── cka.py           # CKA implementation
-│       └── checkpoint.py    # Checkpoint format handling
-├── tests/
-├── docs/
-│   └── spec/               # Product specification
+├── CLAUDE.md
 ├── pyproject.toml
-└── CLAUDE.md
+│
+├── experiments/            # All runnable Python scripts
+│   ├── kalavu_pythia_experiment.py      # Main 410M experiment (template)
+│   ├── kalavu_pythia_1b_experiment.py
+│   ├── kalavu_pythia_6b_experiment.py
+│   ├── kalavu_pythia_maturity_sweep.py
+│   ├── kalavu_pythia_1b_maturity_sweep.py
+│   ├── kalavu_pythia_5domain_experiment.py
+│   ├── kalavu_pythia_ablation_freeze.py
+│   ├── kalavu_pythia_ablation_router.py
+│   ├── kalavu_pythia_monolithic_baseline.py
+│   ├── kalavu_pythia_benchmarks.py
+│   ├── kalavu_pythia_1b_benchmarks.py
+│   ├── kalavu_results_audit.py
+│   ├── kalavu_run_all.py               # Master orchestrator
+│   └── ...
+│
+├── results/                # JSON result artifacts
+│   └── pythia/             # 410M, 1B, Qwen results
+│       ├── *.json
+│       ├── five_domain/
+│       ├── maturity_sweep_410m/
+│       └── pythia_1b/
+│
+├── figures/                # Generated figures
+│   └── pythia/
+│       └── *.png
+│
+├── paper/                  # Writeup and paper scaffold
+│   ├── KALAVU_Results_Writeup.pdf
+│   └── scaffold/
+│
+├── docs/                   # Technical docs + planning
+│   ├── planning/           # Claude Code planning docs
+│   │   ├── claude_code_*.md
+│   │   └── KALAVU_Strategic_Summary*.md
+│   └── spec/               # Product specification
+│
+├── src/kalavu/             # Library source code
+│   ├── coop/
+│   ├── train/
+│   ├── check/
+│   ├── fuse/
+│   └── core/
+│
+├── tests/
+├── checkpoints/            # Model weights (gitignored)
+└── logs/                   # Experiment logs
 ```
 
 ## Code Conventions
