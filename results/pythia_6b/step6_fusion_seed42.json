@@ -3,66 +3,66 @@
   "revision": "step10000",
   "eval_heldout": {
     "base": {
-      "code": 1.893352,
-      "science": 2.58596,
-      "fiction": 2.800686,
-      "mixed": 2.63612
+      "code": 1.888488,
+      "science": 2.576374,
+      "fiction": 2.495285,
+      "mixed": 2.700397
     },
     "code_spec": {
-      "code": 1.722922,
-      "science": 2.606869,
-      "fiction": 2.630727,
-      "mixed": 2.574217
+      "code": 1.713297,
+      "science": 2.584378,
+      "fiction": 2.502596,
+      "mixed": 2.670406
     },
     "science_spec": {
-      "code": 1.872266,
-      "science": 2.310925,
-      "fiction": 2.746466,
-      "mixed": 2.449717
+      "code": 1.949759,
+      "science": 2.31469,
+      "fiction": 2.571777,
+      "mixed": 2.736316
     },
     "fiction_spec": {
-      "code": 1.874842,
-      "science": 2.572549,
-      "fiction": 2.55866,
-      "mixed": 2.32395
+      "code": 1.891226,
+      "science": 2.581114,
+      "fiction": 2.326612,
+      "mixed": 2.633653
     },
     "weight_avg": {
-      "code": 1.845155,
-      "science": 2.463403,
-      "fiction": 2.590933,
-      "mixed": 2.309627
+      "code": 1.822439,
+      "science": 2.447881,
+      "fiction": 2.419275,
+      "mixed": 2.646513
     },
     "moe": {
-      "code": 1.787403,
-      "science": 2.314998,
-      "fiction": 2.570101,
-      "mixed": 2.257511
+      "code": 1.713595,
+      "science": 2.31466,
+      "fiction": 2.326683,
+      "mixed": 2.569634
     }
   },
-  "improvement_pct": 2.8589,
-  "best_individual_mixed": 2.32395,
-  "moe_mixed": 2.257511,
+  "improvement_pct": 2.4308,
+  "best_individual_mixed": 2.633653,
+  "moe_mixed": 2.569634,
   "router_distribution": {
     "code": [
-      0.9999,
-      0.0,
+      0.9998,
+      0.0001,
       0.0001
     ],
     "science": [
-      0.0,
-      1.0,
-      0.0
+      0.0001,
+      0.9994,
+      0.0005
     ],
     "fiction": [
-      0.0002,
-      0.0,
-      0.9997
+      0.0015,
+      0.0005,
+      0.998
     ],
     "mixed": [
-      0.9999,
-      0.0,
+      0.9998,
+      0.0001,
       0.0001
     ]
   },
-  "timestamp": "2026-03-16T18:36:31Z"
+  "timestamp": "2026-03-16T21:55:22Z"
 }
