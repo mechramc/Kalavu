@@ -1,0 +1,23 @@
+{
+  "model_id": "EleutherAI/pythia-6.9b",
+  "revision": "step10000",
+  "seeds": [
+    42,
+    137,
+    2026
+  ],
+  "seed_results": {
+    "42": {
+      "improvement_pct": 2.8589
+    },
+    "137": {
+      "improvement_pct": 10.8159
+    },
+    "2026": {
+      "improvement_pct": -5.5123
+    }
+  },
+  "improvement_mean_pct": 2.7208,
+  "improvement_std_pct": 8.165,
+  "timestamp": "2026-03-16T21:21:22Z"
+}
