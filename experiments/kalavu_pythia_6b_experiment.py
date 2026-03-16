@@ -998,12 +998,21 @@ def run_seed_experiment(seed: int, tokenizer, device: str,
     # Each 6.9B bf16 model is ~14GB; CPU RAM on RunPod is typically 100-200GB.
     trained: dict = {}
     for domain in DOMAINS:
-        print(f"\n  Training {domain} specialist (seed={seed}, revision={revision})...")
-        model = load_model(revision, device, gradient_checkpointing=True)
-        train_chunks = all_domain_chunks[domain]["train"]
-        train_specialist(model, domain, train_chunks, device, seed)
-        model.eval()
-        save_specialist_checkpoint(model, domain, seed, revision)
+        ckpt = checkpoint_path(domain, seed, revision)
+        if ckpt.exists():
+            print(f"\n  Loading cached {domain} specialist (seed={seed}) from {ckpt}...")
+            model = load_model(revision, device, gradient_checkpointing=False)
+            state = torch.load(ckpt, map_location="cpu", weights_only=True)
+            model.load_state_dict(state)
+            model.eval()
+            del state
+        else:
+            print(f"\n  Training {domain} specialist (seed={seed}, revision={revision})...")
+            model = load_model(revision, device, gradient_checkpointing=True)
+            train_chunks = all_domain_chunks[domain]["train"]
+            train_specialist(model, domain, train_chunks, device, seed)
+            model.eval()
+            save_specialist_checkpoint(model, domain, seed, revision)
         # Move to CPU so the next specialist can train on GPU without OOM
         model.to("cpu")
         torch.cuda.empty_cache()
