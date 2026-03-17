@@ -508,3 +508,18 @@ MoE fused                35.6%       45.2%       62.8%       67.8%       49.4%  
 Saved: results/pythia_6b/benchmarks_seed42.json
 
 [git] Committing: [kalavu] 6.9B benchmarks: MoE avg=52.2% vs base avg=51.6%
+[main b735ed6] [kalavu] 6.9B benchmarks: MoE avg=52.2% vs base avg=51.6%
+ 2 files changed, 251 insertions(+)
+ create mode 100644 results/pythia_6b/benchmarks_seed42.json
+To https://github.com/mechramc/kalavu.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mechramc/kalavu.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+[git] WARNING: git operation failed: Command '['git', 'push']' returned non-zero exit status 1.
+  Saved: figures/pythia_6b/fig_scale_comparison.png
+
+[git] Committing: [kalavu] 6.9B scale comparison figure saved
