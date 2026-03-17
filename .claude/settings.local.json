@@ -8,7 +8,8 @@
       "Bash(sed:*)",
       "Bash(ls:*)",
       "Bash(grep:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(Get-Content:*)"
     ]
   }
 }
