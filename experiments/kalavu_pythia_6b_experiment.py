@@ -1154,6 +1154,7 @@ def run_seed_experiment(seed: int, tokenizer, device: str,
 
     # Weight average
     avg_model = weight_average_three(spec_code, spec_science, spec_fiction)
+    avg_model.to(device)  # move to GPU after CPU averaging
     for d, ds in held_out_sets.items():
         fusion_losses.setdefault("weight_avg", {})[d] = round(
             eval_loss(avg_model, ds, device), 6
