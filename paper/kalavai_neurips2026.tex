@@ -47,8 +47,8 @@
 \newcommand{\etal}{\emph{et al.}\xspace}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
-\title{KALAVAI: Cooperative LLM Training via Independent Specialists\\
-       Outperforms Equal-Compute Monolithic Training}
+\title{KALAVAI: When Does Independent Specialist Fusion Work?\\
+       Conditions for Post-Hoc Cooperative LLM Training}
 
 \author{%
   Ramchand Kumaresan \\
@@ -60,11 +60,13 @@
 \maketitle
 
 \begin{abstract}
-We present \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.}, a cooperative protocol for training large language models without centralised compute. In \kalavai, multiple independent contributors each fine-tune a domain-specialist copy of a shared base checkpoint on their own data, then combine their models post-hoc via a lightweight mixture-of-experts (MoE) router. The fused model outperforms any individual specialist on held-out mixed-domain evaluation.
+We study the conditions under which independently trained domain specialists, fused post-hoc via a mixture-of-experts router, outperform both individual specialists and equal-compute monolithic training. In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
 
-We validate \kalavai across three scales (Pythia-410M, 1B, and 6.9B) using three independently trained domain specialists (code, science, fiction). The fused model surpasses the best individual specialist by \textbf{+14.2\%} (410M, 3 seeds, $\pm$0.016\%), \textbf{+14.8\%} (1B, 3 seeds, $\pm$0.003\%), and \textbf{+2.4\%} (6.9B, 3 seeds, $\pm$0.00\%) on held-out perplexity. Against an equal-compute monolithic baseline trained for $3\times$ as many steps on mixed data, the fused model achieves a \textbf{+14.5\%} advantage.
+We identify three governing conditions: (1) \emph{Shared initialisation is necessary}: specialists initialised from different checkpoints are not fusible; the shared starting point preserves representational compatibility. (2) \emph{Frozen layers become necessary beyond $\approx$10,000 training steps}: at short horizons ($\leq$5,000 steps) freezing is optional; beyond $\approx$10,000 steps, it prevents over-specialisation that makes fusion degrade. (3) \emph{Joint inference is required}: single-specialist dispatch with 99.3\%-accurate domain classification degrades performance by $-$21.1\%; all specialists must run in parallel.
 
-Three empirical findings distinguish our work from prior branch-train-mix methods: (1) a training duration crossover showing that frozen layers are optional at short training horizons but become necessary beyond approximately 10,000 specialist training steps; (2) a capacity control ruling out parameter count as the explanation for the improvement; and (3) a counterintuitive routing failure showing that single-specialist dispatch with 99.3\%-accurate domain classification degrades performance by 21.1\%, while running all specialists improves it by 14.2\%. The mechanism is cooperative specialisation combined with joint inference, not routing sophistication.
+Supporting evidence: the fused model beats the best individual specialist by +14.2\% (410M, 3 seeds), +14.8\% (1B), and +2.4\% (6.9B), and outperforms equal-compute monolithic training by +14.5\%.
+
+Boundary conditions: Qwen-1.5B at full training shows $-$1.0\% (model-family-specific); 6.9B improvement is reduced due to training budget constraints. We do not claim inference efficiency (the fused model is ${\approx}N\times$ more expensive than a single specialist), universal architecture generality, or that downstream benchmarks reliably improve.
 \end{abstract}
 
 % ============================================================
@@ -74,9 +76,9 @@ Three empirical findings distinguish our work from prior branch-train-mix method
 
 Training competitive language models requires centralised compute at a scale most researchers and institutions cannot access. A single 70B-parameter training run requires hundreds of A100 GPUs operating synchronously for weeks. This creates a structural barrier: the organisations that can train frontier models are those that can pay for frontier compute, and the rest must fine-tune what is already available.
 
-\paragraph{The core insight.} A different path exists. If multiple contributors each train a \emph{specialist} copy of a shared base checkpoint on their own domain, and if those specialists are subsequently fused via a learned router, the resulting model captures complementary knowledge that no single contributor could build alone. The training step requires no communication: contributors work independently, asynchronously, on their own hardware, using their own data. The only coordination is the shared starting point.
+\paragraph{The core insight.} A different path exists. If multiple contributors each train a \emph{specialist} copy of a shared base checkpoint on their own domain, and if those specialists are subsequently fused via a learned router, the resulting model captures complementary knowledge that no single contributor could build alone. The training step requires no communication: contributors work independently, asynchronously, on their own hardware, using their own data. The only coordination is the shared starting point. The fused model requires all $N$ specialists to run at inference, increasing inference compute by a factor of $N$ relative to any individual specialist. We view this as a training-time democratisation that trades inference efficiency for training accessibility.
 
-This observation is not entirely new---the branch-train-mix (BTX) paradigm \citep{sukhbaatar2024branchtrainmix} demonstrates that MoE fusion of independently trained models is feasible. What is missing from the literature is an empirical characterisation of \emph{when} and \emph{why} the approach works, specifically: the conditions under which shared initialisation is sufficient to guarantee fusibility, the point at which structural constraints (frozen layers) become necessary, and the nature of the routing mechanism that drives improvement.
+This observation is not entirely new---the branch-train-mix (BTX) paradigm \citep{sukhbaatar2024branchtrainmix} demonstrates that MoE fusion of independently trained models is feasible. What is missing from the literature is an empirical characterisation of \emph{the conditions under which independent specialist fusion succeeds or fails}: when shared initialisation alone is sufficient, when frozen layers become necessary, and what routing architecture drives improvement.
 
 \paragraph{The protocol.} \kalavai\footnote{Code and all experiment scripts: \url{https://github.com/mechramc/Kalavai}} operationalises cooperative LLM training as a four-step protocol: (1) a coordinator distributes a shared base checkpoint; (2) each contributor fine-tunes independently on their domain for a fixed number of steps; (3) contributors submit their checkpoints; (4) a lightweight router is trained on a small mixed-domain dataset and used for inference. Contributors never share gradients, intermediate activations, or data. The only shared artefact is the initial checkpoint.
 
@@ -95,7 +97,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
 \label{sec:related}
 % ============================================================
 
-\paragraph{Branch-Train-Mix (BTX).} The closest prior work is BTX \citep{sukhbaatar2024branchtrainmix}, which demonstrates that models branched from a shared checkpoint, independently trained, and mixed via MoE routing form a better model than any individual branch. Our work extends BTX in three directions: we provide the first empirical training duration crossover showing when frozen layers transition from optional to necessary; we compare against an equal-compute monolithic baseline; and we demonstrate catastrophic failure of single-specialist dispatch, which BTX does not analyse.
+\paragraph{Branch-Train-Mix (BTX).} The closest prior work is BTX \citep{sukhbaatar2024branchtrainmix}, which demonstrates that models branched from a shared checkpoint, independently trained, and mixed via MoE routing form a better model than any individual branch. Specifically, BTX does not characterise: (i) when shared initialisation alone is sufficient versus when frozen layers become necessary (our training-duration crossover, Section~\ref{sec:crossover}); (ii) whether the improvement persists against a compute-matched monolithic baseline (Section~\ref{sec:monolithic}); (iii) why single-specialist dispatch fails despite near-perfect domain classification (Section~\ref{sec:failure}); or (iv) whether the improvement is explained by increased parameter count (Section~\ref{sec:capacity}). These four questions define our empirical contribution.
 
 \paragraph{MoErging and PHATGOOSE.} The MoErging survey \citep{yadav2024merging} taxonomises approaches for recycling and routing among independently trained experts. PHATGOOSE \citep{muqeeth2024phatgoose} achieves +11\% zero-shot generalisation improvement via learned routing among fine-tuned models, compared to \kalavai's +14.2\% held-out improvement with task-specific training. \kalavai adds a monolithic baseline, training duration analysis, and explicit capacity controls not present in PHATGOOSE.
 
@@ -360,13 +362,18 @@ Multi-head baseline (same params as MoE) & 3$\times$ unfrozen & $-$21.1\% \\
 
 \paragraph{What the Qwen result means.} Experiments with Qwen-1.5B at full training produced $-$1.0\% fusion improvement ($\pm$0.0\%, 3 seeds). This is the boundary condition: when a model has been pre-trained on a very large corpus that already encompasses the specialist domains, specialist fine-tuning produces minimal differentiation and fusion adds nothing. The Pythia maturity sweeps (both 410M and 1B at step 143,000 show $\sim$14--15\% improvement) suggest this is specific to Qwen's pre-training distribution rather than a universal maturity effect.
 
-\paragraph{Architecture and scale.} All Pythia experiments use the GPT-NeoX architecture. The Qwen result provides a second architecture data point. We do not have results for Llama, Gemma, or Mistral architectures; cross-architecture validation is an important direction for future work.
+\paragraph{Inference cost.} The \kalavai fused model runs all $N$ specialists in parallel at inference, increasing compute by a factor of $N$ for the unfrozen layers. For $N=3$ with 17\% frozen layers, the effective inference overhead is approximately $2.5\times$ (frozen layers run once; unfrozen layers run $3\times$). This is comparable to Mixtral-8x7B, which activates 2 of 8 experts per token. The observed hard-switching behaviour ($>$99.7\% weight on one expert) suggests a potential optimisation: running only the top-1 expert per token, which our hard-routing verification shows incurs only 0.03pp loss (Section~\ref{sec:failure}). We leave efficient sparse inference to future work. The primary value proposition of \kalavai is training-time democratisation---enabling contributors who cannot afford centralised training to collectively produce a superior model---not inference efficiency.
 
-\paragraph{No real cooperative has been run.} All experiments use a simulated cooperative where specialists are trained sequentially on the same machine. The protocol assumes contributors can verify checkpoint hashes and adhere to architecture specifications---reasonable for small groups but potentially challenging at scale. Privacy-preserving cooperative variants (e.g., ZKLoRA \citep{zklora2025} for verifiable training provenance) could address the trust problem.
+\paragraph{Applications.} The zero-communication-during-training property enables cooperative training scenarios that are infeasible with synchronous methods: multi-hospital medical language models where patient data cannot leave the facility; multi-jurisdictional legal AI where training data is subject to national regulations; low-resource language coverage where each language community trains a specialist on their language.
 
-\paragraph{Primary metric is held-out perplexity.} Downstream task accuracy improvements at the 1B scale are small ($<$1pp on most benchmarks). Perplexity is the primary signal because the specialists are trained on domain-specific language modelling tasks, not downstream tasks. Whether perplexity gains translate to task gains at 6.9B and beyond requires larger-scale evaluation.
-
-\paragraph{Applications.} The zero-communication-during-training property of \kalavai enables cooperative training scenarios that are infeasible with synchronous methods: multi-hospital medical language models where patient data cannot leave the facility; multi-jurisdictional legal AI where training data is subject to national regulations; sovereign AI for small nations where no single entity can afford frontier training but a consortium could; low-resource language coverage where each language community trains a specialist on their language and all are fused.
+\paragraph{What this paper does not claim.}
+\begin{itemize}[leftmargin=*, itemsep=1pt]
+  \item We do not claim inference efficiency. The fused model is approximately $N\times$ more expensive to run than a single specialist.
+  \item We do not claim universal architecture generality. All primary results use Pythia (GPT-NeoX). The Qwen result provides a second architecture data point but is a negative result.
+  \item We do not claim that downstream task performance reliably improves. Perplexity gains are clear; benchmark gains are modest ($<$1pp at 1B scale).
+  \item We do not claim that a real multi-contributor cooperative has been demonstrated. All experiments are simulated cooperatives on single machines.
+  \item We do not claim the method scales to frontier model sizes. The 6.9B result (+2.4\%) suggests scale-dependent hyperparameter sensitivity that requires further investigation.
+\end{itemize}
 
 % ============================================================
 \section{Conclusion}
