@@ -1,0 +1,132 @@
+{
+  "experiment": "shared_init_ablation",
+  "model_id": "EleutherAI/pythia-410m",
+  "max_steps": 2000,
+  "freeze_layers": 4,
+  "base_losses": {
+    "code": 2.087168,
+    "science": 2.89201,
+    "fiction": 2.973911,
+    "mixed": 2.248017
+  },
+  "by_condition": {
+    "control": {
+      "condition_name": "Condition 1 (control): shared step10000",
+      "init_revisions": {
+        "code": "step10000",
+        "science": "step10000",
+        "fiction": "step10000"
+      },
+      "seeds_run": [
+        42,
+        137,
+        2026
+      ],
+      "improvement_vs_base": {
+        "mean": 10.3722,
+        "std": 0.0185,
+        "values": [
+          10.3848,
+          10.3808,
+          10.3509
+        ]
+      },
+      "improvement_vs_spec": {
+        "mean": 3.564,
+        "std": 0.0015,
+        "values": [
+          3.5637,
+          3.5626,
+          3.5656
+        ]
+      },
+      "moe_mixed": {
+        "mean": 2.014849,
+        "std": 0.000418,
+        "values": [
+          2.014564,
+          2.014654,
+          2.015328
+        ]
+      }
+    },
+    "large_gap": {
+      "condition_name": "Condition 2 (large gap): step5000/step10000/step20000",
+      "init_revisions": {
+        "code": "step5000",
+        "science": "step10000",
+        "fiction": "step20000"
+      },
+      "seeds_run": [
+        42,
+        137,
+        2026
+      ],
+      "improvement_vs_base": {
+        "mean": 9.4391,
+        "std": 0.4657,
+        "values": [
+          9.1701,
+          9.1704,
+          9.9769
+        ]
+      },
+      "improvement_vs_spec": {
+        "mean": 5.6206,
+        "std": 0.4812,
+        "values": [
+          5.3472,
+          5.3383,
+          6.1762
+        ]
+      },
+      "moe_mixed": {
+        "mean": 2.035823,
+        "std": 0.01047,
+        "values": [
+          2.041872,
+          2.041864,
+          2.023734
+        ]
+      }
+    },
+    "small_gap": {
+      "condition_name": "Condition 3 (small gap): step8000/step10000/step12000",
+      "init_revisions": {
+        "code": "step8000",
+        "science": "step10000",
+        "fiction": "step12000"
+      },
+      "seeds_run": [
+        42
+      ],
+      "improvement_vs_base": {
+        "mean": 9.5395,
+        "std": 0.0,
+        "values": [
+          9.5395
+        ]
+      },
+      "improvement_vs_spec": {
+        "mean": 4.1871,
+        "std": 0.0,
+        "values": [
+          4.1871
+        ]
+      },
+      "moe_mixed": {
+        "mean": 2.033568,
+        "std": 0.0,
+        "values": [
+          2.033568
+        ]
+      }
+    }
+  },
+  "conclusion": "WEAK: shared init may not be critical",
+  "control_improvement_pct": 10.3722,
+  "large_gap_improvement_pct": 9.4391,
+  "small_gap_improvement_pct": 9.5395,
+  "degradation_control_to_large": 0.9331,
+  "timestamp": "2026-03-17T16:16:58Z"
+}

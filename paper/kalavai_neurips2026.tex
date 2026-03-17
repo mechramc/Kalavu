@@ -62,9 +62,9 @@
 \begin{abstract}
 We study the conditions under which independently trained domain specialists, fused post-hoc via a mixture-of-experts router, outperform both individual specialists and equal-compute monolithic training. In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
 
-We identify three governing conditions: (1) \emph{Shared initialisation is necessary}: specialists initialised from different checkpoints are not fusible; the shared starting point preserves representational compatibility. (2) \emph{Frozen layers become necessary beyond $\approx$10,000 training steps}: at short horizons ($\leq$5,000 steps) freezing is optional; beyond $\approx$10,000 steps, it prevents over-specialisation that makes fusion degrade. (3) \emph{Joint inference is required}: single-specialist dispatch with 99.3\%-accurate domain classification degrades performance by $-$21.1\%; all specialists must run in parallel.
+We identify three governing conditions: (1) \emph{Shared initialisation matters for routing stability}: specialists initialised from checkpoints spanning $2\times$ training progress degrade absolute MoE quality by 0.9pp and induce router confusion (code expert receiving 11\% fiction weight); quantitative degradation is modest but routing clarity is substantially reduced. (2) \emph{Frozen layers become necessary beyond $\approx$10,000 training steps}: at short horizons ($\leq$5,000 steps) freezing is optional; beyond $\approx$10,000 steps, it prevents over-specialisation that makes fusion degrade. (3) \emph{Joint inference is required}: single-specialist dispatch with 99.3\%-accurate domain classification degrades performance by $-$21.1\%; all specialists must run in parallel.
 
-Supporting evidence: the fused model beats the best individual specialist by +14.2\% (410M, 3 seeds), +14.8\% (1B), and +2.4\% (6.9B), and outperforms equal-compute monolithic training by +14.5\%.
+Supporting evidence: the fused model beats the best individual specialist by +14.2\% (410M, 3 seeds), +14.8\% (1B), and +2.4\% (6.9B), and outperforms equal-compute monolithic training by +14.5\% (410M) and +14.6\% (1B).
 
 Boundary conditions: Qwen-1.5B at full training shows $-$1.0\% (model-family-specific); 6.9B improvement is reduced due to a ${\sim}34\times$ weaker per-parameter training signal relative to 410M. We do not claim inference efficiency (the fused model is ${\approx}N\times$ more expensive than a single specialist), universal architecture generality, or that downstream benchmarks reliably improve.
 \end{abstract}
@@ -90,7 +90,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
   \item \textbf{Beats equal-compute monolithic training.} A single model trained on mixed data for the same total compute as three specialists achieves +6.7\% over base. \kalavai achieves +14.5\% over the same monolithic model.
 \end{enumerate}
 
-\paragraph{Contributions.} This paper provides: (i) an empirical account of why post-hoc MoE fusion works (shared initialisation preserves representational compatibility; individual specialists exhibit catastrophic forgetting on out-of-domain tokens; joint inference restores coverage); (ii) a practical guideline for when frozen layers are necessary; (iii) controlled capacity comparisons ruling out parameter count as the mechanism; and (iv) the \kalavai protocol, which requires zero communication during training.
+\paragraph{Contributions.} This paper provides: (i) an empirical account of why post-hoc MoE fusion works (shared initialisation preserves routing stability; individual specialists exhibit catastrophic forgetting on out-of-domain tokens; joint inference restores coverage); (ii) a practical guideline for when frozen layers are necessary; (iii) controlled capacity comparisons ruling out parameter count as the mechanism; (iv) empirical characterisation of when shared initialisation matters (routing clarity degrades under checkpoint mismatch, even when absolute quality degradation is modest); and (v) the \kalavai protocol, which requires zero communication during training.
 
 % ============================================================
 \section{Related Work}
@@ -214,22 +214,29 @@ The 6.9B improvement of +2.4\% is smaller than at smaller scales. We attribute t
   \label{fig:hero}
 \end{figure}
 
-A natural objection to cooperative training is that centralised training on the same total compute might perform equally well. We test this directly. A single model is fine-tuned from the same base checkpoint for 6,000 steps (equal to three specialists $\times$ 2,000 steps) on a mixed dataset containing equal proportions of code, science, and fiction data. This monolithic baseline achieves +6.7\% over the base model (loss: 2.098), reflecting gradient interference from mixed-domain training \citep{sukhbaatar2024branchtrainmix}.
+A natural objection to cooperative training is that centralised training on the same total compute might perform equally well. We test this directly at both 410M and 1B scales. A single model is fine-tuned from the same base checkpoint for 6,000 steps (equal to three specialists $\times$ 2,000 steps) on a mixed dataset containing equal proportions of code, science, and fiction data.
 
-\kalavai with three 2,000-step specialists achieves +14.5\% over this monolithic baseline (Figure~\ref{fig:monolithic}, Table~\ref{tab:monolithic}). The decomposition reveals two separable effects: (1) \emph{Specialisation advantage}: the best individual specialist (+7.1\% vs.\ base) marginally exceeds the monolithic model (+6.7\% vs.\ base), contributing $\approx$0.4pp; (2) \emph{Fusion advantage}: the router then selects the best specialist per token, contributing the remaining $\approx$7.1pp gap over the monolithic model.
+At 410M, the monolithic baseline achieves +6.7\% over the base model (loss: 2.098), reflecting gradient interference from mixed-domain training \citep{sukhbaatar2024branchtrainmix}. \kalavai with three 2,000-step specialists achieves +14.5\% over this monolithic baseline (Figure~\ref{fig:monolithic}, Table~\ref{tab:monolithic}). The decomposition reveals two separable effects: (1) \emph{Specialisation advantage}: the best individual specialist (+7.1\% vs.\ base) marginally exceeds the monolithic model (+6.7\% vs.\ base), contributing $\approx$0.4pp; (2) \emph{Fusion advantage}: the router then selects the best specialist per token, contributing the remaining $\approx$7.1pp gap over the monolithic model.
+
+At 1B, the monolithic baseline achieves +8.1\% over base (loss: 1.985, std $\pm$0.001, 3 seeds). \kalavai achieves +14.6\% over this monolithic baseline (Table~\ref{tab:monolithic}). The larger monolithic gain at 1B (+8.1\% vs.\ +6.7\% at 410M) does not reduce the cooperative advantage; the \kalavai improvement over monolithic is consistent at both scales ($\approx$14.5--14.6\%).
 
 \begin{table}[h]
 \centering
-\caption{Equal-compute comparison at Pythia-410M. Monolithic is trained for 6,000 steps on mixed data. \kalavai uses three specialists trained for 2,000 steps each. All 3 seeds; compute matched. Improvement columns use the base model and monolithic model as baselines respectively.}
+\caption{Equal-compute comparison at Pythia-410M and Pythia-1B. Monolithic is trained for 6,000 steps on mixed data. \kalavai uses three specialists trained for 2,000 steps each. All 3 seeds; compute matched. Improvement columns use the base model and monolithic model as baselines respectively.}
 \label{tab:monolithic}
-\begin{tabular}{lccc}
+\begin{tabular}{llccc}
 \toprule
-\textbf{Method} & \textbf{Loss} & \textbf{vs.\ Base} & \textbf{vs.\ Monolithic} \\
+\textbf{Scale} & \textbf{Method} & \textbf{Loss} & \textbf{vs.\ Base} & \textbf{vs.\ Monolithic} \\
 \midrule
-Base model            & 2.248 & ---      & ---       \\
-Monolithic (6000 steps, mixed) & 2.098 & +6.7\%  & ---       \\
-Best specialist (code, 2000 steps) & 2.089 & +7.1\% & +0.4\% \\
-\kalavai MoE          & \textbf{1.793} & +20.2\% & \textbf{+14.5\%} \\
+\multirow{3}{*}{410M}
+ & Base model            & 2.248 & ---      & ---       \\
+ & Monolithic (6k steps) & 2.098 & +6.7\%  & ---       \\
+ & \kalavai MoE          & \textbf{1.793} & +20.2\% & \textbf{+14.5\%} \\
+\midrule
+\multirow{3}{*}{1B}
+ & Base model            & 2.160 & ---      & ---       \\
+ & Monolithic (6k steps) & 1.985 & +8.1\%  & ---       \\
+ & \kalavai MoE          & \textbf{1.697} & +21.4\% & \textbf{+14.6\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -271,6 +278,34 @@ A natural simplification would route each input to a single specialist. We test 
 
 The fused model has $3\times$ the unfrozen parameters of any individual specialist. To rule out parameter count as the mechanism, we train Pythia-1.4B ($3.5\times$ total parameters of a 410M specialist) for 6,000 steps on mixed data; it achieves +5.9\%---less than half the \kalavai improvement. The multi-head baseline (same parameter count as MoE, classifier-selected head) achieves $-$21.1\%. The improvement requires specialised representations combined via joint inference, not additional capacity. Full comparison in Appendix~\ref{app:dispatch}.
 
+\subsection{Shared Initialisation: Routing Clarity Degrades Under Checkpoint Mismatch}
+\label{sec:sharedinit}
+
+A structural claim of \kalavai is that all specialists must begin from the same checkpoint. We test this empirically by training specialists from checkpoints at different training stages and measuring the effect on fusion quality (Pythia-410M, 2,000 specialist training steps, 3 domains, seed 42 for small-gap and 3 seeds for control/large-gap).
+
+Three conditions: (1) \emph{Control}: all specialists from step 10,000 (identical initialisation); (2) \emph{Large gap}: specialists from step 5,000 / 10,000 / 20,000 respectively (spanning $2\times$ training progress); (3) \emph{Small gap}: step 8,000 / 10,000 / 12,000 ($\pm$20\% around anchor).
+
+\begin{table}[h]
+\centering
+\caption{Shared initialisation ablation at Pythia-410M. ``MoE loss'' is absolute mixed-domain held-out loss; lower is better. ``vs.\ Base'' uses base mixed loss 2.248. ``vs.\ Spec'' is improvement over best individual specialist---this metric is misleading under mismatch because mismatched specialists are also worse; see text.}
+\label{tab:sharedinit}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Condition} & \textbf{Init Revisions} & \textbf{MoE Loss} & \textbf{vs.\ Base} & \textbf{Seeds} \\
+\midrule
+Control (matched)  & 10k / 10k / 10k         & \textbf{2.015} & \textbf{+10.4\%} & 3 \\
+Small gap          & 8k / 10k / 12k          & 2.034          & +9.5\%           & 1 \\
+Large gap          & 5k / 10k / 20k          & 2.036          & +9.4\%           & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The absolute MoE quality degrades by 0.93pp (10.37\% $\rightarrow$ 9.44\%) under the large-gap condition---a modest degradation that our ablation script labels ``WEAK evidence.'' However, the routing behaviour degrades more substantially: under the large-gap condition, the code expert receives 11\% weight on fiction inputs versus near-zero under control. The router can no longer reliably distinguish specialist roles.
+
+We note that the ``improvement vs.\ best specialist'' metric is misleading here: it appears \emph{higher} under mismatch (large gap: +5.6\% vs.\ control: +3.6\%) because the individual specialists are also worse under mismatch. The absolute MoE loss is the appropriate comparison.
+
+\textbf{Interpretation.} Shared initialisation is not strictly required for fusion to produce positive improvement over base---mismatched specialists still produce a positive fused model. However, shared initialisation is important for routing stability: mismatched checkpoints produce routing confusion that may become more pronounced at scale or with larger checkpoint gaps. The shared initialisation requirement is the only coordination cost of the \kalavai protocol and remains our recommendation for all deployments.
+
 % ============================================================
 \section{Analysis}
 \label{sec:analysis}
@@ -304,7 +339,13 @@ The fused model has $3\times$ the unfrozen parameters of any individual speciali
 
 \paragraph{What the Qwen result means.} Experiments with Qwen-1.5B at full training produced $-$1.0\% fusion improvement ($\pm$0.0\%, 3 seeds). This is the boundary condition: when a model has been pre-trained on a very large corpus that already encompasses the specialist domains, specialist fine-tuning produces minimal differentiation and fusion adds nothing. The Pythia maturity sweeps (both 410M and 1B at step 143,000 show $\sim$14--15\% improvement) suggest this is specific to Qwen's pre-training distribution rather than a universal maturity effect.
 
-\paragraph{Inference cost.} The \kalavai fused model runs all $N$ specialists in parallel at inference, increasing compute by a factor of $N$ for the unfrozen layers. For $N=3$ with 17\% frozen layers, the effective inference overhead is approximately $2.5\times$ (frozen layers run once; unfrozen layers run $3\times$). The inference overhead is structurally different from Mixtral-8x7B, which routes at the FFN level within a single forward pass; \kalavai requires $N$ separate full forward passes through distinct model copies, with correspondingly higher memory requirements. The observed hard-switching behaviour ($>$99.7\% weight on one expert) suggests a potential optimisation: running only the top-1 expert per token, which our hard-routing verification shows incurs only 0.03pp loss (Section~\ref{sec:failure}). However, our hard-routing verification runs all specialists in parallel and selects via argmax---it does not test the sparse case where only the top-1 expert computes a forward pass. Verifying that single-expert forward passes produce equivalent routing decisions without the other experts' hidden states contributing to the router input is necessary before sparse inference can be claimed. The memory footprint also remains $N\times$, since all specialist weights must be loaded regardless of routing sparsity. We leave efficient sparse inference implementation to future work. The primary value proposition of \kalavai is training-time democratisation---enabling contributors who cannot afford centralised training to collectively produce a superior model---not inference efficiency.
+\paragraph{Inference cost.} The \kalavai fused model runs all $N$ specialists in parallel at inference, increasing compute by a factor of $N$ for the unfrozen layers. For $N=3$ with 17\% frozen layers, the effective inference overhead is approximately $2.5\times$ (frozen layers run once; unfrozen layers run $3\times$). Measured benchmarks on an NVIDIA RTX 5090 confirm this: dense MoE latency is $2.86\times$ base at 410M and $3.35\times$ base at 1B (Table~\ref{tab:inferencebench} in Appendix~\ref{app:inference}).
+
+The observed hard-switching behaviour ($>$99.7\% weight on one expert) suggests a potential sparse inference optimisation: run frozen layers once, route, then run only the top-1 expert's unfrozen layers. We test this directly. At 410M, top-1 routing agreement between full-parallel and single-expert forward passes is 100\%---frozen-layer hidden states fully determine which expert would be selected. At 1B, agreement drops to 10\%, meaning routing decisions change for 90\% of tokens when other specialists' hidden states are absent.
+
+Critically, even with 100\% routing agreement at 410M, sparse top-1 inference collapses quality: sparse evaluation loss is 3.106 versus 2.568 for dense MoE (21\% degradation relative to dense MoE, worse than the base model at 2.692). At 1B, sparse loss is 2.412 versus 2.382 dense (1.3\% degradation), but routing agreement is only 10\%. In both cases, sparse inference is not equivalent to dense inference. The mechanism is that all-specialist joint processing---not just routing quality---drives the improvement; running a single expert's unfrozen layers discards the complementary signal from the other specialists regardless of how well you identify the best one.
+
+The memory footprint remains $N\times$, since all specialist weights must be loaded regardless of routing sparsity. We leave efficient sparse inference implementation to future work. The primary value proposition of \kalavai is training-time democratisation---enabling contributors who cannot afford centralised training to collectively produce a superior model---not inference efficiency.
 
 \paragraph{Applications.} The zero-communication-during-training property enables cooperative training scenarios that are infeasible with synchronous methods: multi-hospital medical language models where patient data cannot leave the facility; multi-jurisdictional legal AI where training data is subject to national regulations; low-resource language coverage where each language community trains a specialist on their language.
 
@@ -326,7 +367,7 @@ We have demonstrated that independently trained domain specialists, initialised 
 
 The training duration crossover finding provides a practical guideline for cooperative training: frozen layers are optional insurance at training horizons below 5,000 steps and essential beyond 10,000 steps. The catastrophic failure of single-specialist dispatch---$-$21.1\% with 99.3\%-accurate routing versus +14.2\% with joint inference---reveals that specialist parameters must collectively process each token for the mechanism to succeed.
 
-Together, these findings validate the core premise of \kalavai: 20 contributors, each training one specialist on their own data with their own hardware, can produce a model that none of them could build alone. The shared initialisation constraint is the only coordination requirement.
+Together, these findings validate the core premise of \kalavai: 20 contributors, each training one specialist on their own data with their own hardware, can produce a model that none of them could build alone. The shared initialisation constraint is the primary coordination requirement: our ablation (Section~\ref{sec:sharedinit}) shows that mismatched checkpoints degrade routing clarity, making it the only protocol constraint that contributors must honour.
 
 \paragraph{Broader impact.} \kalavai lowers the compute barrier for training competitive language models. Any group that can collectively afford the inference compute of $N$ models can produce a model that matches a single model with $N$-times the training budget. We release all code, experiment scripts, and result artefacts at \url{https://github.com/mechramc/Kalavai}.
 
@@ -373,6 +414,9 @@ Hard routing verification & Pythia-410M & Hard +20.27\% vs Soft +20.24\% (vs bas
 Hybrid routing analysis & Pythia-410M & 11 switches across 5 prompts & 1 & Done \\
 Downstream benchmarks 1B & Pythia-1B & MoE leads HellaSwag; near-parity avg & 1 & Done \\
 Downstream benchmarks 6.9B & Pythia-6.9B & MoE 52.2\% vs base 51.6\% avg & 1 & Done \\
+Shared init ablation (3 cond.) & Pythia-410M & Ctrl +10.4\%, large-gap +9.4\% (abs); router confusion 11\% & 3/3/1 & Done \\
+Inference routing agreement & Pythia-410M/1B & 410M 100\%, 1B 10\% sparse agreement & 1 & Done \\
+1B monolithic baseline & Pythia-1B & Mono +8.1\%, MoE beats mono by +14.6\% & 3 & Done \\
 Results integrity audit & All & 322/322 checks passed, 0 issues & --- & Done \\
 \bottomrule
 \end{tabular}
@@ -726,6 +770,38 @@ The routing patterns confirm that the router operates at token granularity, not 
   \caption{Gate weight heatmap for the prompt ``Derive the equation for protein folding using Python pandas'' (Pythia-410M, freeze=4, seed=42). Each column is a token; each row is an expert (code, science, fiction). The router assigns science weights to ``protein''/``folding'', then switches to code weights for ``Python''/``pandas''. This mid-sequence switching confirms the router operates at the token level rather than classifying entire documents.}
   \label{fig:hybridrouting}
 \end{figure}
+
+\section{Inference Benchmark}
+\label{app:inference}
+
+We measured end-to-end inference latency, peak VRAM, and throughput for all \kalavai configurations at 410M and 1B scale on an NVIDIA GeForce RTX 5090, sequence length 512, 10 measured runs after 3 warmup runs.
+
+\begin{table}[h]
+\centering
+\caption{Inference benchmark results. Latency and VRAM are per-forward-pass. ``Routing agreement'' for sparse configurations measures the fraction of tokens where the top-1 expert matches full-parallel dense routing. ``---'' indicates not applicable. All results: single seed 42.}
+\label{tab:inferencebench}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Scale} & \textbf{Config} & \textbf{Params (M)} & \textbf{VRAM (GB)} & \textbf{Latency (ms)} & \textbf{Rel.\ Lat.} & \textbf{Routing Agr.} \\
+\midrule
+\multirow{5}{*}{410M}
+ & Base model          & 405  & 1.15 & 17.9 & 1.00$\times$ & --- \\
+ & Single specialist   & 405  & 1.97 & 17.3 & 0.97$\times$ & --- \\
+ & Monolithic          & 405  & 1.97 & 17.4 & 0.97$\times$ & --- \\
+ & \kalavai dense (3$\times$) & 1216 & 3.46 & 51.2 & 2.86$\times$ & --- \\
+ & \kalavai sparse top-1 & 1216 & 2.67 & 16.8 & 0.94$\times$ & 100\% \\
+\midrule
+\multirow{4}{*}{1B}
+ & Base model          & 1012 & 2.39 & 16.1 & 1.00$\times$ & --- \\
+ & \kalavai dense (3$\times$) & 3035 & 8.59 & 53.7 & 3.35$\times$ & --- \\
+ & \kalavai sparse top-1 & 3035 & 8.34 & 18.5 & 1.15$\times$ & 10\% \\
+ & \kalavai sparse top-2 & 3035 & 6.32 & 31.3 & 1.95$\times$ & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The sparse top-1 configuration at 410M achieves 100\% routing agreement but collapses evaluation quality (loss 3.106 vs.\ 2.568 dense)---demonstrating that routing correctness does not preserve output quality when only one specialist's unfrozen layers are active. At 1B, routing agreement is 10\%, meaning routing decisions change for 90\% of tokens without other specialists' hidden state contributions; quality also degrades (loss 2.412 vs.\ 2.382 dense). Dense inference is required for results matching those reported in Section~\ref{sec:experiments}.
 
 \section{Results Integrity Audit}
 \label{app:audit}

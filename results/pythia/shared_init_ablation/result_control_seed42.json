@@ -1,0 +1,67 @@
+{
+  "seed": 42,
+  "condition": "control",
+  "init_revisions": {
+    "code": "step10000",
+    "science": "step10000",
+    "fiction": "step10000"
+  },
+  "base_losses": {
+    "code": 2.087168,
+    "science": 2.89201,
+    "fiction": 2.973911,
+    "mixed": 2.248017
+  },
+  "spec_losses": {
+    "code": {
+      "code": 1.879014,
+      "science": 2.908517,
+      "fiction": 2.976811,
+      "mixed": 2.08901
+    },
+    "science": {
+      "code": 2.17395,
+      "science": 2.556509,
+      "fiction": 3.061329,
+      "mixed": 2.245299
+    },
+    "fiction": {
+      "code": 2.101775,
+      "science": 2.890311,
+      "fiction": 2.219307,
+      "mixed": 2.259163
+    }
+  },
+  "weight_avg_losses": {
+    "code": 2.014113,
+    "science": 2.732263,
+    "fiction": 2.710602,
+    "mixed": 2.157597
+  },
+  "moe_losses": {
+    "code": 1.879299,
+    "science": 2.556294,
+    "fiction": 2.219825,
+    "mixed": 2.014564
+  },
+  "best_spec_mixed": 2.08901,
+  "improvement_vs_base_pct": 10.3848,
+  "improvement_vs_spec_pct": 3.5637,
+  "router_distribution": {
+    "code": [
+      0.997,
+      0.0005,
+      0.0026
+    ],
+    "science": [
+      0.0003,
+      0.9972,
+      0.0025
+    ],
+    "fiction": [
+      0.0009,
+      0.0004,
+      0.9987
+    ]
+  }
+}
