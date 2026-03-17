@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "kalavu"
+name = "kalavai"
 version = "0.1.0"
 description = "The Decentralized LLM Training Protocol"
 readme = "README.md"
@@ -37,7 +37,7 @@ dev = [
 ]
 
 [project.scripts]
-kalavu = "kalavu.cli:main"
+kalavai = "kalavai.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

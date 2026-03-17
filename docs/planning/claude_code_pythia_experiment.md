@@ -1,4 +1,4 @@
-# KALAVU: Pythia Early-Checkpoint Experiment
+# KALAVAI: Pythia Early-Checkpoint Experiment
 # The Missing Middle of the Paper
 
 ## Why This Experiment
@@ -9,21 +9,21 @@ We have two validated results:
 
 The missing piece: **a real model with real data that's early enough in training for specialists to genuinely diverge.** That's what this experiment provides.
 
-We use EleutherAI's Pythia-410M at an early training checkpoint (step 10,000 out of 143,000). The model knows basic English syntax but has shallow domain knowledge — exactly the "baby LLM" scenario that matches KALAVU's real use case: cooperative training from an early-stage base model.
+We use EleutherAI's Pythia-410M at an early training checkpoint (step 10,000 out of 143,000). The model knows basic English syntax but has shallow domain knowledge — exactly the "baby LLM" scenario that matches KALAVAI's real use case: cooperative training from an early-stage base model.
 
 Pythia is Apache 2.0 licensed, checkpoints at every 1000 steps are on Hugging Face, and hundreds of papers have used it. Reviewers can reproduce everything.
 
 ## IMPORTANT: Execution Rules
 
 1. **Execute ONE step at a time.** Do not start Step N+1 until Step N is verified.
-2. **Git commit after every completed step.** Use clean commit messages: `[kalavu] step N: description`
+2. **Git commit after every completed step.** Use clean commit messages: `[kalavai] step N: description`
 3. **If any step fails or produces unexpected results, STOP and report.** Do not try to fix and continue silently.
 4. **All output files use the naming convention below.** No ad-hoc names.
 
 ## File Naming Convention
 
 ```
-kalavu_pythia_experiment.py              # Main experiment script
+kalavai_pythia_experiment.py              # Main experiment script
 
 results/pythia/
   step1_base_eval.json                   # Step 1: base model evaluation
@@ -66,7 +66,7 @@ Expected: ~410M params, 24 layers, hidden_size=1024, vocab_size=50304.
 
 If `step10000` doesn't load or seems too untrained (loss > 8 on eval), try `step20000` instead. The goal is a model that can form coherent English but doesn't have deep domain knowledge.
 
-**Git commit:** `[kalavu] step 0: verify pythia-410m step10000 loads correctly`
+**Git commit:** `[kalavai] step 0: verify pythia-410m step10000 loads correctly`
 
 ## Step 1: Evaluate Base Model on Domain Data
 
@@ -135,7 +135,7 @@ Save to `results/pythia/step1_base_eval.json`:
 
 **Sanity check:** Base model loss should be moderate (3-6 range). If it's >10, the model is too undertrained — try `step20000`. If it's <2 on any domain, the model already knows that domain too well — try `step5000`.
 
-**Git commit:** `[kalavu] step 1: base model eval on 3 domains — code/science/fiction`
+**Git commit:** `[kalavai] step 1: base model eval on 3 domains — code/science/fiction`
 
 ## Step 2: Train Specialists
 
@@ -194,7 +194,7 @@ for i in range(freeze_layers):
 - 3 lines (code, science, fiction specialist training loss over steps)
 - Title: "Specialist Training Loss (Pythia-410M, step10000, seed=42)"
 
-**Git commit after EACH seed completes:** `[kalavu] step 2: trained 3 specialists seed={seed}`
+**Git commit after EACH seed completes:** `[kalavai] step 2: trained 3 specialists seed={seed}`
 
 ## Step 3: Divergence Check
 
@@ -243,7 +243,7 @@ Save per-seed results to `results/pythia/step3_divergence_check_seed{seed}.json`
 - Color scale: green = lower loss (better), red = higher loss (worse)
 - Title: "Cross-Domain Loss Matrix (Pythia-410M, seed=42)"
 
-**Git commit:** `[kalavu] step 3: divergence check — {PASS/FAIL} for all seeds`
+**Git commit:** `[kalavai] step 3: divergence check — {PASS/FAIL} for all seeds`
 
 ## Step 4: Fusion
 
@@ -317,7 +317,7 @@ Save per-seed to `results/pythia/step4_fusion_results_seed{seed}.json`.
 - 3 groups (code tokens, science tokens, fiction tokens) × 3 bars (expert 0/1/2)
 - Title: "MoE Router Expert Selection by Domain"
 
-**Git commit after each seed:** `[kalavu] step 4: fusion results seed={seed} — improvement={X.X}%`
+**Git commit after each seed:** `[kalavai] step 4: fusion results seed={seed} — improvement={X.X}%`
 
 ## Step 5: Final Summary
 
@@ -348,7 +348,7 @@ Save to `results/pythia/step5_final_summary.json`:
 
 Print the final summary:
 ```
-KALAVU PYTHIA EXPERIMENT — FINAL RESULTS
+KALAVAI PYTHIA EXPERIMENT — FINAL RESULTS
 =========================================
 Model: pythia-410m at step 10000 (early training)
 Domains: code, science, fiction
@@ -368,7 +368,7 @@ PAPER NARRATIVE:
   Qwen (fully trained):      -1.0% ± 0.0%     ← diminishes with base knowledge
 ```
 
-**Git commit:** `[kalavu] step 5: final summary — pythia improvement={X.X}% ± {X.X}%`
+**Git commit:** `[kalavai] step 5: final summary — pythia improvement={X.X}% ± {X.X}%`
 
 ## Step 6: If Results Are Negative
 

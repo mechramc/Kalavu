@@ -1,4 +1,4 @@
-"""Tests for seed checkpoint generation and the KalavuModel."""
+"""Tests for seed checkpoint generation and the KalavaiModel."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 import torch
 
-from kalavu.coop.seed import generate_seed_checkpoint
-from kalavu.core.config import ArchitectureConfig
-from kalavu.core.model import create_model_from_config
+from kalavai.coop.seed import generate_seed_checkpoint
+from kalavai.core.config import ArchitectureConfig
+from kalavai.core.model import create_model_from_config
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -45,8 +45,8 @@ def alt_arch() -> ArchitectureConfig:
 # ---------------------------------------------------------------------------
 
 
-class TestKalavuModel:
-    """Tests for KalavuModel forward pass and probe extraction."""
+class TestKalavaiModel:
+    """Tests for KalavaiModel forward pass and probe extraction."""
 
     def test_forward_output_shape(self, small_arch: ArchitectureConfig) -> None:
         """Forward pass produces logits of shape (batch, seq_len, vocab_size)."""

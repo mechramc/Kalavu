@@ -2,7 +2,7 @@ name: 5mod_25M
 description: "5-module synthetic experiment, ~25M param MiniGPT per module"
 seeds: [42, 137, 2026]
 output_dir: results/synthetic
-wandb_project: kalavu-paper
+wandb_project: kalavai-paper
 
 architecture:
   n_layers: 6

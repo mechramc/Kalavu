@@ -1,4 +1,4 @@
-# KALAVU: Pythia Ablation Experiments
+# KALAVAI: Pythia Ablation Experiments
 # Router architecture ablation + Freeze depth sweep
 
 ## Context
@@ -22,8 +22,8 @@ We need two ablations before the paper is complete:
 ## File Naming
 
 ```
-kalavu_pythia_ablation_router.py         # Ablation 1: router architecture
-kalavu_pythia_ablation_freeze.py         # Ablation 2: freeze depth sweep
+kalavai_pythia_ablation_router.py         # Ablation 1: router architecture
+kalavai_pythia_ablation_freeze.py         # Ablation 2: freeze depth sweep
 
 results/pythia/
   ablation_router_summary.json           # Router ablation aggregated results
@@ -101,7 +101,7 @@ If specialists genuinely diverged (which the hard switching proves), the simple 
 }
 ```
 
-**Git commit:** `[kalavu] ablation: router architecture — simple={X.X}% vs 2-layer={X.X}%`
+**Git commit:** `[kalavai] ablation: router architecture — simple={X.X}% vs 2-layer={X.X}%`
 
 ---
 
@@ -182,7 +182,7 @@ If freeze=0 beats freeze=4, our thesis is wrong — frozen layers don't help. Re
 }
 ```
 
-**Git commit:** `[kalavu] ablation: freeze depth sweep — optimal={N} layers at {X.X}%`
+**Git commit:** `[kalavai] ablation: freeze depth sweep — optimal={N} layers at {X.X}%`
 
 ---
 

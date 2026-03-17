@@ -1,4 +1,4 @@
-# KALAVU — Project Status
+# KALAVAI — Project Status
 
 **Last Updated**: 2026-03-09
 **Branch**: main
@@ -30,41 +30,41 @@
 ### CLI Commands (functional)
 
 ```bash
-kalavu --help                                    # CLI entry point
-kalavu --version                                 # 0.1.0
-kalavu coop create --name my-coop --modules 5    # Creates cooperative with all artifacts
-kalavu coop join ./my-coop --claim-module 1      # Claims a domain slot
-kalavu coop status ./my-coop                     # Rich table of module statuses
-kalavu coop status ./my-coop --json              # Machine-readable JSON output
+kalavai --help                                    # CLI entry point
+kalavai --version                                 # 0.1.0
+kalavai coop create --name my-coop --modules 5    # Creates cooperative with all artifacts
+kalavai coop join ./my-coop --claim-module 1      # Claims a domain slot
+kalavai coop status ./my-coop                     # Rich table of module statuses
+kalavai coop status ./my-coop --json              # Machine-readable JSON output
 ```
 
 ### CLI Commands (stubbed — not yet wired)
 
 ```bash
-kalavu coop publish <cooperative>
-kalavu train start --module <id>
-kalavu train submit --module <id>
-kalavu check post
-kalavu fuse cluster <cooperative>
-kalavu fuse build <cooperative>
-kalavu fuse train <cooperative>
+kalavai coop publish <cooperative>
+kalavai train start --module <id>
+kalavai train submit --module <id>
+kalavai check post
+kalavai fuse cluster <cooperative>
+kalavai fuse build <cooperative>
+kalavai fuse train <cooperative>
 ```
 
 ---
 
 ## Module Inventory
 
-### Core (`src/kalavu/core/`)
+### Core (`src/kalavai/core/`)
 
 | Module | Lines | Purpose |
 |--------|-------|---------|
-| `config.py` | 304 | kalavu.yaml schema, typed dataclasses, validation |
+| `config.py` | 304 | kalavai.yaml schema, typed dataclasses, validation |
 | `checkpoint.py` | 307 | Checkpoint save/load, SHA-256 hash validation |
 | `model.py` | 221 | GPT-style transformer (RMSNorm, SwiGLU, causal attention) |
 | `cka.py` | 77 | Linear CKA computation + differentiable loss |
 | `exceptions.py` | ~40 | Exception hierarchy (7 classes) |
 
-### Cooperative Manager (`src/kalavu/coop/`)
+### Cooperative Manager (`src/kalavai/coop/`)
 
 | Module | Lines | Purpose |
 |--------|-------|---------|
@@ -77,7 +77,7 @@ kalavu fuse train <cooperative>
 | `reference.py` | 75 | CKA reference representation computation |
 | `seed.py` | 60 | Deterministic seed checkpoint generation |
 
-### Module Trainer (`src/kalavu/train/`)
+### Module Trainer (`src/kalavai/train/`)
 
 | Module | Lines | Purpose |
 |--------|-------|---------|
@@ -138,6 +138,6 @@ The training loop with CKA anchor loss. Key tasks:
 - TASK-018: Domain-aware data loading
 - TASK-019: Alignment pause/warning system
 - TASK-020: Training telemetry
-- TASK-021: Wire `kalavu train start` E2E
+- TASK-021: Wire `kalavai train start` E2E
 - TASK-022: Submission validation
-- TASK-023: Wire `kalavu train submit` E2E
+- TASK-023: Wire `kalavai train submit` E2E

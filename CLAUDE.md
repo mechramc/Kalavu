@@ -1,8 +1,8 @@
-# KALAVU — கலவு
+# KALAVAI — கலவை
 
 ## Project Overview
 
-**KALAVU** is a decentralized LLM training protocol and CLI toolchain by Murai Labs.
+**KALAVAI** is a decentralized LLM training protocol and CLI toolchain by Murai Labs.
 It lets a cooperative of GPU owners each train one piece of a large language model independently, then fuse the pieces into a unified model none of them could afford to build alone.
 
 **Tagline**: "Git for model training."
@@ -10,7 +10,7 @@ It lets a cooperative of GPU owners each train one piece of a large language mod
 ## Tech Stack
 
 - **Language**: Python 3.11+
-- **Package Manager**: pip (published as `pip install kalavu`)
+- **Package Manager**: pip (published as `pip install kalavai`)
 - **CLI Framework**: TBD (click or typer)
 - **ML Core**: PyTorch, nanochat fork (CKA anchor loss), minbpe (tokenizer)
 - **Coordination**: GitHub API / git, GitHub Discussions (async telemetry)
@@ -22,10 +22,10 @@ It lets a cooperative of GPU owners each train one piece of a large language mod
 
 | Subsystem | CLI Command | Purpose |
 |-----------|-------------|---------|
-| Cooperative Manager | `kalavu coop` | Create cooperatives, invite members, assign domains, distribute seed + tokenizer |
-| Module Trainer | `kalavu train` | Train assigned module with CKA alignment constraints, auto-detect hardware |
-| Alignment Monitor | `kalavu check` | Run alignment diagnostics, post to cooperative, flag divergence |
-| Fusion Pipeline | `kalavu fuse` | Collect checkpoints, cluster modules, build fusion layers, post-training |
+| Cooperative Manager | `kalavai coop` | Create cooperatives, invite members, assign domains, distribute seed + tokenizer |
+| Module Trainer | `kalavai train` | Train assigned module with CKA alignment constraints, auto-detect hardware |
+| Alignment Monitor | `kalavai check` | Run alignment diagnostics, post to cooperative, flag divergence |
+| Fusion Pipeline | `kalavai fuse` | Collect checkpoints, cluster modules, build fusion layers, post-training |
 
 ## Key Concepts
 
@@ -52,30 +52,30 @@ ruff check .
 ruff format .
 
 # Run CLI
-kalavu --help
+kalavai --help
 ```
 
 ## Project Structure
 
 ```
-kalavu/
+kalavai/
 ├── CLAUDE.md
 ├── pyproject.toml
 │
 ├── experiments/            # All runnable Python scripts
-│   ├── kalavu_pythia_experiment.py      # Main 410M experiment (template)
-│   ├── kalavu_pythia_1b_experiment.py
-│   ├── kalavu_pythia_6b_experiment.py
-│   ├── kalavu_pythia_maturity_sweep.py
-│   ├── kalavu_pythia_1b_maturity_sweep.py
-│   ├── kalavu_pythia_5domain_experiment.py
-│   ├── kalavu_pythia_ablation_freeze.py
-│   ├── kalavu_pythia_ablation_router.py
-│   ├── kalavu_pythia_monolithic_baseline.py
-│   ├── kalavu_pythia_benchmarks.py
-│   ├── kalavu_pythia_1b_benchmarks.py
-│   ├── kalavu_results_audit.py
-│   ├── kalavu_run_all.py               # Master orchestrator
+│   ├── kalavai_pythia_experiment.py      # Main 410M experiment (template)
+│   ├── kalavai_pythia_1b_experiment.py
+│   ├── kalavai_pythia_6b_experiment.py
+│   ├── kalavai_pythia_maturity_sweep.py
+│   ├── kalavai_pythia_1b_maturity_sweep.py
+│   ├── kalavai_pythia_5domain_experiment.py
+│   ├── kalavai_pythia_ablation_freeze.py
+│   ├── kalavai_pythia_ablation_router.py
+│   ├── kalavai_pythia_monolithic_baseline.py
+│   ├── kalavai_pythia_benchmarks.py
+│   ├── kalavai_pythia_1b_benchmarks.py
+│   ├── kalavai_results_audit.py
+│   ├── kalavai_run_all.py               # Master orchestrator
 │   └── ...
 │
 ├── results/                # JSON result artifacts
@@ -90,16 +90,16 @@ kalavu/
 │       └── *.png
 │
 ├── paper/                  # Writeup and paper scaffold
-│   ├── KALAVU_Results_Writeup.pdf
+│   ├── KALAVAI_Results_Writeup.pdf
 │   └── scaffold/
 │
 ├── docs/                   # Technical docs + planning
 │   ├── planning/           # Claude Code planning docs
 │   │   ├── claude_code_*.md
-│   │   └── KALAVU_Strategic_Summary*.md
+│   │   └── KALAVAI_Strategic_Summary*.md
 │   └── spec/               # Product specification
 │
-├── src/kalavu/             # Library source code
+├── src/kalavai/             # Library source code
 │   ├── coop/
 │   ├── train/
 │   ├── check/
@@ -116,7 +116,7 @@ kalavu/
 - Use type hints on all function signatures
 - Docstrings: Google style, only on public APIs
 - Errors: raise typed exceptions (e.g., `AlignmentError`, `CheckpointValidationError`)
-- Config: all cooperative config via `kalavu.yaml` — never hardcode thresholds
+- Config: all cooperative config via `kalavai.yaml` — never hardcode thresholds
 - CLI: all commands must be non-interactive (flags/YAML only) for agent compatibility
 - Checkpoints: always validate shared artifact hashes before any operation
 
@@ -138,9 +138,9 @@ kalavu/
 
 ## Key Files
 
-- `docs/spec/KALAVU_v3_Product_Specification.docx` — Full product specification
-- `docs/spec/kalavu-v3-product-flow.jsx` — Visual product flow diagram (React/SVG)
-- `kalavu.yaml` — Cooperative configuration schema (see spec section 6.1)
+- `docs/spec/KALAVAI_v3_Product_Specification.docx` — Full product specification
+- `docs/spec/kalavai-v3-product-flow.jsx` — Visual product flow diagram (React/SVG)
+- `kalavai.yaml` — Cooperative configuration schema (see spec section 6.1)
 
 ## MVP Scope
 

@@ -1,9 +1,9 @@
-"""Smoke tests to verify kalavu package installs and CLI runs."""
+"""Smoke tests to verify kalavai package installs and CLI runs."""
 
 import subprocess
 import sys
 
-from kalavu import __version__
+from kalavai import __version__
 
 
 def test_version_string():
@@ -12,17 +12,17 @@ def test_version_string():
 
 def test_cli_help():
     result = subprocess.run(
-        [sys.executable, "-m", "kalavu.cli", "--help"],
+        [sys.executable, "-m", "kalavai.cli", "--help"],
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0
-    assert "KALAVU" in result.stdout
+    assert "KALAVAI" in result.stdout
 
 
 def test_cli_version():
     result = subprocess.run(
-        [sys.executable, "-m", "kalavu.cli", "--version"],
+        [sys.executable, "-m", "kalavai.cli", "--version"],
         capture_output=True,
         text=True,
     )
@@ -33,7 +33,7 @@ def test_cli_version():
 def test_subcommands_exist():
     for cmd in ["coop", "train", "check", "fuse"]:
         result = subprocess.run(
-            [sys.executable, "-m", "kalavu.cli", cmd, "--help"],
+            [sys.executable, "-m", "kalavai.cli", cmd, "--help"],
             capture_output=True,
             text=True,
         )

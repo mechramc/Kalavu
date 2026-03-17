@@ -8,7 +8,7 @@ from typing import Any
 
 import torch
 
-from kalavu.core.config import CooperativeConfig
+from kalavai.core.config import CooperativeConfig
 
 
 class TestSampleConfigDict:
@@ -42,7 +42,7 @@ class TestSampleConfigYaml:
 
     def test_file_exists(self, sample_config_yaml: Path) -> None:
         assert sample_config_yaml.exists()
-        assert sample_config_yaml.name == "kalavu.yaml"
+        assert sample_config_yaml.name == "kalavai.yaml"
 
     def test_loads_as_config(self, sample_config_yaml: Path) -> None:
         cfg = CooperativeConfig.from_yaml(sample_config_yaml)
@@ -55,7 +55,7 @@ class TestCooperativeDir:
     """Verify ``cooperative_dir`` fixture creates all required files."""
 
     EXPECTED_FILES = [
-        "kalavu.yaml",
+        "kalavai.yaml",
         "tokenizer.model",
         "seed_checkpoint.pt",
         "calibration_batch.pt",
@@ -71,7 +71,7 @@ class TestCooperativeDir:
             assert (cooperative_dir / name).exists(), f"Missing: {name}"
 
     def test_config_loads(self, cooperative_dir: Path) -> None:
-        cfg = CooperativeConfig.from_yaml(cooperative_dir / "kalavu.yaml")
+        cfg = CooperativeConfig.from_yaml(cooperative_dir / "kalavai.yaml")
         assert cfg.name == "test-coop"
 
     def test_seed_checkpoint_loadable(self, cooperative_dir: Path) -> None:

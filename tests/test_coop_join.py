@@ -1,4 +1,4 @@
-"""Tests for cooperative join (kalavu coop join)."""
+"""Tests for cooperative join (kalavai coop join)."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from kalavu.coop.create import create_cooperative
-from kalavu.coop.join import join_cooperative
-from kalavu.coop.manifest import load_manifest
-from kalavu.core.exceptions import CooperativeError
+from kalavai.coop.create import create_cooperative
+from kalavai.coop.join import join_cooperative
+from kalavai.coop.manifest import load_manifest
+from kalavai.core.exceptions import CooperativeError
 
 
 @pytest.fixture()
@@ -42,7 +42,7 @@ class TestJoinCooperative:
         assert result == work.resolve()
         # All shared artifacts should be copied
         for fname in [
-            "kalavu.yaml",
+            "kalavai.yaml",
             "tokenizer.model",
             "seed_checkpoint.pt",
             "calibration_batch.pt",
@@ -100,7 +100,7 @@ class TestJoinCooperative:
         """Joining a directory missing required files raises CooperativeError."""
         incomplete = tmp_path / "incomplete-coop"
         incomplete.mkdir()
-        (incomplete / "kalavu.yaml").write_text("placeholder", encoding="utf-8")
+        (incomplete / "kalavai.yaml").write_text("placeholder", encoding="utf-8")
 
         with pytest.raises(CooperativeError, match="missing required files"):
             join_cooperative(
@@ -127,7 +127,7 @@ class TestJoinCooperative:
 
         # Should have hashes for all shared artifacts
         expected_keys = {
-            "kalavu.yaml",
+            "kalavai.yaml",
             "tokenizer.model",
             "seed_checkpoint.pt",
             "calibration_batch.pt",

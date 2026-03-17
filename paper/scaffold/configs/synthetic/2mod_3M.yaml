@@ -2,7 +2,7 @@ name: 2mod_3M
 description: "2-module synthetic experiment, ~3M param MiniGPT"
 seeds: [42, 137, 2026]
 output_dir: results/synthetic
-wandb_project: kalavu-paper
+wandb_project: kalavai-paper
 
 architecture:
   n_layers: 4

@@ -1,4 +1,4 @@
-"""Tests for kalavu.coop.calibration — calibration batch generation and loading."""
+"""Tests for kalavai.coop.calibration — calibration batch generation and loading."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 import torch
 
-from kalavu.coop.calibration import generate_calibration_batch, load_calibration_batch
-from kalavu.coop.tokenizer import Tokenizer, save_tokenizer
-from kalavu.core.exceptions import ConfigError
+from kalavai.coop.calibration import generate_calibration_batch, load_calibration_batch
+from kalavai.coop.tokenizer import Tokenizer, save_tokenizer
+from kalavai.core.exceptions import ConfigError
 
 # Repetitive corpus so BPE can learn merges and produce enough tokens.
 SAMPLE_CORPUS = (

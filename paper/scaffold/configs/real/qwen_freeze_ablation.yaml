@@ -10,7 +10,7 @@ description: >
 
 seeds: [42, 137, 2026]
 output_dir: results/real
-wandb_project: kalavu-paper
+wandb_project: kalavai-paper
 
 alignment:
   freeze_layers: 2  # overridden by sweep script

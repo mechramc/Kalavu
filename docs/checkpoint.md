@@ -1,4 +1,4 @@
-# KALAVU — Development Checkpoints
+# KALAVAI — Development Checkpoints
 
 A log of completed milestones for any agent or developer resuming work.
 
@@ -18,9 +18,9 @@ A log of completed milestones for any agent or developer resuming work.
 - **CKA reference** (`coop/reference.py`) — extract hidden states at probe layers from seed model
 - **Calibration batch** (`coop/calibration.py`) — tokenize corpus into fixed tensor
 - **Domain manifest** (`coop/manifest.py`) — 20 default domains, slot claiming, CRUD operations
-- **`kalavu coop create`** (`coop/create.py`) — full orchestration of all 6 artifact creation steps
-- **`kalavu coop join`** (`coop/join.py`) — copy artifacts, claim slot, store hashes
-- **`kalavu coop status`** (`coop/status.py`) — rich table + JSON output
+- **`kalavai coop create`** (`coop/create.py`) — full orchestration of all 6 artifact creation steps
+- **`kalavai coop join`** (`coop/join.py`) — copy artifacts, claim slot, store hashes
+- **`kalavai coop status`** (`coop/status.py`) — rich table + JSON output
 
 ### Architecture Presets
 
@@ -37,7 +37,7 @@ The `create_cooperative()` function maps target_params to transformer configs:
 ### How to resume
 
 ```bash
-cd C:/Github/Kalavu
+cd C:/Github/Kalavai
 pip install -e ".[dev]"
 python -m pytest -v  # should see 149 passing
 ```
@@ -64,7 +64,7 @@ TASK-018 (data loading) and TASK-019/020 (warnings/telemetry) can be built in pa
 ### Completed
 
 - **Config parser** (`core/config.py`) — 5 typed dataclasses, from_yaml/to_yaml, full validation
-- **Exception hierarchy** (`core/exceptions.py`) — KalavuError base + 6 specific exceptions
+- **Exception hierarchy** (`core/exceptions.py`) — KalavaiError base + 6 specific exceptions
 - **Checkpoint handler** (`core/checkpoint.py`) — save/load checkpoint directories, SHA-256 validation
 - **CKA computation** (`core/cka.py`) — linear CKA + differentiable cka_loss
 - **Hardware detection** (`train/hardware.py`) — CUDA auto-detect with rich output
@@ -91,6 +91,6 @@ TASK-018 (data loading) and TASK-019/020 (warnings/telemetry) can be built in pa
 
 - Repo initialized with CLAUDE.md, pyproject.toml, .gitignore
 - CLI skeleton with all command stubs (coop, train, check, fuse)
-- Source layout: `src/kalavu/` with subsystem packages
+- Source layout: `src/kalavai/` with subsystem packages
 - Spec files moved to `docs/spec/`
 - Task plan created at `docs/tasks.md` (48 tasks across 9 phases)

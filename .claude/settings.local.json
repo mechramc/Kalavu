@@ -9,7 +9,9 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(mkdir:*)",
-      "Bash(Get-Content:*)"
+      "Bash(Get-Content:*)",
+      "Bash(git pull:*)",
+      "Bash(python3:*)"
     ]
   }
 }

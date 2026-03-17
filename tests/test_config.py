@@ -1,4 +1,4 @@
-"""Tests for kalavu.core.config — cooperative config schema and parser."""
+"""Tests for kalavai.core.config — cooperative config schema and parser."""
 
 from __future__ import annotations
 
@@ -8,14 +8,14 @@ from pathlib import Path
 import pytest
 import yaml
 
-from kalavu.core.config import (
+from kalavai.core.config import (
     AlignmentConfig,
     ArchitectureConfig,
     CooperativeConfig,
     DomainConfig,
     FusionConfig,
 )
-from kalavu.core.exceptions import ConfigError
+from kalavai.core.exceptions import ConfigError
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -50,7 +50,7 @@ VALID_YAML = textwrap.dedent("""\
 
 @pytest.fixture()
 def valid_yaml_path(tmp_path: Path) -> Path:
-    p = tmp_path / "kalavu.yaml"
+    p = tmp_path / "kalavai.yaml"
     p.write_text(VALID_YAML, encoding="utf-8")
     return p
 

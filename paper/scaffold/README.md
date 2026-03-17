@@ -1,4 +1,4 @@
-# KALAVU Paper Experiments
+# KALAVAI Paper Experiments
 
 Reproducible experiment codebase for:  
 **"Frozen Foundations: Guaranteed Fusibility for Cooperative LLM Training via Shared Early Layers"**
@@ -26,7 +26,7 @@ python scripts/generate_figures.py
 ## Project Structure
 
 ```
-kalavu-paper/
+kalavai-paper/
 ├── README.md
 ├── requirements.txt
 ├── configs/                    # One YAML per experiment (reproducible)
@@ -42,7 +42,7 @@ kalavu-paper/
 │       ├── qwen_btx_baseline.yaml      # Table 2: BTX comparison
 │       └── qwen_monolithic_baseline.yaml
 ├── src/
-│   └── kalavu/
+│   └── kalavai/
 │       ├── __init__.py
 │       ├── config.py           # Experiment configuration dataclass
 │       ├── model.py            # MiniGPT for synthetic experiments

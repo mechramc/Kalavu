@@ -1,4 +1,4 @@
-"""Tests for kalavu.coop.tokenizer — BPE tokenizer training and persistence."""
+"""Tests for kalavai.coop.tokenizer — BPE tokenizer training and persistence."""
 
 from __future__ import annotations
 
@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 
-from kalavu.coop.tokenizer import (
+from kalavai.coop.tokenizer import (
     Tokenizer,
     load_tokenizer,
     save_tokenizer,
     train_tokenizer,
 )
-from kalavu.core.exceptions import ConfigError
+from kalavai.core.exceptions import ConfigError
 
 # A small but repetitive corpus so BPE can learn merges.
 SAMPLE_CORPUS = (

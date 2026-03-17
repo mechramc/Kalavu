@@ -5,7 +5,7 @@ from __future__ import annotations
 import torch
 import pytest
 
-from kalavu.core.cka import linear_cka, cka_loss
+from kalavai.core.cka import linear_cka, cka_loss
 
 
 class TestLinearCKA:

@@ -1,4 +1,4 @@
-"""Tests for end-to-end cooperative creation (kalavu coop create)."""
+"""Tests for end-to-end cooperative creation (kalavai coop create)."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 import torch
 
-from kalavu.coop.create import create_cooperative
-from kalavu.coop.tokenizer import load_tokenizer
-from kalavu.core.config import CooperativeConfig
+from kalavai.coop.create import create_cooperative
+from kalavai.coop.tokenizer import load_tokenizer
+from kalavai.core.config import CooperativeConfig
 
 
 # ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ class TestCreateCooperative:
         )
 
         expected_files = [
-            "kalavu.yaml",
+            "kalavai.yaml",
             "tokenizer.model",
             "seed_checkpoint.pt",
             "calibration_batch.pt",
@@ -44,7 +44,7 @@ class TestCreateCooperative:
             assert (out / fname).exists(), f"Missing file: {fname}"
 
     def test_config_loadable(self, tmp_path: Path) -> None:
-        """kalavu.yaml is loadable as a CooperativeConfig."""
+        """kalavai.yaml is loadable as a CooperativeConfig."""
         out = create_cooperative(
             name="test-coop",
             modules=5,
@@ -54,7 +54,7 @@ class TestCreateCooperative:
             seed=42,
         )
 
-        config = CooperativeConfig.from_yaml(out / "kalavu.yaml")
+        config = CooperativeConfig.from_yaml(out / "kalavai.yaml")
         assert config.name == "test-coop"
         assert config.modules == 5
         assert config.target_params_per_module == "14M"
@@ -170,5 +170,5 @@ class TestCreateCooperative:
             seed=42,
         )
 
-        assert (out / "kalavu.yaml").exists()
+        assert (out / "kalavai.yaml").exists()
         assert (out / "tokenizer.model").exists()

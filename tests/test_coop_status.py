@@ -1,4 +1,4 @@
-"""Tests for cooperative status display (kalavu coop status)."""
+"""Tests for cooperative status display (kalavai coop status)."""
 
 from __future__ import annotations
 
@@ -10,9 +10,9 @@ from typing import Any
 import pytest
 from click.testing import CliRunner
 
-from kalavu.cli import main
-from kalavu.coop.status import get_cooperative_status, print_cooperative_status
-from kalavu.core.exceptions import ConfigError
+from kalavai.cli import main
+from kalavai.coop.status import get_cooperative_status, print_cooperative_status
+from kalavai.core.exceptions import ConfigError
 
 SAMPLE_YAML_TEXT = textwrap.dedent("""\
     cooperative:
@@ -44,7 +44,7 @@ def status_coop(tmp_path: Path) -> Path:
     coop = tmp_path / "test-coop"
     coop.mkdir()
 
-    (coop / "kalavu.yaml").write_text(SAMPLE_YAML_TEXT, encoding="utf-8")
+    (coop / "kalavai.yaml").write_text(SAMPLE_YAML_TEXT, encoding="utf-8")
 
     manifest = {
         "cooperative": "test-coop",

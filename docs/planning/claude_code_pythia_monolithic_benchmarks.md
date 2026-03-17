@@ -1,4 +1,4 @@
-# KALAVU: Monolithic Baseline + Downstream Benchmarks
+# KALAVAI: Monolithic Baseline + Downstream Benchmarks
 
 ## Context
 
@@ -26,7 +26,7 @@ The strongest objection a reviewer can raise: "Why not just train one model on a
 
 The monolithic baseline answers this directly. Take the same total compute budget (3 specialists × 2000 steps = 6000 total training steps) and train a SINGLE model on mixed-domain data for 6000 steps. If the fused model beats the monolithic model, specialist-then-fuse is a better use of compute than generalist continued pre-training.
 
-### Script: `kalavu_pythia_monolithic_baseline.py`
+### Script: `kalavai_pythia_monolithic_baseline.py`
 
 ### Setup
 ```python
@@ -129,7 +129,7 @@ figures/pythia/
 }
 ```
 
-**Git commit:** `[kalavu] monolithic baseline: fused vs monolithic = {X.X}% ± {X.X}%`
+**Git commit:** `[kalavai] monolithic baseline: fused vs monolithic = {X.X}% ± {X.X}%`
 
 ---
 
@@ -139,7 +139,7 @@ figures/pythia/
 
 Eval loss is the right metric for a mechanism paper, but reviewers want to see task performance too. Run standard benchmarks on all model variants.
 
-### Script: `kalavu_pythia_benchmarks.py`
+### Script: `kalavai_pythia_benchmarks.py`
 
 ### Important Caveat
 
@@ -256,7 +256,7 @@ figures/pythia/
 }
 ```
 
-**Git commit:** `[kalavu] downstream benchmarks: avg fused={X.X}% vs base={X.X}%`
+**Git commit:** `[kalavai] downstream benchmarks: avg fused={X.X}% vs base={X.X}%`
 
 ---
 

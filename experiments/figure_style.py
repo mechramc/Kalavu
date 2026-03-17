@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Shared publication-quality figure style for KALAVU.
+Shared publication-quality figure style for KALAVAI.
 Import this at the top of any figure-generating script.
 """
 import matplotlib

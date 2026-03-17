@@ -1,9 +1,9 @@
-# KALAVU: Final Experiments — 1B Benchmarks + 6.9B Scale Validation
+# KALAVAI: Final Experiments — 1B Benchmarks + 6.9B Scale Validation
 
 ## Two scripts, two machines
 
-**Script 1:** `kalavu_pythia_1b_benchmarks.py` — Run on your RTX 5090 locally
-**Script 2:** `kalavu_pythia_6b_experiment.py` — Run on RunPod A100 80GB
+**Script 1:** `kalavai_pythia_1b_benchmarks.py` — Run on your RTX 5090 locally
+**Script 2:** `kalavai_pythia_6b_experiment.py` — Run on RunPod A100 80GB
 
 ---
 
@@ -143,7 +143,7 @@ Grouped bar chart — 7 model variants × 5 benchmarks. Dashed horizontal lines 
 results/pythia/pythia_1b/benchmarks_seed42.json
 ```
 
-**Git commit:** `[kalavu] 1B benchmarks: MoE avg={X.X}% vs base avg={X.X}%`
+**Git commit:** `[kalavai] 1B benchmarks: MoE avg={X.X}% vs base avg={X.X}%`
 
 ---
 
@@ -157,8 +157,8 @@ results/pythia/pythia_1b/benchmarks_seed42.json
 # After SSH-ing into the RunPod A100 instance:
 
 # 1. Clone the repo
-git clone https://github.com/mechramc/Kalavu.git
-cd Kalavu
+git clone https://github.com/mechramc/Kalavai.git
+cd Kalavai
 
 # 2. Install dependencies
 pip install transformers datasets torch accelerate
@@ -168,11 +168,11 @@ python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_
 # Should print: True, A100-SXM4-80GB (or similar), 80.0GB
 
 # 4. Run the experiment
-python kalavu_pythia_6b_experiment.py 2>&1 | tee experiment_log.txt
+python kalavai_pythia_6b_experiment.py 2>&1 | tee experiment_log.txt
 
 # 5. When done, push results
 git add -A
-git commit -m "[kalavu] pythia-6.9B: full experiment complete"
+git commit -m "[kalavai] pythia-6.9B: full experiment complete"
 git push
 
 # 6. SHUT DOWN THE POD (stop billing)
@@ -383,7 +383,7 @@ results/pythia_6b/
 # Make sure EVERYTHING is pushed
 git add -A
 git status  # Verify no uncommitted changes
-git commit -m "[kalavu] pythia-6.9B: all experiments complete"
+git commit -m "[kalavai] pythia-6.9B: all experiments complete"
 git push
 
 # Double-check by listing remote

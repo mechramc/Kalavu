@@ -1,16 +1,16 @@
 # BTX Baseline Comparison (Table 2 in paper)
-# Compares KALAVU (frozen layers + MoE) against BTX (no frozen layers, averaged attention, MoE FFN)
+# Compares KALAVAI (frozen layers + MoE) against BTX (no frozen layers, averaged attention, MoE FFN)
 
 name: qwen_btx_baseline
 description: >
-  Head-to-head: KALAVU vs BTX on same data.
-  KALAVU: freeze first 2 layers, MoE-route all unfrozen layers.
+  Head-to-head: KALAVAI vs BTX on same data.
+  KALAVAI: freeze first 2 layers, MoE-route all unfrozen layers.
   BTX: no freezing, average attention weights, MoE-route FFN layers only.
   This isolates the contribution of frozen layers to fusion quality.
 
 seeds: [42, 137, 2026]
 output_dir: results/real
-wandb_project: kalavu-paper
+wandb_project: kalavai-paper
 
 alignment:
   freeze_layers: 0  # BTX doesn't freeze anything

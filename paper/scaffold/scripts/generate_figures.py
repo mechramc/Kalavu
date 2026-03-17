@@ -1,5 +1,5 @@
 """
-Generate all figures for the KALAVU paper from experiment results.
+Generate all figures for the KALAVAI paper from experiment results.
 
 Usage:
     python scripts/generate_figures.py
@@ -109,7 +109,7 @@ def fig3_training_curves():
     result_file = Path("results/synthetic/2mod_25M.json")
     if not result_file.exists():
         # Fallback: look for the original experiment results
-        result_file = Path("kalavu_experiment_results/experiment_results.json")
+        result_file = Path("kalavai_experiment_results/experiment_results.json")
     if not result_file.exists():
         print("Skipping Fig 3: no training history found")
         return
@@ -178,8 +178,8 @@ def fig5_scaling():
     imp_25m = 58.0
 
     # Load real results dynamically from root-level checkpoint dirs
-    base = Path("../kalavu_checkpoints")
-    base_5d = Path("../kalavu_checkpoints_5domain")
+    base = Path("../kalavai_checkpoints")
+    base_5d = Path("../kalavai_checkpoints_5domain")
 
     imp_1b_prose = _load_improvement(base / "results.json", fallback=0.9)
     imp_1b_math = _load_improvement(base / "results_math_science.json", fallback=17.15)

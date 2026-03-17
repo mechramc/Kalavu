@@ -1,4 +1,4 @@
-"""Tests for kalavu.coop.manifest — domain manifest generation and management."""
+"""Tests for kalavai.coop.manifest — domain manifest generation and management."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from kalavu.coop.manifest import (
+from kalavai.coop.manifest import (
     generate_manifest,
     load_manifest,
     update_slot,
 )
-from kalavu.core.config import CooperativeConfig, DomainConfig
-from kalavu.core.exceptions import ConfigError
+from kalavai.core.config import CooperativeConfig, DomainConfig
+from kalavai.core.exceptions import ConfigError
 
 # ---------------------------------------------------------------------------
 # Helpers

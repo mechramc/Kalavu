@@ -1,19 +1,19 @@
-"""Tests for Kalavu custom exception hierarchy."""
+"""Tests for Kalavai custom exception hierarchy."""
 
 import pytest
 
-from kalavu.core.exceptions import (
+from kalavai.core.exceptions import (
     AlignmentError,
     CheckpointValidationError,
     ConfigError,
     CooperativeError,
     FusionError,
-    KalavuError,
+    KalavaiError,
 )
 
 
 class TestExceptionHierarchy:
-    """All custom exceptions inherit from KalavuError."""
+    """All custom exceptions inherit from KalavaiError."""
 
     @pytest.mark.parametrize(
         "exc_class",
@@ -25,13 +25,13 @@ class TestExceptionHierarchy:
             CooperativeError,
         ],
     )
-    def test_subclass_of_kalavu_error(self, exc_class: type) -> None:
-        assert issubclass(exc_class, KalavuError)
+    def test_subclass_of_kalavai_error(self, exc_class: type) -> None:
+        assert issubclass(exc_class, KalavaiError)
 
     @pytest.mark.parametrize(
         "exc_class",
         [
-            KalavuError,
+            KalavaiError,
             ConfigError,
             AlignmentError,
             CheckpointValidationError,
@@ -44,6 +44,6 @@ class TestExceptionHierarchy:
             raise exc_class("test message")
 
     def test_catch_all_via_base(self) -> None:
-        """Catching KalavuError catches any subclass."""
-        with pytest.raises(KalavuError):
+        """Catching KalavaiError catches any subclass."""
+        with pytest.raises(KalavaiError):
             raise ConfigError("caught via base")

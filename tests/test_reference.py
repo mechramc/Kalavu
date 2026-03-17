@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 import torch
 
-from kalavu.coop.reference import compute_cka_reference, load_cka_reference
-from kalavu.coop.seed import generate_seed_checkpoint
-from kalavu.core.config import ArchitectureConfig
+from kalavai.coop.reference import compute_cka_reference, load_cka_reference
+from kalavai.coop.seed import generate_seed_checkpoint
+from kalavai.core.config import ArchitectureConfig
 
 # ---------------------------------------------------------------------------
 # Fixtures

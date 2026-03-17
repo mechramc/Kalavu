@@ -1,4 +1,4 @@
-# Fix kalavu_pythia_6b_experiment.py — Disk Space Crash
+# Fix kalavai_pythia_6b_experiment.py — Disk Space Crash
 
 ## The Problem
 

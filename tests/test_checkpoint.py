@@ -1,4 +1,4 @@
-"""Tests for kalavu.core.checkpoint — checkpoint format handler."""
+"""Tests for kalavai.core.checkpoint — checkpoint format handler."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import torch
 
-from kalavu.core.checkpoint import (
+from kalavai.core.checkpoint import (
     AlignmentReport,
     CheckpointMetadata,
     LoadedCheckpoint,
@@ -16,7 +16,7 @@ from kalavu.core.checkpoint import (
     save_checkpoint,
     validate_artifact_hashes,
 )
-from kalavu.core.exceptions import CheckpointValidationError
+from kalavai.core.exceptions import CheckpointValidationError
 
 # ---------------------------------------------------------------------------
 # Fixtures

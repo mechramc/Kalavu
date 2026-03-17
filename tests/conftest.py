@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for the Kalavu test suite.
+"""Shared pytest fixtures for the Kalavai test suite.
 
 Provides reusable fixtures for cooperative directories, sample configs,
 mock checkpoints, and GPU-free test environments.
@@ -84,8 +84,8 @@ def sample_config_dict() -> dict[str, Any]:
 
 @pytest.fixture()
 def sample_config_yaml(tmp_path: Path) -> Path:
-    """Write a valid kalavu.yaml to *tmp_path* and return the file path."""
-    p = tmp_path / "kalavu.yaml"
+    """Write a valid kalavai.yaml to *tmp_path* and return the file path."""
+    p = tmp_path / "kalavai.yaml"
     p.write_text(SAMPLE_YAML_TEXT, encoding="utf-8")
     return p
 
@@ -100,7 +100,7 @@ def cooperative_dir(tmp_path: Path) -> Path:
     """Create a full cooperative directory with all required files.
 
     Contents:
-        kalavu.yaml          — valid cooperative config
+        kalavai.yaml          — valid cooperative config
         tokenizer.model      — dummy bytes (not a real sentencepiece model)
         seed_checkpoint.pt   — small random state_dict
         calibration_batch.pt — small random tensor batch
@@ -113,8 +113,8 @@ def cooperative_dir(tmp_path: Path) -> Path:
     coop = tmp_path / "test-coop"
     coop.mkdir()
 
-    # kalavu.yaml
-    (coop / "kalavu.yaml").write_text(SAMPLE_YAML_TEXT, encoding="utf-8")
+    # kalavai.yaml
+    (coop / "kalavai.yaml").write_text(SAMPLE_YAML_TEXT, encoding="utf-8")
 
     # Dummy tokenizer file (just needs to exist for path validation)
     (coop / "tokenizer.model").write_bytes(b"DUMMY_TOKENIZER_DATA")

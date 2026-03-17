@@ -1,4 +1,4 @@
-"""Tests for kalavu.train.hardware — GPU auto-detection (all mocked, no GPU required)."""
+"""Tests for kalavai.train.hardware — GPU auto-detection (all mocked, no GPU required)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kalavu.train.hardware import HardwareError, HardwareInfo, detect_hardware, print_hardware_summary
+from kalavai.train.hardware import HardwareError, HardwareInfo, detect_hardware, print_hardware_summary
 
 
 # ---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ class _FakeDeviceProperties:
 class TestDetectHardwareCudaAvailable:
     """When CUDA is available, detect_hardware returns correct HardwareInfo."""
 
-    @patch("kalavu.train.hardware.torch")
+    @patch("kalavai.train.hardware.torch")
     def test_returns_hardware_info(self, mock_torch: MagicMock) -> None:
         mock_torch.cuda.is_available.return_value = True
         mock_torch.cuda.current_device.return_value = 0
@@ -47,7 +47,7 @@ class TestDetectHardwareCudaAvailable:
         assert info.vram_gb == 32
         assert info.cuda_version == "12.4"
 
-    @patch("kalavu.train.hardware.torch")
+    @patch("kalavai.train.hardware.torch")
     def test_vram_rounds_down(self, mock_torch: MagicMock) -> None:
         """VRAM should be floored, not rounded — 23.7 GB → 23."""
         mock_torch.cuda.is_available.return_value = True
@@ -62,7 +62,7 @@ class TestDetectHardwareCudaAvailable:
         info = detect_hardware()
         assert info.vram_gb == 23
 
-    @patch("kalavu.train.hardware.torch")
+    @patch("kalavai.train.hardware.torch")
     def test_calls_correct_device_index(self, mock_torch: MagicMock) -> None:
         mock_torch.cuda.is_available.return_value = True
         mock_torch.cuda.current_device.return_value = 2
@@ -77,7 +77,7 @@ class TestDetectHardwareCudaAvailable:
         mock_torch.cuda.get_device_name.assert_called_once_with(2)
         mock_torch.cuda.get_device_properties.assert_called_once_with(2)
 
-    @patch("kalavu.train.hardware.torch")
+    @patch("kalavai.train.hardware.torch")
     def test_cuda_version_none_becomes_unknown(self, mock_torch: MagicMock) -> None:
         mock_torch.cuda.is_available.return_value = True
         mock_torch.cuda.current_device.return_value = 0
@@ -99,20 +99,20 @@ class TestDetectHardwareCudaAvailable:
 class TestDetectHardwareNoCuda:
     """When CUDA is not available, detect_hardware raises HardwareError."""
 
-    @patch("kalavu.train.hardware.torch")
+    @patch("kalavai.train.hardware.torch")
     def test_raises_hardware_error(self, mock_torch: MagicMock) -> None:
         mock_torch.cuda.is_available.return_value = False
 
         with pytest.raises(HardwareError, match="No CUDA GPU detected"):
             detect_hardware()
 
-    @patch("kalavu.train.hardware.torch")
-    def test_error_is_kalavu_error_subclass(self, mock_torch: MagicMock) -> None:
+    @patch("kalavai.train.hardware.torch")
+    def test_error_is_kalavai_error_subclass(self, mock_torch: MagicMock) -> None:
         mock_torch.cuda.is_available.return_value = False
 
-        from kalavu.core.exceptions import KalavuError
+        from kalavai.core.exceptions import KalavaiError
 
-        with pytest.raises(KalavuError):
+        with pytest.raises(KalavaiError):
             detect_hardware()
 
 
