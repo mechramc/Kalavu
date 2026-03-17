@@ -216,6 +216,20 @@ With KALAVAI, each of them trains one specialist on one GPU on the data they car
 
 The code is here. The results are reproducible. The mechanism is validated. What's missing is the community — people willing to contribute a GPU and a domain.
 
+## Pending experiments
+
+The following experiments are written and queued. Results will update the paper before NeurIPS submission.
+
+| Experiment | Script | What it answers | Status |
+|---|---|---|---|
+| **A1: 1B equal-compute monolithic** | `kalavai_1b_monolithic_baseline.py` | Does KALAVAI beat monolithic at 1B? (NeurIPS gate) | Queued |
+| **A2: Inference cost benchmark** | `kalavai_inference_benchmark.py` | Dense vs sparse top-1 MoE latency; routing agreement % at 410M and 1B | Queued |
+| **A3: Shared init necessity** | `kalavai_shared_init_ablation.py` | Does fusion break if specialists start from different checkpoints? (NeurIPS gate) | Queued |
+| B1: 6.9B step-budget sweep | `kalavai_6b_step_sweep.py` | Does more training fix the weak 6.9B result? (+2.4% → ?) | Pending A1+A3 |
+| C1: Heterogeneous cooperative | `kalavai_heterogeneous_cooperative.py` | Robust to different batch sizes, LRs, training durations per contributor? | Pending Phase A |
+
+**NeurIPS gate:** If A1 shows KALAVAI beats 1B monolithic by >5% AND A3 shows clear degradation with mismatched checkpoints, proceed to B1. Otherwise evaluate COLM/TMLR.
+
 ## Prior art
 
 KALAVAI builds on ideas from several lines of work:
@@ -228,12 +242,13 @@ KALAVAI builds on ideas from several lines of work:
 ## Citation
 
 ```bibtex
-@article{kumaresan2026kalavai,
-  title={KALAVAI: Cooperative LLM Training via Independent Specialists 
-         Outperforms Equal-Compute Monolithic Training},
-  author={Kumaresan, Ramchand},
-  year={2026},
-  url={https://github.com/mechramc/Kalavai}
+@inproceedings{kumaresan2026kalavai,
+  title     = {{KALAVAI}: When Does Independent Specialist Fusion Work?
+               Conditions for Post-Hoc Cooperative {LLM} Training},
+  author    = {Kumaresan, Ramchand},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026},
+  url       = {https://github.com/mechramc/Kalavai}
 }
 ```
 
