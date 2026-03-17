@@ -523,3 +523,24 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
   Saved: figures/pythia_6b/fig_scale_comparison.png
 
 [git] Committing: [kalavu] 6.9B scale comparison figure saved
+[main 2fc69b9] [kalavu] 6.9B scale comparison figure saved
+ 2 files changed, 15 insertions(+)
+ create mode 100644 figures/pythia_6b/fig_scale_comparison.png
+To https://github.com/mechramc/kalavu.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mechramc/kalavu.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+[git] WARNING: git operation failed: Command '['git', 'push']' returned non-zero exit status 1.
+
+======================================================================
+ALL PHASES COMPLETE
+======================================================================
+
+Before shutting down the pod:
+  git status   # verify nothing uncommitted
+  git log --oneline -5
+  # THEN shut down the pod to stop billing
