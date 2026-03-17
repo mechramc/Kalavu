@@ -1,0 +1,180 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{The core insight.}{1}{section*.2}\protected@file@percent }
+\citation{sukhbaatar2024branchtrainmix}
+\citation{sukhbaatar2024branchtrainmix}
+\citation{yadav2024merging}
+\citation{muqeeth2024phatgoose}
+\@writefile{toc}{\contentsline {paragraph}{The protocol.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Key results.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Branch-Train-Mix (BTX).}{2}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MoErging and PHATGOOSE.}{2}{section*.7}\protected@file@percent }
+\citation{pari2025merging}
+\citation{wortsman2022modelsoups}
+\citation{yadav2023tiesmerging}
+\citation{yu2023dare}
+\citation{mcmahan2017federated}
+\citation{wan2024fusellm}
+\citation{komatsuzaki2023sparseupcycling}
+\citation{qin2025star}
+\@writefile{toc}{\contentsline {paragraph}{Pari thesis.}{3}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Weight interpolation methods.}{3}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Federated learning.}{3}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{FuseLLM.}{3}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Sparse Upcycling.}{3}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{STAR and related concurrent work.}{3}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Method}{3}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{3}{3}{Method}{section.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Phase 1: Shared initialisation.}{3}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Phase 2: Optional freezing.}{3}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Phase 3: Independent specialist training.}{3}{section*.16}\protected@file@percent }
+\citation{biderman2023pythia}
+\@writefile{toc}{\contentsline {paragraph}{Phase 4: Post-hoc MoE fusion.}{4}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{4}{section.4}\protected@file@percent }
+\newlabel{sec:experiments}{{4}{4}{Experiments}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:setup}{{4.1}{4}{Experimental Setup}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Models.}{4}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Domains.}{4}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training configuration.}{4}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Evaluation metric.}{4}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Seeds.}{4}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Evaluation consistency.}{4}{section*.23}\protected@file@percent }
+\citation{sukhbaatar2024branchtrainmix}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Main results across three model scales. Improvement is computed against the best individual specialist on held-out mixed-domain evaluation. All results use 3 random seeds; 6.9B uses corrected seeded evaluation (see ``Note on 6.9B evaluation'' paragraph in Section~\ref {sec:core}). Base losses: 410M 2.248, 1B 2.160, 6.9B 2.700.}}{5}{table.caption.24}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:main}{{1}{5}{Main results across three model scales. Improvement is computed against the best individual specialist on held-out mixed-domain evaluation. All results use 3 random seeds; 6.9B uses corrected seeded evaluation (see ``Note on 6.9B evaluation'' paragraph in Section~\ref {sec:core}). Base losses: 410M 2.248, 1B 2.160, 6.9B 2.700}{table.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Core Results}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:core}{{4.2}{5}{Core Results}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Note on 6.9B evaluation.}{5}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Comparison to Equal-Compute Monolithic Training}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:monolithic}{{4.3}{5}{Comparison to Equal-Compute Monolithic Training}{subsection.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {\textsc  {Kalavai}\xspace  core results.} \textbf  {(A)} Fusion improvement over the best individual specialist across model scales: +14.2\% at 410M, +14.8\% at 1B, +2.4\% at 6.9B. \textbf  {(B)} Training duration crossover: freeze=0 peaks at 5k steps then degrades; freeze=4 plateaus through 20k steps; crossover at $\approx $10k steps. \textbf  {(C)} Routing failure modes: learned MoE routing achieves +14.1\%; single-specialist classifier dispatch degrades by $-$21.1\% (negative values indicate degradation below base). \textbf  {(D)} \textsc  {Kalavai}\xspace  vs.\ equal-compute alternatives at 410M: MoE achieves +14.5\% over the equal-compute monolithic baseline. All results are means over 3 seeds.}}{6}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:hero}{{1}{6}{\textbf {\kalavai core results.} \textbf {(A)} Fusion improvement over the best individual specialist across model scales: +14.2\% at 410M, +14.8\% at 1B, +2.4\% at 6.9B. \textbf {(B)} Training duration crossover: freeze=0 peaks at 5k steps then degrades; freeze=4 plateaus through 20k steps; crossover at $\approx $10k steps. \textbf {(C)} Routing failure modes: learned MoE routing achieves +14.1\%; single-specialist classifier dispatch degrades by $-$21.1\% (negative values indicate degradation below base). \textbf {(D)} \kalavai vs.\ equal-compute alternatives at 410M: MoE achieves +14.5\% over the equal-compute monolithic baseline. All results are means over 3 seeds}{figure.caption.26}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Equal-compute comparison at Pythia-410M. Monolithic is trained for 6,000 steps on mixed data. \textsc  {Kalavai}\xspace  uses three specialists trained for 2,000 steps each. All 3 seeds; compute matched. Improvement columns use the base model and monolithic model as baselines respectively.}}{6}{table.caption.27}\protected@file@percent }
+\newlabel{tab:monolithic}{{2}{6}{Equal-compute comparison at Pythia-410M. Monolithic is trained for 6,000 steps on mixed data. \kalavai uses three specialists trained for 2,000 steps each. All 3 seeds; compute matched. Improvement columns use the base model and monolithic model as baselines respectively}{table.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Training Duration and the Role of Frozen Layers}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:crossover}{{4.4}{6}{Training Duration and the Role of Frozen Layers}{subsection.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Fusion improvement vs.\ best specialist as a function of training duration, with and without frozen layers. Pythia-410M, seed 42. Bold entries indicate the better configuration at each step count; $\dagger $ marks the crossover point.}}{7}{table.caption.28}\protected@file@percent }
+\newlabel{tab:crossover}{{3}{7}{Fusion improvement vs.\ best specialist as a function of training duration, with and without frozen layers. Pythia-410M, seed 42. Bold entries indicate the better configuration at each step count; $\dagger $ marks the crossover point}{table.caption.28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}All Specialists Must Run: Single-Specialist Dispatch Fails Catastrophically}{7}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:failure}{{4.5}{7}{All Specialists Must Run: Single-Specialist Dispatch Fails Catastrophically}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Capacity Controls: Parameter Count Is Not the Mechanism}{7}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:capacity}{{4.6}{7}{Capacity Controls: Parameter Count Is Not the Mechanism}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Analysis}{7}{section.5}\protected@file@percent }
+\newlabel{sec:analysis}{{5}{7}{Analysis}{section.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Router architecture does not matter.}{7}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Improvement is robust across training maturities.}{7}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Improvement is robust across specialist count.}{7}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Token-level routing confirms mid-sequence switching.}{7}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Representational divergence confirms specialisation.}{7}{section*.33}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Cross-domain evaluation loss matrix at Pythia-410M, step 2,000 (freeze=4, seed=42). Rows are specialists; columns are evaluation domains. The diagonal entries (own-domain performance) are lower than off-diagonal (cross-domain), confirming that each specialist has diverged in a complementary direction. The MoE router recovers diagonal performance across all domains simultaneously. Color scale: green indicates lower loss (better performance), red indicates higher loss.}}{8}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:heatmap}{{2}{8}{Cross-domain evaluation loss matrix at Pythia-410M, step 2,000 (freeze=4, seed=42). Rows are specialists; columns are evaluation domains. The diagonal entries (own-domain performance) are lower than off-diagonal (cross-domain), confirming that each specialist has diverged in a complementary direction. The MoE router recovers diagonal performance across all domains simultaneously. Color scale: green indicates lower loss (better performance), red indicates higher loss}{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {paragraph}{Downstream benchmarks.}{8}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion and Limitations}{8}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{8}{Discussion and Limitations}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the 6.9B result means.}{8}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What the Qwen result means.}{8}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Inference cost.}{8}{section*.38}\protected@file@percent }
+\bibstyle{plainnat}
+\bibdata{references}
+\bibcite{biderman2023pythia}{{1}{2023}{{Biderman et~al.}}{{Biderman, Schoelkopf, Anthony, Bradley, O'Brien, Hallahan, Khan, Purohit, Prashanth, Raff, Skowron, Sutawika, and Van Der~Wal}}}
+\@writefile{toc}{\contentsline {paragraph}{Applications.}{9}{section*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What this paper does not claim.}{9}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{9}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{9}{Conclusion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Broader impact.}{9}{section*.41}\protected@file@percent }
+\bibcite{komatsuzaki2023sparseupcycling}{{2}{2023}{{Komatsuzaki et~al.}}{{Komatsuzaki, Puigcerver, Lee-Thorp, Ruiz, Mustafa, Ainslie, Tay, Dehghani, and Zhai}}}
+\bibcite{mcmahan2017federated}{{3}{2017}{{McMahan et~al.}}{{McMahan, Moore, Ramage, Hampson, and Ag{\"u}era~y Arcas}}}
+\bibcite{muqeeth2024phatgoose}{{4}{2024}{{Muqeeth et~al.}}{{Muqeeth, Liu, Liu, and Raffel}}}
+\bibcite{pari2025merging}{{5}{2025}{{Pari}}{{}}}
+\bibcite{qin2025star}{{6}{2025}{{Qin et~al.}}{{Qin, Huang, Qiao, and Ma}}}
+\bibcite{sukhbaatar2024branchtrainmix}{{7}{2024}{{Sukhbaatar et~al.}}{{Sukhbaatar, Weston, and Szlam}}}
+\bibcite{wan2024fusellm}{{8}{2024}{{Wan et~al.}}{{Wan, Huang, Cai, Quan, Bi, and Shi}}}
+\bibcite{wortsman2022modelsoups}{{9}{2022}{{Wortsman et~al.}}{{Wortsman, Ilharco, Gadre, Roelofs, Gontijo-Lopes, Morcos, Namkoong, Farhadi, Carlin, Kornblith, and Schmidt}}}
+\bibcite{yadav2023tiesmerging}{{10}{2023}{{Yadav et~al.}}{{Yadav, Tam, Choshen, Raffel, and Bansal}}}
+\bibcite{yadav2024merging}{{11}{2024}{{Yadav et~al.}}{{Yadav, Raffel, et~al.}}}
+\bibcite{yu2023dare}{{12}{2024}{{Yu et~al.}}{{Yu, Yu, Yu, Huang, and Li}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Complete Experiment Inventory}{10}{appendix.A}\protected@file@percent }
+\newlabel{app:inventory}{{A}{10}{Complete Experiment Inventory}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Synthetic 25M Proof-of-Concept}{10}{appendix.B}\protected@file@percent }
+\newlabel{app:synthetic}{{B}{10}{Synthetic 25M Proof-of-Concept}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Complete experiment inventory. All experiments are committed to the repository with result JSONs. ``Seeds'' column indicates number of random seeds; std $\approx $0.00 for all multi-seed runs unless otherwise noted.}}{11}{table.caption.43}\protected@file@percent }
+\newlabel{tab:inventory}{{4}{11}{Complete experiment inventory. All experiments are committed to the repository with result JSONs. ``Seeds'' column indicates number of random seeds; std $\approx $0.00 for all multi-seed runs unless otherwise noted}{table.caption.43}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Design Decisions}{11}{appendix.C}\protected@file@percent }
+\newlabel{app:design}{{C}{11}{Design Decisions}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Training Duration Crossover Figure}{11}{appendix.D}\protected@file@percent }
+\newlabel{app:crossoverfig}{{D}{11}{Training Duration Crossover Figure}{appendix.D}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Freeze Depth Sweep}{11}{appendix.E}\protected@file@percent }
+\newlabel{app:freeze}{{E}{11}{Freeze Depth Sweep}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Freeze depth sweep at Pythia-410M, 2,000 specialist training steps. Seed 42 single-run for depths 6--12; three seeds for depths 0, 2, 4. ``\% Frozen'' refers to fraction of total transformer layers frozen. Base mixed loss: 2.248.}}{11}{table.caption.45}\protected@file@percent }
+\newlabel{tab:freeze}{{5}{11}{Freeze depth sweep at Pythia-410M, 2,000 specialist training steps. Seed 42 single-run for depths 6--12; three seeds for depths 0, 2, 4. ``\% Frozen'' refers to fraction of total transformer layers frozen. Base mixed loss: 2.248}{table.caption.45}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fusion improvement vs.\ best specialist as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42. See Table~\ref {tab:crossover} in Section~\ref {sec:crossover} for exact values.}}{12}{figure.caption.44}\protected@file@percent }
+\newlabel{fig:crossover}{{3}{12}{Fusion improvement vs.\ best specialist as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42. See Table~\ref {tab:crossover} in Section~\ref {sec:crossover} for exact values}{figure.caption.44}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Equal-Compute Monolithic Comparison}{12}{appendix.F}\protected@file@percent }
+\newlabel{app:monolithic}{{F}{12}{Equal-Compute Monolithic Comparison}{appendix.F}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Router Architecture Ablation}{12}{appendix.G}\protected@file@percent }
+\newlabel{app:router}{{G}{12}{Router Architecture Ablation}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Router architecture ablation at Pythia-410M (freeze=4, seed=42, 2,000 training steps). Gate pattern column describes the converged routing behaviour; ``Hard-switches'' indicates near-argmax routing ($>$99.7\% weight on dominant expert).}}{12}{table.caption.47}\protected@file@percent }
+\newlabel{tab:router}{{6}{12}{Router architecture ablation at Pythia-410M (freeze=4, seed=42, 2,000 training steps). Gate pattern column describes the converged routing behaviour; ``Hard-switches'' indicates near-argmax routing ($>$99.7\% weight on dominant expert)}{table.caption.47}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Mixed-domain held-out loss for Base model, Monolithic baseline, and \textsc  {Kalavai}\xspace  MoE at Pythia-410M scale. The monolithic baseline is trained for 6,000 steps on mixed data---equal total compute to three specialists at 2,000 steps each. \textsc  {Kalavai}\xspace  MoE (1.793) improves over both the base model (2.248) and the monolithic baseline (2.098). Full comparison including best specialist and weight averaging is in Table~\ref {tab:monolithic}.}}{13}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:monolithic}{{4}{13}{Mixed-domain held-out loss for Base model, Monolithic baseline, and \kalavai MoE at Pythia-410M scale. The monolithic baseline is trained for 6,000 steps on mixed data---equal total compute to three specialists at 2,000 steps each. \kalavai MoE (1.793) improves over both the base model (2.248) and the monolithic baseline (2.098). Full comparison including best specialist and weight averaging is in Table~\ref {tab:monolithic}}{figure.caption.46}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}Dispatch Failure and Capacity Controls}{13}{appendix.H}\protected@file@percent }
+\newlabel{app:dispatch}{{H}{13}{Dispatch Failure and Capacity Controls}{appendix.H}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline; this differs slightly from Table~\ref {tab:main}'s base (2.248) due to evaluation batch composition---a 0.1pp artefact, not a methodological inconsistency.}}{13}{table.caption.51}\protected@file@percent }
+\newlabel{tab:dispatch}{{7}{13}{Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline; this differs slightly from Table~\ref {tab:main}'s base (2.248) due to evaluation batch composition---a 0.1pp artefact, not a methodological inconsistency}{table.caption.51}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Maturity Sweeps}{13}{appendix.I}\protected@file@percent }
+\newlabel{app:maturity}{{I}{13}{Maturity Sweeps}{appendix.I}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Learned gate weight distributions for all three domain evaluation sets (Pythia-410M, freeze=4, seed=42). Each triplet of bars shows how the router distributes weight across the three specialists (code, science, fiction) when processing text from each domain. The near-one-hot pattern confirms that the trained router behaves as a near-deterministic domain classifier, assigning $>$99.7\% weight to the correct specialist.}}{14}{figure.caption.48}\protected@file@percent }
+\newlabel{fig:routerdist}{{5}{14}{Learned gate weight distributions for all three domain evaluation sets (Pythia-410M, freeze=4, seed=42). Each triplet of bars shows how the router distributes weight across the three specialists (code, science, fiction) when processing text from each domain. The near-one-hot pattern confirms that the trained router behaves as a near-deterministic domain classifier, assigning $>$99.7\% weight to the correct specialist}{figure.caption.48}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Capacity control comparison. All methods share the same base checkpoint (Pythia-410M, step10000). Wider model = Pythia-1.4B trained 6,000 steps on mixed data.}}{14}{table.caption.53}\protected@file@percent }
+\newlabel{tab:capacity}{{8}{14}{Capacity control comparison. All methods share the same base checkpoint (Pythia-410M, step10000). Wider model = Pythia-1.4B trained 6,000 steps on mixed data}{table.caption.53}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}5-Domain Specialist Scaling}{14}{appendix.J}\protected@file@percent }
+\newlabel{app:scaling}{{J}{14}{5-Domain Specialist Scaling}{appendix.J}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Training Dynamics}{14}{appendix.K}\protected@file@percent }
+\newlabel{app:dynamics}{{K}{14}{Training Dynamics}{appendix.K}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Comparison of routing strategies at Pythia-410M. MoE soft routing (all 3 specialists, softmax combination): +14.1\%. Domain classifier dispatch (route to single best specialist, 99.3\% accuracy): $-$21.1\%. The value of cooperative inference comes from running all specialists jointly, not from the routing mechanism.}}{15}{figure.caption.50}\protected@file@percent }
+\newlabel{fig:failure}{{6}{15}{Comparison of routing strategies at Pythia-410M. MoE soft routing (all 3 specialists, softmax combination): +14.1\%. Domain classifier dispatch (route to single best specialist, 99.3\% accuracy): $-$21.1\%. The value of cooperative inference comes from running all specialists jointly, not from the routing mechanism}{figure.caption.50}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Maturity sweep results at Pythia-410M. \% Training indicates fraction of total Pythia pre-training steps. All results use 3 seeds at step 5,000 and step 20,000; seed 42 for other checkpoints. Improvement vs.\ best individual specialist on held-out mixed evaluation.}}{15}{table.caption.54}\protected@file@percent }
+\newlabel{tab:maturity410}{{9}{15}{Maturity sweep results at Pythia-410M. \% Training indicates fraction of total Pythia pre-training steps. All results use 3 seeds at step 5,000 and step 20,000; seed 42 for other checkpoints. Improvement vs.\ best individual specialist on held-out mixed evaluation}{table.caption.54}{}}
+\@writefile{toc}{\contentsline {paragraph}{Within-domain improvement and cross-domain degradation.}{15}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Growing fusion benefit.}{15}{section*.60}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist.}}{16}{table.caption.55}\protected@file@percent }
+\newlabel{tab:maturity1b}{{10}{16}{Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist}{table.caption.55}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Maturity results at Pythia-6.9B (seed 42). The +2.43\% at step10000 is the main 6.9B result; the step143000 result uses corrected seeded evaluation.}}{16}{table.caption.56}\protected@file@percent }
+\newlabel{tab:maturity6b}{{11}{16}{Maturity results at Pythia-6.9B (seed 42). The +2.43\% at step10000 is the main 6.9B result; the step143000 result uses corrected seeded evaluation}{table.caption.56}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cross-domain evaluation at training checkpoint.}{16}{section*.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {L}Downstream Benchmark Results}{16}{appendix.L}\protected@file@percent }
+\newlabel{app:benchmarks}{{L}{16}{Downstream Benchmark Results}{appendix.L}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Qwen-1.5B Negative Result}{16}{appendix.M}\protected@file@percent }
+\newlabel{app:qwen}{{M}{16}{Qwen-1.5B Negative Result}{appendix.M}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Maturity sweep results for Pythia-410M, Pythia-1B, and Qwen-1.5B across training checkpoints. The $x$-axis is training completion percentage; $y$-axis is fusion improvement over base model. Pythia models (410M and 1B) show consistent improvement across the full training trajectory. Qwen-1.5B at full training shows $-$1.0\%, a boundary condition attributed to Qwen's larger pre-training corpus already covering the specialist domains.}}{17}{figure.caption.57}\protected@file@percent }
+\newlabel{fig:maturity}{{7}{17}{Maturity sweep results for Pythia-410M, Pythia-1B, and Qwen-1.5B across training checkpoints. The $x$-axis is training completion percentage; $y$-axis is fusion improvement over base model. Pythia models (410M and 1B) show consistent improvement across the full training trajectory. Qwen-1.5B at full training shows $-$1.0\%, a boundary condition attributed to Qwen's larger pre-training corpus already covering the specialist domains}{figure.caption.57}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds.}}{17}{table.caption.58}\protected@file@percent }
+\newlabel{tab:scaling}{{12}{17}{Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds}{table.caption.58}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {N}Hybrid Routing Visualisation}{17}{appendix.N}\protected@file@percent }
+\newlabel{app:routing}{{N}{17}{Hybrid Routing Visualisation}{appendix.N}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {O}Results Integrity Audit}{17}{appendix.O}\protected@file@percent }
+\newlabel{app:audit}{{O}{17}{Results Integrity Audit}{appendix.O}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Per-domain held-out evaluation loss for each specialist over training steps (Pythia-410M, freeze=4, seed=42). Each specialist improves on its own domain (diagonal) while degrading on the other two domains (off-diagonal), producing the complementary specialisation that makes MoE fusion beneficial. Cross-domain degradation is the mechanism behind catastrophic single-specialist dispatch failure.}}{18}{figure.caption.62}\protected@file@percent }
+\newlabel{fig:trainingcurves}{{8}{18}{Per-domain held-out evaluation loss for each specialist over training steps (Pythia-410M, freeze=4, seed=42). Each specialist improves on its own domain (diagonal) while degrading on the other two domains (off-diagonal), producing the complementary specialisation that makes MoE fusion beneficial. Cross-domain degradation is the mechanism behind catastrophic single-specialist dispatch failure}{figure.caption.62}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Cross-domain evaluation matrix at Pythia-410M step 2,000 (freeze=4, seed=42). Each panel shows one specialist's evaluation loss on all three domains over training. Dashed horizontal lines mark the base model's loss on each domain. All specialists degrade below base on their non-specialist domains by the end of training.}}{18}{figure.caption.63}\protected@file@percent }
+\newlabel{fig:crossdomain}{{9}{18}{Cross-domain evaluation matrix at Pythia-410M step 2,000 (freeze=4, seed=42). Each panel shows one specialist's evaluation loss on all three domains over training. Dashed horizontal lines mark the base model's loss on each domain. All specialists degrade below base on their non-specialist domains by the end of training}{figure.caption.63}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Fusion benefit (MoE improvement over best individual specialist, \%) as a function of specialist training steps at Pythia-410M. Benefit grows monotonically up to approximately 5,000 steps, then plateaus (freeze=4) or degrades (freeze=0) at longer horizons. The crossover between freeze=0 and freeze=4 regimes is shown in Section~\ref {sec:crossover}.}}{19}{figure.caption.64}\protected@file@percent }
+\newlabel{fig:fusiontrajectory}{{10}{19}{Fusion benefit (MoE improvement over best individual specialist, \%) as a function of specialist training steps at Pythia-410M. Benefit grows monotonically up to approximately 5,000 steps, then plateaus (freeze=4) or degrades (freeze=0) at longer horizons. The crossover between freeze=0 and freeze=4 regimes is shown in Section~\ref {sec:crossover}}{figure.caption.64}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Downstream benchmark accuracy (\%) at Pythia-1B (step10000 base, freeze=4, seed=42, 500 examples per benchmark). Random chance: HellaSwag 25\%, ARC-Easy 25\%, LAMBADA 0\%, SciQ 25\%, WinoGrande 50\%.}}{19}{table.caption.65}\protected@file@percent }
+\newlabel{tab:bench1b}{{13}{19}{Downstream benchmark accuracy (\%) at Pythia-1B (step10000 base, freeze=4, seed=42, 500 examples per benchmark). Random chance: HellaSwag 25\%, ARC-Easy 25\%, LAMBADA 0\%, SciQ 25\%, WinoGrande 50\%}{table.caption.65}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \textsc  {Kalavai}\xspace  MoE were benchmarked; individual specialists and monolithic variants were not evaluated.}}{19}{table.caption.66}\protected@file@percent }
+\newlabel{tab:bench6b}{{14}{19}{Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \kalavai MoE were benchmarked; individual specialists and monolithic variants were not evaluated}{table.caption.66}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Token-level gate weights (softmax over 3 experts: code, science, fiction) for hybrid-domain prompts. Pythia-410M, freeze=4, seed=42. Dominant weight ($>$0.5) shown in bold. ``---'' indicates transition token.}}{20}{table.caption.67}\protected@file@percent }
+\newlabel{tab:routing}{{15}{20}{Token-level gate weights (softmax over 3 experts: code, science, fiction) for hybrid-domain prompts. Pythia-410M, freeze=4, seed=42. Dominant weight ($>$0.5) shown in bold. ``---'' indicates transition token}{table.caption.67}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Gate weight heatmap for the prompt ``Derive the equation for protein folding using Python pandas'' (Pythia-410M, freeze=4, seed=42). Each column is a token; each row is an expert (code, science, fiction). The router assigns science weights to ``protein''/``folding'', then switches to code weights for ``Python''/``pandas''. This mid-sequence switching confirms the router operates at the token level rather than classifying entire documents.}}{20}{figure.caption.68}\protected@file@percent }
+\newlabel{fig:hybridrouting}{{11}{20}{Gate weight heatmap for the prompt ``Derive the equation for protein folding using Python pandas'' (Pythia-410M, freeze=4, seed=42). Each column is a token; each row is an expert (code, science, fiction). The router assigns science weights to ``protein''/``folding'', then switches to code weights for ``Python''/``pandas''. This mid-sequence switching confirms the router operates at the token level rather than classifying entire documents}{figure.caption.68}{}}
+\gdef \@abspage@last{20}
