@@ -214,29 +214,89 @@ class SparseTopKMoE(nn.Module):
         The routing_agreement measurement directly quantifies whether this difference
         matters in practice: if >95%, sparse inference is viable; if it drops
         significantly, that is an important negative result to report.
+
+        NOTE: We use the model's own GPTNeoXModel.forward to handle positional encoding
+        by temporarily replacing the layer list with only the frozen layers.  The model
+        internally computes and passes position_embeddings to each layer, avoiding the
+        shape mismatch that arises when rotary_emb is called manually on the full
+        hidden-state embedding.  We also capture position_embeddings via a hook on the
+        first attention layer so that _unfrozen_forward can reuse them.
         """
         model = self.specs[0]   # all frozen layers are identical (shared init + frozen)
-        with torch.no_grad():
-            x = model.gpt_neox.embed_in(input_ids)
-            for i in range(self.freeze_n):
-                x = model.gpt_neox.layers[i](x)[0]
-        return x  # (B, T, H)
+        all_layers = model.gpt_neox.layers
 
-    def _unfrozen_forward(self, spec_idx, frozen_hidden):
-        """Continue forward pass from layer freeze_n onwards for one specialist."""
-        model = self.specs[spec_idx]
+        # Capture (cos, sin) that the model computes for the first layer
+        captured_pos_emb = {}
+
+        def _pos_hook(module, args, kwargs, output):
+            pe = kwargs.get("position_embeddings", None)
+            if pe is not None:
+                captured_pos_emb["pe"] = pe
+            return output
+
+        # Hook on first layer's attention to sniff position_embeddings
+        attn0 = all_layers[0].attention
+        hook_handle = attn0.register_forward_hook(_pos_hook, with_kwargs=True)
+
         with torch.no_grad():
-            x = frozen_hidden
-            for i in range(self.freeze_n, len(model.gpt_neox.layers)):
-                x = model.gpt_neox.layers[i](x)[0]
-            x = model.gpt_neox.final_layer_norm(x)
-            logits = model.embed_out(x)
+            # Temporarily replace layer list with only the first freeze_n layers
+            frozen_only = torch.nn.ModuleList(list(all_layers)[:self.freeze_n])
+            model.gpt_neox.layers = frozen_only
+            try:
+                out = model.gpt_neox(input_ids)
+                hidden = out.last_hidden_state  # (B, T, H)
+            finally:
+                model.gpt_neox.layers = all_layers
+                hook_handle.remove()
+
+        pos_emb = captured_pos_emb.get("pe", None)
+        return hidden, pos_emb  # (B, T, H), (cos, sin) or None
+
+    def _unfrozen_forward(self, spec_idx, frozen_hidden, position_embeddings):
+        """Continue forward pass from layer freeze_n onwards for one specialist.
+
+        We use the layer-swap + embed_in-patch trick: temporarily replace the model's
+        layer list with only the unfrozen layers and patch embed_in to return
+        frozen_hidden directly.  This way GPTNeoXModel.forward computes position
+        embeddings internally (using the correct tensor shapes) and passes them to
+        each unfrozen layer.  We create a dummy input_ids of the correct sequence
+        length so that position_ids are computed correctly.
+        """
+        model = self.specs[spec_idx]
+        all_layers = model.gpt_neox.layers
+        n_total = len(all_layers)
+
+        # Patch embed_in to return frozen_hidden instead of re-embedding input_ids.
+        # embed_in is an nn.Module (nn.Embedding), so we wrap the passthrough in a Module.
+        class _PassthroughEmbed(nn.Module):
+            def __init__(self, h):
+                super().__init__()
+                self._h = h
+            def forward(self, input_ids):
+                return self._h
+
+        B, T = frozen_hidden.shape[0], frozen_hidden.shape[1]
+        dummy_ids = torch.zeros(B, T, dtype=torch.long, device=frozen_hidden.device)
+
+        original_embed_in = model.gpt_neox.embed_in
+        unfrozen_layers = torch.nn.ModuleList(list(all_layers)[self.freeze_n:])
+        model.gpt_neox.embed_in = _PassthroughEmbed(frozen_hidden)
+        model.gpt_neox.layers = unfrozen_layers
+        try:
+            with torch.no_grad():
+                out = model.gpt_neox(dummy_ids)
+                hidden = out.last_hidden_state  # (B, T, H)
+                logits = model.embed_out(hidden)  # GPTNeoXModel already applies final_layer_norm
+        finally:
+            model.gpt_neox.layers = all_layers
+            model.gpt_neox.embed_in = original_embed_in
+
         return logits  # (B, T, V)
 
     def forward(self, input_ids, labels=None):
         # 1. Shared frozen-layer pass
-        frozen_h = self._frozen_forward(input_ids)         # (B, T, H)
-        h_pooled = frozen_h.mean(dim=1).float()            # (B, H)
+        frozen_h, pos_emb = self._frozen_forward(input_ids)  # (B, T, H), (cos, sin)
+        h_pooled = frozen_h.mean(dim=1).float()               # (B, H)
 
         # 2. Route
         gates_full = torch.softmax(self.router(h_pooled), dim=-1)  # (B, 3)
@@ -254,7 +314,7 @@ class SparseTopKMoE(nn.Module):
             for rank in range(self.top_k):
                 exp_idx = top_idx[b, rank].item()
                 w       = top_vals[b, rank] / gate_sum
-                logits_exp = self._unfrozen_forward(exp_idx, frozen_h[b:b+1])
+                logits_exp = self._unfrozen_forward(exp_idx, frozen_h[b:b+1], pos_emb)
                 if weighted is None:
                     weighted = w * logits_exp
                 else:

@@ -1,0 +1,125 @@
+{
+  "experiment": "inference_benchmark",
+  "device": "cuda",
+  "gpu_name": "NVIDIA GeForce RTX 5090",
+  "warmup_runs": 3,
+  "measure_runs": 10,
+  "seq_len": 512,
+  "results_410m": [
+    {
+      "config": "Base model",
+      "params_M": 405.3,
+      "peak_vram_GB": 1.154,
+      "tokens_per_sec": 28635.9,
+      "latency_ms": 17.88,
+      "relative_latency": 1.0,
+      "eval_loss": 2.692576,
+      "notes": ""
+    },
+    {
+      "config": "Single specialist",
+      "params_M": 405.3,
+      "peak_vram_GB": 1.965,
+      "tokens_per_sec": 29678.1,
+      "latency_ms": 17.25,
+      "relative_latency": 0.965,
+      "eval_loss": 2.613803,
+      "notes": "code specialist, seed=42"
+    },
+    {
+      "config": "Monolithic",
+      "params_M": 405.3,
+      "peak_vram_GB": 1.965,
+      "tokens_per_sec": 29472.8,
+      "latency_ms": 17.37,
+      "relative_latency": 0.972,
+      "eval_loss": 2.381473,
+      "notes": "6000-step mixed training, seed=42"
+    },
+    {
+      "config": "KALAVAI MoE \u2014 dense (top-3)",
+      "params_M": 1216.0,
+      "peak_vram_GB": 3.458,
+      "tokens_per_sec": 10004.2,
+      "latency_ms": 51.18,
+      "relative_latency": 2.862,
+      "eval_loss": 2.568451,
+      "notes": "3 full specialist passes + router"
+    },
+    {
+      "config": "KALAVAI MoE \u2014 sparse top-1",
+      "params_M": 1216.0,
+      "peak_vram_GB": 2.674,
+      "tokens_per_sec": 30547.9,
+      "latency_ms": 16.76,
+      "relative_latency": 0.937,
+      "eval_loss": 3.106406,
+      "routing_agreement_pct": 100.0,
+      "notes": "1 frozen-layer pass + 1 expert unfrozen pass"
+    },
+    {
+      "config": "KALAVAI MoE \u2014 sparse top-2",
+      "params_M": 1216.0,
+      "peak_vram_GB": 2.675,
+      "tokens_per_sec": 15263.4,
+      "latency_ms": 33.54,
+      "relative_latency": 1.876,
+      "eval_loss": 3.044688,
+      "notes": "1 frozen-layer pass + 2 expert unfrozen passes"
+    }
+  ],
+  "results_1b": [
+    {
+      "config": "Base model",
+      "params_M": 1011.8,
+      "peak_vram_GB": 2.385,
+      "tokens_per_sec": 31904.7,
+      "latency_ms": 16.05,
+      "relative_latency": 1.0,
+      "eval_loss": 2.55247,
+      "notes": ""
+    },
+    {
+      "config": "KALAVAI MoE \u2014 dense (top-3)",
+      "params_M": 3035.4,
+      "peak_vram_GB": 8.594,
+      "tokens_per_sec": 9531.7,
+      "latency_ms": 53.72,
+      "relative_latency": 3.347,
+      "eval_loss": 2.381977,
+      "notes": "3 full specialist passes + router"
+    },
+    {
+      "config": "KALAVAI MoE \u2014 sparse top-1",
+      "params_M": 3035.4,
+      "peak_vram_GB": 8.339,
+      "tokens_per_sec": 27672.8,
+      "latency_ms": 18.5,
+      "relative_latency": 1.153,
+      "eval_loss": 2.411719,
+      "routing_agreement_pct": 10.0,
+      "notes": "1 frozen-layer pass + 1 expert unfrozen pass"
+    },
+    {
+      "config": "KALAVAI MoE \u2014 sparse top-2",
+      "params_M": 3035.4,
+      "peak_vram_GB": 6.316,
+      "tokens_per_sec": 16361.8,
+      "latency_ms": 31.29,
+      "relative_latency": 1.95,
+      "eval_loss": 2.429688,
+      "notes": "1 frozen-layer pass + 2 expert unfrozen passes"
+    }
+  ],
+  "summary": {
+    "410m_base_ms": 17.88,
+    "410m_dense_moe_ms": 51.18,
+    "410m_sparse_top1_ms": 16.76,
+    "410m_routing_agreement_pct": 100.0,
+    "1b_base_ms": 16.05,
+    "1b_dense_moe_ms": 53.72,
+    "1b_sparse_top1_ms": 18.5,
+    "1b_routing_agreement_pct": 10.0
+  },
+  "timestamp": "2026-03-17T14:53:00Z"
+}
