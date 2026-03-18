@@ -285,16 +285,18 @@ def load_all_data(tokenizer) -> tuple[dict, dict]:
 
 # ============================================================================
 # Architecture — 20-Expert MoE with linear router
-# Specialists offloaded to CPU; moved to GPU one at a time during forward pass.
-# This enables A100 80GB to handle 20 × Pythia-1B without OOM.
+#
+# Two modes (auto-selected at init based on available VRAM):
+#   GPU mode:  all specialists loaded on GPU simultaneously — fast (~3× faster
+#              router training). Requires ~67 GB VRAM (H100 NVL or tight A100).
+#   CPU mode:  specialists kept on CPU, moved to GPU one at a time per forward
+#              pass. Works on any A100 80GB. Slower but always safe.
 # ============================================================================
 
 class TwentyExpertMoE(nn.Module):
     """
     Sequence-level MoE over N specialist models.
-
     Router: mean of last hidden states → nn.Linear(H, N) → softmax gates.
-    Specialists stored on CPU; moved to GPU one at a time during forward pass.
     Only the router has requires_grad=True.
     """
     def __init__(self, specialist_state_dicts: list, model_id: str, revision: str,
@@ -305,44 +307,88 @@ class TwentyExpertMoE(nn.Module):
         self.revision    = revision
         self.device      = device
         self.hidden_size = hidden_size
-        self._sd_list    = specialist_state_dicts  # kept on CPU
         self.router = nn.Linear(hidden_size, self.n_experts, bias=False)
 
-    def _run_one(self, sd: dict, input_ids: torch.Tensor):
-        """Load one specialist to GPU, run forward, return (logits, pooled_h) on CPU."""
-        model = AutoModelForCausalLM.from_pretrained(
+        # Try to load all specialists onto GPU; fall back to CPU offload
+        self._gpu_models = None  # list of nn.Module on GPU (fast path)
+        self._cpu_sds    = None  # list of state_dicts on CPU (slow path)
+
+        vram_free_gb = 0.0
+        if torch.cuda.is_available():
+            free, total = torch.cuda.mem_get_info()
+            vram_free_gb = free / 1e9
+
+        # Each Pythia-1B is ~2.8 GB bfloat16; need headroom for activations + logits
+        vram_needed_gb = self.n_experts * 3.2
+        if vram_free_gb >= vram_needed_gb:
+            print(f"  [MoE] GPU mode: loading all {self.n_experts} specialists on GPU "
+                  f"({vram_free_gb:.0f} GB free, need ~{vram_needed_gb:.0f} GB)")
+            try:
+                models = []
+                for i, sd in enumerate(specialist_state_dicts):
+                    m = AutoModelForCausalLM.from_pretrained(
+                        model_id, revision=revision,
+                        dtype=torch.bfloat16, trust_remote_code=True,
+                    ).to(device)
+                    m.load_state_dict(sd)
+                    m.eval()
+                    for p in m.parameters():
+                        p.requires_grad_(False)
+                    models.append(m)
+                    if (i + 1) % 5 == 0:
+                        print(f"    loaded {i+1}/{self.n_experts}")
+                self._gpu_models = models
+                print(f"  [MoE] GPU mode active — all {self.n_experts} specialists on GPU")
+            except torch.cuda.OutOfMemoryError:
+                print("  [MoE] GPU mode OOM — falling back to CPU offload")
+                for m in models:
+                    del m
+                torch.cuda.empty_cache()
+                self._gpu_models = None
+
+        if self._gpu_models is None:
+            print(f"  [MoE] CPU offload mode: {self.n_experts} specialists on CPU "
+                  f"({vram_free_gb:.0f} GB VRAM free)")
+            self._cpu_sds = specialist_state_dicts
+
+    def _run_one_cpu(self, sd: dict, input_ids: torch.Tensor):
+        """CPU offload path: build model, load weights, run, discard."""
+        m = AutoModelForCausalLM.from_pretrained(
             self.model_id, revision=self.revision,
             dtype=torch.bfloat16, trust_remote_code=True,
         ).to(self.device)
-        model.load_state_dict(sd)
-        model.eval()
+        m.load_state_dict(sd)
+        m.eval()
         with torch.no_grad():
-            out = model(input_ids=input_ids, output_hidden_states=True)
+            out = m(input_ids=input_ids, output_hidden_states=True)
         logits   = out.logits.float().cpu()
         h_pooled = out.hidden_states[-1].float().mean(dim=1).cpu()
-        del model, out
+        del m, out
         torch.cuda.empty_cache()
         return logits, h_pooled
 
     def forward(self, input_ids, labels=None):
-        """Run all specialists sequentially, fuse logits via router."""
         input_ids_gpu = input_ids.to(self.device)
+        all_logits, all_h = [], []
 
-        all_logits  = []   # list of (B, T, V) CPU tensors
-        all_h       = []   # list of (B, H) CPU tensors
+        if self._gpu_models is not None:
+            # Fast path: all specialists already on GPU
+            for m in self._gpu_models:
+                with torch.no_grad():
+                    out = m(input_ids=input_ids_gpu, output_hidden_states=True)
+                all_logits.append(out.logits.float().cpu())
+                all_h.append(out.hidden_states[-1].float().mean(dim=1).cpu())
+        else:
+            # CPU offload path: load one specialist at a time
+            for sd in self._cpu_sds:
+                logits, h = self._run_one_cpu(sd, input_ids_gpu)
+                all_logits.append(logits)
+                all_h.append(h)
 
-        for sd in self._sd_list:
-            logits, h = self._run_one(sd, input_ids_gpu)
-            all_logits.append(logits)
-            all_h.append(h)
-
-        # Gate on mean hidden state (on GPU)
-        h_mean = torch.stack(all_h, dim=0).mean(dim=0).to(self.device)  # (B, H)
-        gates = torch.softmax(self.router(h_mean), dim=-1)               # (B, N)
-
-        # Weighted sum of logits
-        stacked = torch.stack(all_logits, dim=1).to(self.device)         # (B, N, T, V)
-        fused = (gates[:, :, None, None] * stacked).sum(dim=1)           # (B, T, V)
+        h_mean = torch.stack(all_h, dim=0).mean(dim=0).to(self.device)   # (B, H)
+        gates  = torch.softmax(self.router(h_mean), dim=-1)               # (B, N)
+        stacked = torch.stack(all_logits, dim=1).to(self.device)          # (B, N, T, V)
+        fused   = (gates[:, :, None, None] * stacked).sum(dim=1)          # (B, T, V)
 
         loss = None
         if labels is not None:
