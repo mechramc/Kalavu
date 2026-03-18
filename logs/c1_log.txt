@@ -27,3 +27,273 @@ CONDITION: control
 
   Training code (batch=8, lr=2e-05, steps=2000)...
 Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3107.33it/s]
+  Frozen 4 layers. Trainable: 303.4M / 405.3M
+  [code] 50/2000 loss=7.3995 (7s)
+  [code] 100/2000 loss=7.3696 (14s)
+  [code] 150/2000 loss=7.3653 (21s)
+  [code] 200/2000 loss=7.3252 (27s)
+  [code] 250/2000 loss=7.2791 (34s)
+  [code] 300/2000 loss=7.2354 (41s)
+  [code] 350/2000 loss=7.1979 (47s)
+  [code] 400/2000 loss=7.1484 (54s)
+  [code] 450/2000 loss=7.0958 (61s)
+  [code] 500/2000 loss=7.0694 (67s)
+  [code] 550/2000 loss=7.0251 (74s)
+  [code] 600/2000 loss=6.9831 (80s)
+  [code] 650/2000 loss=6.9521 (87s)
+  [code] 700/2000 loss=6.9173 (94s)
+  [code] 750/2000 loss=6.8782 (101s)
+  [code] 800/2000 loss=6.8507 (107s)
+  [code] 850/2000 loss=6.8231 (114s)
+  [code] 900/2000 loss=6.7917 (120s)
+  [code] 950/2000 loss=6.7665 (127s)
+  [code] 1000/2000 loss=6.7426 (134s)
+  [code] 1050/2000 loss=6.7160 (140s)
+  [code] 1100/2000 loss=6.6958 (147s)
+  [code] 1150/2000 loss=6.6747 (154s)
+  [code] 1200/2000 loss=6.6537 (161s)
+  [code] 1250/2000 loss=6.6374 (167s)
+  [code] 1300/2000 loss=6.6199 (174s)
+  [code] 1350/2000 loss=6.6023 (181s)
+  [code] 1400/2000 loss=6.5873 (188s)
+  [code] 1450/2000 loss=6.5745 (195s)
+  [code] 1500/2000 loss=6.5603 (201s)
+  [code] 1550/2000 loss=6.5440 (208s)
+  [code] 1600/2000 loss=6.5369 (215s)
+  [code] 1650/2000 loss=6.5247 (221s)
+  [code] 1700/2000 loss=6.5123 (228s)
+  [code] 1750/2000 loss=6.5043 (235s)
+  [code] 1800/2000 loss=6.4953 (242s)
+  [code] 1850/2000 loss=6.4841 (249s)
+  [code] 1900/2000 loss=6.4770 (256s)
+  [code] 1950/2000 loss=6.4699 (263s)
+  [code] 2000/2000 loss=6.4604 (270s)
+  code done (270s)
+
+  Training science (batch=8, lr=2e-05, steps=2000)...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3330.87it/s]
+  Frozen 4 layers. Trainable: 303.4M / 405.3M
+  [science] 50/2000 loss=11.5194 (7s)
+  [science] 100/2000 loss=11.4137 (14s)
+  [science] 150/2000 loss=11.2525 (22s)
+  [science] 200/2000 loss=11.0830 (29s)
+  [science] 250/2000 loss=10.9103 (36s)
+  [science] 300/2000 loss=10.7570 (43s)
+  [science] 350/2000 loss=10.6185 (51s)
+  [science] 400/2000 loss=10.4975 (58s)
+  [science] 450/2000 loss=10.3854 (65s)
+  [science] 500/2000 loss=10.2811 (72s)
+  [science] 550/2000 loss=10.1855 (79s)
+  [science] 600/2000 loss=10.0992 (86s)
+  [science] 650/2000 loss=10.0177 (93s)
+  [science] 700/2000 loss=9.9407 (100s)
+  [science] 750/2000 loss=9.8697 (107s)
+  [science] 800/2000 loss=9.8030 (114s)
+  [science] 850/2000 loss=9.7416 (121s)
+  [science] 900/2000 loss=9.6824 (128s)
+  [science] 950/2000 loss=9.6284 (135s)
+  [science] 1000/2000 loss=9.5775 (143s)
+  [science] 1050/2000 loss=9.5308 (150s)
+  [science] 1100/2000 loss=9.4865 (157s)
+  [science] 1150/2000 loss=9.4453 (164s)
+  [science] 1200/2000 loss=9.4062 (171s)
+  [science] 1250/2000 loss=9.3705 (178s)
+  [science] 1300/2000 loss=9.3373 (185s)
+  [science] 1350/2000 loss=9.3053 (192s)
+  [science] 1400/2000 loss=9.2754 (199s)
+  [science] 1450/2000 loss=9.2484 (206s)
+  [science] 1500/2000 loss=9.2226 (214s)
+  [science] 1550/2000 loss=9.1978 (221s)
+  [science] 1600/2000 loss=9.1749 (228s)
+  [science] 1650/2000 loss=9.1540 (235s)
+  [science] 1700/2000 loss=9.1335 (242s)
+  [science] 1750/2000 loss=9.1142 (249s)
+  [science] 1800/2000 loss=9.0962 (256s)
+  [science] 1850/2000 loss=9.0797 (263s)
+  [science] 1900/2000 loss=9.0631 (270s)
+  [science] 1950/2000 loss=9.0476 (277s)
+  [science] 2000/2000 loss=9.0330 (283s)
+  science done (283s)
+
+  Training fiction (batch=8, lr=2e-05, steps=2000)...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3390.74it/s]
+warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Kalavai experiments - Additional.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/OPEN_ISSUES.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'kalavai_logical_issues_audit.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper/kalavai_neurips2026.aux', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper/kalavai_neurips2026.out', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper/neurips_2025.tex', LF will be replaced by CRLF the next time Git touches it
+[main b37278d] [kalavai] heterogeneous control: +2.20% vs spec
+ 17 files changed, 1634 insertions(+), 2 deletions(-)
+ create mode 100644 Kalavai experiments - Additional.md
+ create mode 100644 docs/Beat_corporate_AI_with_consumer_GPUs.m4a
+ create mode 100644 docs/OPEN_ISSUES.md
+ create mode 100644 docs/The_$5_AI__How_20_Strangers_Built_a_World-Class_Model.mp4
+ create mode 100644 docs/The_KALAVAI_Protocol.pptx
+ create mode 100644 experiments/results/pythia/heterogeneous_cooperative/base_eval.json
+ create mode 100644 experiments/results/pythia/heterogeneous_cooperative/result_control.json
+ create mode 100644 kalavai_logical_issues_audit.md
+ create mode 100644 logs/c1_log.txt
+ create mode 100644 paper/kalavai_neurips2026.aux
+ create mode 100644 paper/kalavai_neurips2026.blg
+ create mode 100644 paper/kalavai_neurips2026.out
+ create mode 100644 paper/neurips_2025.pdf
+ create mode 100644 paper/neurips_2025.tex
+To https://github.com/mechramc/Kalavai.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mechramc/Kalavai.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+  Frozen 4 layers. Trainable: 303.4M / 405.3M
+  [fiction] 50/2000 loss=12.7427 (7s)
+  [fiction] 100/2000 loss=12.6485 (13s)
+  [fiction] 150/2000 loss=12.6673 (20s)
+  [fiction] 200/2000 loss=12.6457 (27s)
+  [fiction] 250/2000 loss=12.6146 (34s)
+  [fiction] 300/2000 loss=12.5647 (41s)
+  [fiction] 350/2000 loss=12.5224 (47s)
+  [fiction] 400/2000 loss=12.4825 (54s)
+  [fiction] 450/2000 loss=12.4422 (61s)
+  [fiction] 500/2000 loss=12.4393 (67s)
+  [fiction] 550/2000 loss=12.4188 (74s)
+  [fiction] 600/2000 loss=12.4068 (81s)
+  [fiction] 650/2000 loss=12.4020 (88s)
+  [fiction] 700/2000 loss=12.3904 (94s)
+  [fiction] 750/2000 loss=12.3712 (101s)
+  [fiction] 800/2000 loss=12.3539 (108s)
+  [fiction] 850/2000 loss=12.3376 (115s)
+  [fiction] 900/2000 loss=12.3170 (121s)
+  [fiction] 950/2000 loss=12.2970 (128s)
+  [fiction] 1000/2000 loss=12.2846 (135s)
+  [fiction] 1050/2000 loss=12.2694 (142s)
+  [fiction] 1100/2000 loss=12.2518 (148s)
+  [fiction] 1150/2000 loss=12.2343 (155s)
+  [fiction] 1200/2000 loss=12.2074 (162s)
+  [fiction] 1250/2000 loss=12.2010 (169s)
+  [fiction] 1300/2000 loss=12.1955 (175s)
+  [fiction] 1350/2000 loss=12.1895 (182s)
+  [fiction] 1400/2000 loss=12.1831 (189s)
+  [fiction] 1450/2000 loss=12.1820 (195s)
+  [fiction] 1500/2000 loss=12.1782 (202s)
+  [fiction] 1550/2000 loss=12.1675 (209s)
+  [fiction] 1600/2000 loss=12.1604 (216s)
+  [fiction] 1650/2000 loss=12.1515 (222s)
+  [fiction] 1700/2000 loss=12.1433 (229s)
+  [fiction] 1750/2000 loss=12.1389 (236s)
+  [fiction] 1800/2000 loss=12.1347 (243s)
+  [fiction] 1850/2000 loss=12.1242 (250s)
+  [fiction] 1900/2000 loss=12.1170 (257s)
+  [fiction] 1950/2000 loss=12.1061 (264s)
+  [fiction] 2000/2000 loss=12.0953 (271s)
+  fiction done (271s)
+    Router 100/500: loss=2.9064
+    Router 200/500: loss=3.0151
+    Router 300/500: loss=2.8682
+    Router 400/500: loss=2.7687
+    Router 500/500: loss=2.6716
+
+  KEY RESULT (control):
+    MoE vs best spec: +2.20%
+    MoE vs base:      +9.57%
+
+[git] [kalavai] heterogeneous control: +2.20% vs spec
+[git] WARNING: Command '['git', 'push']' returned non-zero exit status 1.
+
+======================================================================
+CONDITION: diff_batch
+  code    : batch=4, lr=2e-05, steps=4000
+  science : batch=8, lr=2e-05, steps=2000
+  fiction : batch=16, lr=2e-05, steps=1000
+======================================================================
+
+  Training code (batch=4, lr=2e-05, steps=4000)...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 2962.51it/s]
+  Frozen 4 layers. Trainable: 303.4M / 405.3M
+  [code] 50/4000 loss=7.4685 (6s)
+  [code] 100/4000 loss=7.3980 (13s)
+  [code] 150/4000 loss=7.4157 (19s)
+  [code] 200/4000 loss=7.3637 (26s)
+  [code] 250/4000 loss=7.3466 (32s)
+  [code] 300/4000 loss=7.3558 (38s)
+  [code] 350/4000 loss=7.3434 (45s)
+  [code] 400/4000 loss=7.3123 (51s)
+  [code] 450/4000 loss=7.2955 (57s)
+  [code] 500/4000 loss=7.2617 (64s)
+  [code] 550/4000 loss=7.2330 (70s)
+  [code] 600/4000 loss=7.2121 (77s)
+  [code] 650/4000 loss=7.1927 (83s)
+  [code] 700/4000 loss=7.1679 (90s)
+  [code] 750/4000 loss=7.1404 (96s)
+  [code] 800/4000 loss=7.1108 (102s)
+  [code] 850/4000 loss=7.0775 (109s)
+  [code] 900/4000 loss=7.0512 (115s)
+  [code] 950/4000 loss=7.0364 (121s)
+  [code] 1000/4000 loss=7.0179 (128s)
+  [code] 1050/4000 loss=6.9902 (134s)
+  [code] 1100/4000 loss=6.9669 (140s)
+  [code] 1150/4000 loss=6.9386 (147s)
+  [code] 1200/4000 loss=6.9188 (153s)
+  [code] 1250/4000 loss=6.9016 (160s)
+  [code] 1300/4000 loss=6.8819 (166s)
+  [code] 1350/4000 loss=6.8598 (172s)
+  [code] 1400/4000 loss=6.8418 (179s)
+  [code] 1450/4000 loss=6.8183 (185s)
+  [code] 1500/4000 loss=6.7974 (191s)
+  [code] 1550/4000 loss=6.7817 (198s)
+  [code] 1600/4000 loss=6.7652 (204s)
+  [code] 1650/4000 loss=6.7476 (211s)
+  [code] 1700/4000 loss=6.7333 (217s)
+  [code] 1750/4000 loss=6.7143 (224s)
+  [code] 1800/4000 loss=6.6978 (231s)
+  [code] 1850/4000 loss=6.6791 (237s)
+  [code] 1900/4000 loss=6.6692 (244s)
+  [code] 1950/4000 loss=6.6570 (250s)
+  [code] 2000/4000 loss=6.6416 (256s)
+  [code] 2050/4000 loss=6.6269 (262s)
+  [code] 2100/4000 loss=6.6121 (269s)
+  [code] 2150/4000 loss=6.5984 (275s)
+  [code] 2200/4000 loss=6.5892 (282s)
+  [code] 2250/4000 loss=6.5784 (288s)
+  [code] 2300/4000 loss=6.5655 (294s)
+  [code] 2350/4000 loss=6.5548 (301s)
+  [code] 2400/4000 loss=6.5420 (307s)
+  [code] 2450/4000 loss=6.5309 (313s)
+  [code] 2500/4000 loss=6.5236 (320s)
+  [code] 2550/4000 loss=6.5136 (326s)
+  [code] 2600/4000 loss=6.5040 (332s)
+  [code] 2650/4000 loss=6.4954 (339s)
+  [code] 2700/4000 loss=6.4844 (345s)
+  [code] 2750/4000 loss=6.4747 (351s)
+  [code] 2800/4000 loss=6.4677 (358s)
+  [code] 2850/4000 loss=6.4607 (364s)
+  [code] 2900/4000 loss=6.4534 (370s)
+  [code] 2950/4000 loss=6.4463 (377s)
+  [code] 3000/4000 loss=6.4376 (383s)
+  [code] 3050/4000 loss=6.4286 (389s)
+  [code] 3100/4000 loss=6.4199 (396s)
+  [code] 3150/4000 loss=6.4165 (402s)
+  [code] 3200/4000 loss=6.4114 (408s)
+  [code] 3250/4000 loss=6.4044 (415s)
+  [code] 3300/4000 loss=6.3980 (421s)
+  [code] 3350/4000 loss=6.3910 (427s)
+  [code] 3400/4000 loss=6.3845 (434s)
+  [code] 3450/4000 loss=6.3809 (440s)
+  [code] 3500/4000 loss=6.3754 (446s)
+  [code] 3550/4000 loss=6.3700 (452s)
+  [code] 3600/4000 loss=6.3654 (459s)
+  [code] 3650/4000 loss=6.3587 (465s)
+  [code] 3700/4000 loss=6.3532 (471s)
+  [code] 3750/4000 loss=6.3497 (477s)
+  [code] 3800/4000 loss=6.3452 (483s)
+  [code] 3850/4000 loss=6.3405 (490s)
+  [code] 3900/4000 loss=6.3373 (496s)
+  [code] 3950/4000 loss=6.3315 (502s)
+  [code] 4000/4000 loss=6.3269 (508s)
+  code done (508s)
+
+  Training science (batch=8, lr=2e-05, steps=2000)...
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3361.58it/s]

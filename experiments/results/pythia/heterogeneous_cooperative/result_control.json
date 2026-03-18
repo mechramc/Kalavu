@@ -22,46 +22,46 @@
   },
   "eval_heldout": {
     "base": {
-      "code": 2.0824,
-      "science": 2.879199,
-      "fiction": 3.058623,
-      "mixed": 2.981701
+      "code": 2.088434,
+      "science": 2.89201,
+      "fiction": 2.973911,
+      "mixed": 2.253024
     },
     "code_spec": {
-      "code": 1.877263,
-      "science": 2.893154,
-      "fiction": 3.069004,
-      "mixed": 2.959557
+      "code": 1.879241,
+      "science": 2.905798,
+      "fiction": 2.977518,
+      "mixed": 2.092842
     },
     "science_spec": {
-      "code": 2.169218,
-      "science": 2.543885,
-      "fiction": 3.151322,
-      "mixed": 3.039478
+      "code": 2.175471,
+      "science": 2.556511,
+      "fiction": 3.061423,
+      "mixed": 2.248401
     },
     "fiction_spec": {
-      "code": 2.097083,
-      "science": 2.8779,
-      "fiction": 2.64263,
-      "mixed": 2.756988
+      "code": 2.102817,
+      "science": 2.890405,
+      "fiction": 2.21929,
+      "mixed": 2.264011
     },
     "weight_avg": {
-      "code": 2.010552,
-      "science": 2.718522,
-      "fiction": 2.910677,
-      "mixed": 2.87962
+      "code": 2.015083,
+      "science": 2.731694,
+      "fiction": 2.710929,
+      "mixed": 2.161416
     },
     "moe": {
-      "code": 1.877423,
-      "science": 2.543568,
-      "fiction": 2.643023,
-      "mixed": 2.696252
+      "code": 1.879452,
+      "science": 2.556296,
+      "fiction": 2.21985,
+      "mixed": 2.017032
     }
   },
-  "base_mixed": 2.981701,
-  "best_spec_mixed": 2.756988,
-  "moe_mixed": 2.696252,
-  "improvement_vs_spec": 2.203,
-  "improvement_vs_base": 9.5734,
-  "timestamp": "2026-03-18T10:34:24Z"
+  "base_mixed": 2.253024,
+  "best_spec_mixed": 2.092842,
+  "moe_mixed": 2.017032,
+  "improvement_vs_spec": 3.6223,
+  "improvement_vs_base": 10.4745,
+  "timestamp": "2026-03-18T11:01:29Z"
 }

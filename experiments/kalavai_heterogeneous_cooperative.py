@@ -292,10 +292,8 @@ def train_specialist(model, domain, train_chunks, device, seed,
 
 @torch.no_grad()
 def eval_loss(model, dataset, device, batch_size=4, is_fused=False):
-    g = torch.Generator()
-    g.manual_seed(999)
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True,
-                        drop_last=True, collate_fn=_collate, generator=g)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
+                        drop_last=True, collate_fn=_collate)
     total, count = 0.0, 0
     model.eval()
     for batch in loader:

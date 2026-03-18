@@ -42,7 +42,8 @@
       "Read(//c/Github/Kalavai/**)",
       "Bash(done)",
       "Bash(for f in experiments/results/pythia/pythia_6b_step_sweep/*.json)",
-      "Bash(do echo \"=== $f ===\")"
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(kill 586:*)"
     ]
   }
 }
