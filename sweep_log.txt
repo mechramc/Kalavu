@@ -1,2 +1,1 @@
-nohup: ignoring input
 python: can't open file '/workspace/Kalavai/kalavai_6b_step_sweep.py': [Errno 2] No such file or directory
