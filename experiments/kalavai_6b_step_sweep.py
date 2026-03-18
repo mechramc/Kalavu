@@ -227,7 +227,7 @@ def load_model(device: str, gradient_checkpointing: bool = True):
         dtype=torch.bfloat16,
         device_map="auto",
         trust_remote_code=True,
-        use_safetensors=False,
+        use_safetensors=True,
     )
     if gradient_checkpointing:
         model.gradient_checkpointing_enable()
