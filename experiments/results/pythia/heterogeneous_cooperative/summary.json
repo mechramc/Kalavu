@@ -1,0 +1,29 @@
+{
+  "experiment": "heterogeneous_cooperative",
+  "model_id": "EleutherAI/pythia-410m",
+  "control_improvement_pct": 3.6223,
+  "conditions": {
+    "control": {
+      "improvement_vs_spec": 3.6223,
+      "delta_vs_control": 0.0,
+      "within_2pp": true
+    },
+    "diff_batch": {
+      "improvement_vs_spec": 3.684,
+      "delta_vs_control": 0.0617,
+      "within_2pp": true
+    },
+    "diff_lr": {
+      "improvement_vs_spec": 3.3357,
+      "delta_vs_control": -0.2866,
+      "within_2pp": true
+    },
+    "diff_steps": {
+      "improvement_vs_spec": 3.4709,
+      "delta_vs_control": -0.1514,
+      "within_2pp": true
+    }
+  },
+  "conclusion": "ROBUST",
+  "timestamp": "2026-03-18T11:49:39Z"
+}
