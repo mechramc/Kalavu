@@ -77,9 +77,12 @@ N_SAMPLES       = 2000     # per domain/language (smaller than exp2 — 20 contr
 
 SEEDS           = [42]
 
-RESULTS_DIR    = Path("results/phase2/twenty_contributor")
-CHECKPOINT_DIR = Path("checkpoints/phase2/twenty_contributor")
-CACHE_DIR      = Path("data_cache/phase2")
+# Override via env vars to redirect large checkpoint/cache dirs to local NVMe
+# (avoids filling network drive — 20 × Pythia-1B checkpoints = ~56 GB)
+# Example: export KALAVAI_CHECKPOINT_DIR=/tmp/kalavai_exp3_checkpoints
+RESULTS_DIR    = Path(os.environ.get("KALAVAI_RESULTS_DIR",    "results/phase2/twenty_contributor"))
+CHECKPOINT_DIR = Path(os.environ.get("KALAVAI_CHECKPOINT_DIR", "checkpoints/phase2/twenty_contributor"))
+CACHE_DIR      = Path(os.environ.get("KALAVAI_CACHE_DIR",      "data_cache/phase2"))
 
 # ── Specialist list ──────────────────────────────────────────────────────────
 LANGUAGE_SPECIALISTS = [
