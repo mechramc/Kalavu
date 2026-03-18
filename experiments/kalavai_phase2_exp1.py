@@ -69,7 +69,9 @@ ROUTER_BATCH    = 4
 EVAL_BATCH_SIZE = 4
 EVAL_BATCHES    = 50
 
-N_SAMPLES_LANGUAGE = 50000  # cc100 lines per language (short sentences ~20-50 tokens)
+N_SAMPLES_LANGUAGE = 50000  # cc100 lines (short ~30 tokens each → need many)
+                            # wikipedia fallback uses same n but articles are longer;
+                            # streaming stops early once enough text is tokenized
 N_SAMPLES_CODE     = 3000   # code_search_net (long functions, 3k → plenty of chunks)
 
 DOMAINS = ["tamil", "yoruba", "welsh", "code"]
@@ -82,14 +84,31 @@ CHECKPOINT_DIR = Path(os.environ.get("KALAVAI_CHECKPOINT_DIR", "checkpoints/phas
 # Data loading
 # ============================================================================
 
+_WIKI_LANG = {"ta": "20231101.ta", "yo": "20231101.yo", "cy": "20231101.cy"}
+
 def load_cc100_texts(lang_code: str, n: int) -> list[str]:
     from datasets import load_dataset
-    print(f"  Loading cc100 lang={lang_code} (n={n})...")
-    ds = load_dataset("cc100", lang=lang_code, split="train",
-                      streaming=True, trust_remote_code=True)
-    texts = [s["text"][:5000] for _, s in zip(range(n), ds) if s["text"].strip()]
-    print(f"    {len(texts)} raw texts")
-    return texts
+    # Try cc100 first (works on RunPod with older datasets); fall back to
+    # wikimedia/wikipedia (Parquet, no script, works everywhere).
+    try:
+        print(f"  Loading cc100 lang={lang_code} (n={n})...")
+        ds = load_dataset("cc100", lang=lang_code, split="train", streaming=True)
+        texts = [s["text"][:5000] for _, s in zip(range(n), ds) if s["text"].strip()]
+        if texts:
+            print(f"    {len(texts)} raw texts (cc100)")
+            return texts
+    except Exception:
+        pass
+    # Fallback: wikimedia/wikipedia — Parquet, no loading script required
+    wiki_config = _WIKI_LANG.get(lang_code)
+    if wiki_config:
+        print(f"  cc100 unavailable — loading wikimedia/wikipedia {wiki_config}...")
+        ds = load_dataset("wikimedia/wikipedia", wiki_config,
+                          split="train", streaming=True)
+        texts = [s["text"][:5000] for _, s in zip(range(n), ds) if s["text"].strip()]
+        print(f"    {len(texts)} articles (wikipedia)")
+        return texts
+    raise RuntimeError(f"No available dataset for lang_code={lang_code}")
 
 
 def load_code_texts(n: int) -> list[str]:
