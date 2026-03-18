@@ -209,7 +209,7 @@ def load_multilingual_texts(n):
 def load_model(device):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, revision=REVISION, trust_remote_code=True,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
     )
     model.to(device)
     model.eval()
@@ -398,12 +398,12 @@ def run_subset(subset_name: str, domains: list, seed: int, device: str,
     fusion_losses["base"] = {d: round(eval_loss(
         AutoModelForCausalLM.from_pretrained(MODEL_ID, revision=REVISION,
                                               trust_remote_code=True,
-                                              torch_dtype=torch.bfloat16).to(device),
+                                              dtype=torch.bfloat16).to(device),
         ds, device), 6) for d, ds in held_out.items()}
     # Reload base fresh per subset (to keep GPU clean)
     base_model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, revision=REVISION, trust_remote_code=True,
-        torch_dtype=torch.bfloat16).to(device)
+        dtype=torch.bfloat16).to(device)
     base_model.eval()
     fusion_losses["base"] = {d: round(eval_loss(base_model, ds, device), 6)
                              for d, ds in held_out.items()}

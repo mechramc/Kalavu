@@ -195,7 +195,7 @@ def load_fiction_texts(n):
 def load_model(device):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, revision=REVISION, trust_remote_code=True,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
     )
     model.to(device)
     model.eval()
