@@ -195,6 +195,7 @@ def load_fiction_texts(n):
 def load_model(device):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, revision=REVISION, trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
     )
     model.to(device)
     model.eval()
@@ -266,7 +267,8 @@ def train_specialist(model, domain, train_chunks, device, seed,
     for batch in cycle(loader):
         if step >= max_steps: break
         batch = {k: v.to(device) for k, v in batch.items()}
-        loss = model(**batch).loss / grad_accum
+        with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+            loss = model(**batch).loss / grad_accum
         loss.backward()
         accum += 1
         running_loss += loss.item() * grad_accum

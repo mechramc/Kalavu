@@ -209,6 +209,7 @@ def load_multilingual_texts(n):
 def load_model(device):
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, revision=REVISION, trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
     )
     model.to(device)
     model.eval()
@@ -284,7 +285,8 @@ def train_specialist(model, domain, train_chunks, device, seed, log_every=50):
     for batch in cycle(loader):
         if step >= MAX_STEPS: break
         batch = {k: v.to(device) for k, v in batch.items()}
-        loss  = model(**batch).loss / GRAD_ACCUM
+        with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+            loss  = model(**batch).loss / GRAD_ACCUM
         loss.backward()
         accum += 1
         running_loss += loss.item() * GRAD_ACCUM
@@ -395,11 +397,13 @@ def run_subset(subset_name: str, domains: list, seed: int, device: str,
     fusion_losses = {}
     fusion_losses["base"] = {d: round(eval_loss(
         AutoModelForCausalLM.from_pretrained(MODEL_ID, revision=REVISION,
-                                              trust_remote_code=True).to(device),
+                                              trust_remote_code=True,
+                                              torch_dtype=torch.bfloat16).to(device),
         ds, device), 6) for d, ds in held_out.items()}
     # Reload base fresh per subset (to keep GPU clean)
     base_model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID, revision=REVISION, trust_remote_code=True).to(device)
+        MODEL_ID, revision=REVISION, trust_remote_code=True,
+        torch_dtype=torch.bfloat16).to(device)
     base_model.eval()
     fusion_losses["base"] = {d: round(eval_loss(base_model, ds, device), 6)
                              for d, ds in held_out.items()}
