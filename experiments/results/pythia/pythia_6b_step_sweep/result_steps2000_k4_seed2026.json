@@ -1,0 +1,73 @@
+{
+  "steps": 2000,
+  "freeze": 4,
+  "seed": 2026,
+  "model_id": "EleutherAI/pythia-6.9b",
+  "revision": "step10000",
+  "eval_heldout": {
+    "base": {
+      "code": 1.888488,
+      "science": 2.576374,
+      "fiction": 2.495285,
+      "mixed": 2.700397
+    },
+    "code_spec": {
+      "code": 1.694582,
+      "science": 2.606141,
+      "fiction": 2.527765,
+      "mixed": 2.677469
+    },
+    "science_spec": {
+      "code": 2.014301,
+      "science": 2.420804,
+      "fiction": 2.63806,
+      "mixed": 2.797768
+    },
+    "fiction_spec": {
+      "code": 1.902006,
+      "science": 2.584945,
+      "fiction": 2.298911,
+      "mixed": 2.625144
+    },
+    "weight_avg": {
+      "code": 1.82159,
+      "science": 2.463159,
+      "fiction": 2.413494,
+      "mixed": 2.646425
+    },
+    "moe": {
+      "code": 1.694579,
+      "science": 2.420685,
+      "fiction": 2.299023,
+      "mixed": 2.553699
+    }
+  },
+  "base_mixed": 2.700397,
+  "best_spec_mixed": 2.625144,
+  "moe_mixed": 2.553699,
+  "improvement_vs_spec": 2.7216,
+  "improvement_vs_base": 5.4325,
+  "router_distribution": {
+    "code": [
+      0.9998,
+      0.0001,
+      0.0001
+    ],
+    "science": [
+      0.0,
+      0.9994,
+      0.0005
+    ],
+    "fiction": [
+      0.0005,
+      0.0002,
+      0.9993
+    ],
+    "mixed": [
+      0.9998,
+      0.0001,
+      0.0001
+    ]
+  },
+  "timestamp": "2026-03-18T23:50:39Z"
+}
