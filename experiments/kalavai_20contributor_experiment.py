@@ -167,12 +167,31 @@ def load_patent_texts(n):
 
 def load_math_texts(n):
     from datasets import load_dataset
-    ds = load_dataset("hendrycks/competition_math", split="train", streaming=True)
+    # hendrycks/competition_math is disabled (403). Use lighteval/MATH (same data, open mirror)
+    # Fallback: gsm8k (grade-school math, smaller but freely available)
+    try:
+        ds = load_dataset("lighteval/MATH", "all", split="train", streaming=True,
+                          trust_remote_code=True)
+        texts = []
+        for _, s in zip(range(n * 2), ds):
+            t = s.get("problem", "") + "\n" + s.get("solution", "")
+            if t.strip():
+                texts.append(t[:5000])
+                if len(texts) >= n:
+                    break
+        if texts:
+            return texts
+    except Exception:
+        pass
+    # Fallback: gsm8k (question + answer fields)
+    ds = load_dataset("gsm8k", "main", split="train", streaming=True, trust_remote_code=True)
     texts = []
-    for _, s in zip(range(n), ds):
-        t = s.get("problem", "") + "\n" + s.get("solution", "")
+    for _, s in zip(range(n * 2), ds):
+        t = s.get("question", "") + "\n" + s.get("answer", "")
         if t.strip():
             texts.append(t[:5000])
+            if len(texts) >= n:
+                break
     return texts
 
 
