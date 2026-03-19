@@ -30,6 +30,7 @@ Specialists:
                      finance, chemistry, fiction, dialogue, instructions
 """
 
+import argparse
 import copy
 import json
 import os
@@ -67,9 +68,9 @@ GRAD_ACCUM      = 4
 GRADIENT_CLIP   = 1.0
 WARMUP_FRACTION = 0.1
 
-ROUTER_STEPS    = 500
-ROUTER_LR       = 1e-3
-ROUTER_BATCH    = 4
+ROUTER_STEPS    = 1000
+ROUTER_LR       = 2e-4
+ROUTER_BATCH    = 20
 EVAL_BATCH_SIZE = 4
 EVAL_BATCHES    = 50
 
@@ -756,7 +757,131 @@ def print_results_summary(result: dict):
         print(f"    {name:16s}  {div:+6.2f}%  {bar}")
 
 
+def run_router_only(seed: int, tokenizer, device: str,
+                    train_chunks: dict, held_out_chunks: dict) -> dict:
+    """
+    Re-train only the router for an existing seed result.
+    Loads specialist checkpoints and eval_matrix from the prior result JSON.
+    Use after a router training failure (e.g. lr oscillation) without retraining specialists.
+    """
+    prior_path = RESULTS_DIR / f"result_seed{seed}.json"
+    if not prior_path.exists():
+        raise FileNotFoundError(f"No prior result at {prior_path}; run full seed first.")
+
+    print(f"\n[router-only seed={seed}]  loading prior eval_matrix from {prior_path}")
+    with open(prior_path) as f:
+        prior = json.load(f)
+    eval_matrix = {k: v for k, v in prior["eval_matrix"].items() if k != "moe"}
+
+    # Load specialist state dicts from checkpoints
+    spec_state_dicts = []
+    for name in SPECIALISTS:
+        ckpt_path = CHECKPOINT_DIR / f"{name}_specialist_seed{seed}.pt"
+        if not ckpt_path.exists():
+            raise FileNotFoundError(f"Missing checkpoint: {ckpt_path}")
+        print(f"  Loading {name} from {ckpt_path}")
+        sd = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+        spec_state_dicts.append(sd)
+
+    held_out_sets = {name: chunks_to_dataset(held_out_chunks[name]) for name in SPECIALISTS}
+
+    print(f"\n[moe]  rebuilding 20-expert MoE + retraining router ({ROUTER_STEPS} steps, lr={ROUTER_LR}, bs={ROUTER_BATCH})...")
+    moe = TwentyExpertMoE(
+        specialist_state_dicts=spec_state_dicts,
+        model_id=MODEL_ID,
+        revision=REVISION,
+        hidden_size=HIDDEN_SIZE,
+        device=device,
+    )
+    moe.router = moe.router.to(device)
+    train_router(moe, train_chunks, device)
+    moe.eval()
+
+    print("\n[moe eval]")
+    eval_matrix["moe"] = eval_all_domains(moe, held_out_sets, device,
+                                          EVAL_BATCH_SIZE, EVAL_BATCHES, is_fused=True)
+
+    print("\n[moe router distribution]  (top-3 gates per specialist, 10 batches)")
+    router_dist = eval_router_distribution(moe, held_out_sets, device, n_batches=10)
+    for name, gates in router_dist.items():
+        top3_idx = sorted(range(moe.n_experts), key=lambda i: gates[i], reverse=True)[:3]
+        top3_str = "  ".join(f"{SPECIALISTS[i]}={gates[i]:.3f}" for i in top3_idx)
+        print(f"  {name:16s}: top3 → {top3_str}")
+
+    del moe, spec_state_dicts
+    torch.cuda.empty_cache()
+
+    # Recompute metrics from refreshed eval_matrix
+    def eq(k):
+        return eval_matrix[k]["equal_weight_avg"]
+
+    base_eq       = eq("base")
+    moe_eq        = eq("moe")
+    best_spec_eq  = min(eq(f"{n}_spec") for n in SPECIALISTS)
+    best_spec_dom = min(SPECIALISTS, key=lambda n: eq(f"{n}_spec"))
+
+    domain_divs = []
+    for name in SPECIALISTS:
+        base_d = eval_matrix["base"].get(name, base_eq)
+        spec_d = eval_matrix[f"{name}_spec"].get(name, eq(f"{name}_spec"))
+        div = (base_d - spec_d) / base_d * 100 if base_d > 0 else 0.0
+        domain_divs.append(div)
+    mean_divergence = round(statistics.mean(domain_divs), 2)
+    gain_vs_spec    = round((best_spec_eq - moe_eq) / best_spec_eq * 100, 4)
+
+    metrics = {
+        "base_equal_weight":      round(base_eq, 6),
+        "best_spec_equal_weight": round(best_spec_eq, 6),
+        "best_spec_domain":       best_spec_dom,
+        "moe_equal_weight":       round(moe_eq, 6),
+        "improvement_vs_spec":    gain_vs_spec,
+        "improvement_vs_base":    round((base_eq - moe_eq) / base_eq * 100, 4),
+        "mean_divergence":        mean_divergence,
+        "per_specialist_divergence": {
+            name: round(domain_divs[i], 2) for i, name in enumerate(SPECIALISTS)
+        },
+    }
+
+    if mean_divergence > 15 and gain_vs_spec > 7:
+        verdict, reason = "GO", "diverge>15% AND gain>7%"
+    elif mean_divergence > 15 and gain_vs_spec <= 7:
+        verdict, reason = "PIVOT", "diverge>15% but gain<7% — check router"
+    else:
+        verdict, reason = "STOP", f"mean divergence {mean_divergence:.2f}% < 10%"
+
+    print(f"\n{'='*60}")
+    print(f"STOP/GO [seed={seed}, router-only retry]:")
+    print(f"  Mean divergence: {mean_divergence:.2f}%  |  Fusion gain: {gain_vs_spec:+.2f}%")
+    print(f"  → {verdict} ({reason})")
+    print(f"{'='*60}")
+
+    result = {
+        "seed": seed, "model_id": MODEL_ID, "revision": REVISION,
+        "n_experts": len(SPECIALISTS), "eval_batch_size": EVAL_BATCH_SIZE,
+        "eval_batches": EVAL_BATCHES, "eval_method": "per-domain-separate-then-equal-weight-avg",
+        "router_only_retry": True,
+        "specialists": SPECIALISTS,
+        "eval_matrix": {k: dict(v) for k, v in eval_matrix.items()},
+        "metrics": metrics,
+        "router_distribution": router_dist,
+        "stop_go": {"verdict": verdict, "reason": reason},
+        "config": {
+            "freeze_layers": FREEZE_LAYERS, "lr": LR, "max_steps": MAX_STEPS,
+            "batch_size": BATCH_SIZE, "grad_accum": GRAD_ACCUM,
+            "router_steps": ROUTER_STEPS, "router_lr": ROUTER_LR,
+            "router_batch": ROUTER_BATCH, "n_samples": N_SAMPLES,
+        },
+    }
+    return result
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--router-only", action="store_true",
+                        help="Skip specialist training/eval; retrain only the router "
+                             "using saved checkpoints and prior eval_matrix.")
+    args = parser.parse_args()
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")
     if device == "cuda":
@@ -766,6 +891,8 @@ def main():
     print(f"\nModel:      {MODEL_ID} @ {REVISION}")
     print(f"Experts:    {len(SPECIALISTS)} ({len(LANGUAGE_SPECIALISTS)} lang + {len(DOMAIN_SPECIALISTS)} domain)")
     print(f"Cache dir:  {CACHE_DIR.absolute()}")
+    if args.router_only:
+        print(f"Mode:       router-only retry (lr={ROUTER_LR}, bs={ROUTER_BATCH}, steps={ROUTER_STEPS})")
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, revision=REVISION)
     if tokenizer.pad_token is None:
@@ -776,6 +903,17 @@ def main():
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     for seed in SEEDS:
+        if args.router_only:
+            retry_path = RESULTS_DIR / f"result_seed{seed}_router_retry.json"
+            result = run_router_only(seed, tokenizer, device, train_chunks, held_out_chunks)
+            print_results_summary(result)
+            with open(retry_path, "w") as f:
+                json.dump(result, f, indent=2)
+            print(f"\n  Result saved: {retry_path}")
+            imp = result["metrics"]["improvement_vs_spec"]
+            print(f"\n  git commit: [kalavai] phase2 exp3 seed={seed} router-retry: {imp:+.2f}% vs spec")
+            continue
+
         result_path = RESULTS_DIR / f"result_seed{seed}.json"
         if result_path.exists():
             print(f"\n[seed={seed}]  result already exists at {result_path} — skipping")
@@ -791,7 +929,6 @@ def main():
             json.dump(result, f, indent=2)
         print(f"\n  Result saved: {result_path}")
 
-        # Commit after each seed
         imp = result["metrics"]["improvement_vs_spec"]
         print(f"\n  git commit: [kalavai] phase2 exp3 seed={seed}: {imp:+.2f}% vs spec")
 
