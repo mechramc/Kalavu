@@ -541,6 +541,20 @@ The residual pattern is informative. The four English-domain conditions (Pythia 
 
 The practical implication is that the formula $\text{gain} \approx 0.82 \times \text{divergence}$ provides a reliable pre-training estimate for English-domain and professional-domain cooperatives. Cross-lingual settings with low-resource languages will likely exceed this prediction. The formula also sets a divergence floor: below $\approx$3.5\% mean divergence, the linear prediction becomes negative, indicating the cooperative is unlikely to produce positive gains over individual specialists.
 
+\paragraph{Base-model competence as a secondary predictor.}
+Specialist divergence captures how much specialists move from the base model; a complementary factor is how competent the base model already is on the target domain. Across the six experimental conditions, the log of the mean base-model perplexity on each domain's evaluation data correlates with the conversion efficiency (gain / divergence) at $r = +0.613$ (Pearson, $n = 6$), compared with $r = +0.663$ for divergence alone. On the six-point sample this is suggestive rather than definitive, but the pattern is mechanistically plausible: when the base model achieves near-random perplexity on a domain (Yoruba PPL $\approx 42$, Welsh PPL $\approx 103$), the specialist must correct the base from a high-loss floor, the router routes with near-certainty, and essentially all specialist gain is preserved. When the base is already competent (English code PPL $\approx 7$), specialist gains are smaller in absolute terms and the cooperative receives less incremental value. This suggests a two-factor heuristic---measure both specialist divergence and base-model competence before committing to a cooperative---though validation on more conditions is needed before treating the secondary predictor as quantitatively reliable. Figure~\ref{fig:baseppl_conversion} shows the relationship across all conditions.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/paper/fig_baseppl_conversion.png}
+  \caption{Base-model perplexity as a secondary predictor of cooperative fusion efficiency.
+  \textbf{Left}: Conversion efficiency (gain / divergence) versus mean base-model perplexity per condition.
+  \textbf{Centre}: Same with log-scaled perplexity axis (Pearson $r = +0.613$).
+  \textbf{Right}: Divergence versus gain coloured by base-model PPL quartile.
+  Cross-lingual conditions (high base PPL) convert divergence most efficiently; English-domain conditions (low base PPL) sit near the baseline conversion rate. Dashed lines are OLS fits; $n=6$ conditions.}
+  \label{fig:baseppl_conversion}
+\end{figure}
+
 % ============================================================
 \section{Analysis}
 \label{sec:analysis}

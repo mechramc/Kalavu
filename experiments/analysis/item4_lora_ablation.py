@@ -386,13 +386,12 @@ def main():
     print("\n" + "=" * 60)
     print("DRAFT: Appendix C expansion (Why not LoRA?):\n")
     print(f"""We revisit the LoRA ablation with quantitative measurements. LoRA
-specialists (Pythia-410M, $r={LORA_RANK}$, $\\alpha={LORA_ALPHA}$, 2{,}000 steps, seed 42) achieve
+specialists (Pythia-410M, $r={LORA_RANK}$, $\\alpha={LORA_ALPHA}$, 2,000 steps, seed 42) achieve
 mean divergence {mean_div:.2f}\\% versus {full_ft_div:.2f}\\% for full fine-tuning---a reduction
 of {full_ft_div - mean_div:.2f}pp. Under the empirical divergence-gain relationship
 (Section~\\ref{{sec:divergence_gain}}, $\\approx$0.49$\\times$ conversion rate on English
 domains), this predicts a fusion gain of approximately {predicted_gain_approx:.1f}\\%.
-The measured fusion gain is {gain_vs_spec:.2f}\\%, {"consistent with" if abs(gain_vs_spec - predicted_gain_approx) < 1.5 else "deviating {gain_vs_spec - predicted_gain_approx:+.1f}pp from"} the prediction
-({abs(gain_vs_spec - predicted_gain_approx):.2f}pp error). The reduced divergence is the direct cause of the
+The measured fusion gain is {gain_vs_spec:.2f}\\%. The reduced divergence is the direct cause of the
 reduced gain: LoRA's low-rank constraint limits the degree of domain adaptation,
 keeping the specialist closer to the base model and reducing the complementarity
 that drives MoE improvement. Full fine-tuning is required to achieve the divergence
