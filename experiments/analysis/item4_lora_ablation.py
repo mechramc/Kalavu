@@ -97,10 +97,9 @@ def load_data(tokenizer):
         return ds.chunks
 
     def load_code():
-        ds = load_dataset("codeparrot/github-code", streaming=True, split="train",
-                          filter_languages=True, languages=["Python"])
-        return [s["code"][:5000] for _, s in zip(range(N_SAMPLES * 2), ds)
-                if s.get("code", "").strip()][:N_SAMPLES]
+        ds = load_dataset("code_search_net", "python", split="train", streaming=True)
+        return [s["func_code_string"][:5000] for _, s in zip(range(N_SAMPLES * 2), ds)
+                if s.get("func_code_string", "").strip()][:N_SAMPLES]
 
     def load_science():
         ds = load_dataset("allenai/sciq", split="train")
@@ -108,7 +107,7 @@ def load_data(tokenizer):
                 for s in ds if s.get("support", "").strip()][:N_SAMPLES]
 
     def load_fiction():
-        ds = load_dataset("pg19", split="train", streaming=True)
+        ds = load_dataset("emozilla/pg19", split="train", streaming=True)
         return [s["text"][:5000] for _, s in zip(range(N_SAMPLES), ds)
                 if s.get("text", "").strip()]
 
