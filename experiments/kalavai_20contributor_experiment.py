@@ -765,13 +765,14 @@ def run_router_only(seed: int, tokenizer, device: str,
     Use after a router training failure (e.g. lr oscillation) without retraining specialists.
     """
     prior_path = RESULTS_DIR / f"result_seed{seed}.json"
-    if not prior_path.exists():
-        raise FileNotFoundError(f"No prior result at {prior_path}; run full seed first.")
-
-    print(f"\n[router-only seed={seed}]  loading prior eval_matrix from {prior_path}")
-    with open(prior_path) as f:
-        prior = json.load(f)
-    eval_matrix = {k: v for k, v in prior["eval_matrix"].items() if k != "moe"}
+    if prior_path.exists():
+        print(f"\n[router-only seed={seed}]  loading prior eval_matrix from {prior_path}")
+        with open(prior_path) as f:
+            prior = json.load(f)
+        eval_matrix = {k: v for k, v in prior["eval_matrix"].items() if k != "moe"}
+    else:
+        print(f"\n[router-only seed={seed}]  no prior result — will eval specialists from checkpoints")
+        eval_matrix = None  # built below after loading specialists
 
     # Load specialist state dicts from checkpoints
     spec_state_dicts = []
@@ -784,6 +785,26 @@ def run_router_only(seed: int, tokenizer, device: str,
         spec_state_dicts.append(sd)
 
     held_out_sets = {name: chunks_to_dataset(held_out_chunks[name]) for name in SPECIALISTS}
+
+    # If no prior result, eval base + all specialists now
+    if eval_matrix is None:
+        eval_matrix = {}
+        print("\n[base]")
+        base = _load_base(device)
+        eval_matrix["base"] = eval_all_domains(base, held_out_sets, device,
+                                               EVAL_BATCH_SIZE, EVAL_BATCHES)
+        del base; torch.cuda.empty_cache()
+
+        for name, sd in zip(SPECIALISTS, spec_state_dicts):
+            print(f"\n[{name}_spec eval]")
+            spec = AutoModelForCausalLM.from_pretrained(
+                MODEL_ID, revision=REVISION, dtype=torch.bfloat16, trust_remote_code=True,
+            ).to(device)
+            spec.load_state_dict(sd)
+            spec.eval()
+            eval_matrix[f"{name}_spec"] = eval_all_domains(
+                spec, held_out_sets, device, EVAL_BATCH_SIZE, EVAL_BATCHES)
+            del spec; torch.cuda.empty_cache()
 
     print(f"\n[moe]  rebuilding 20-expert MoE + retraining router ({ROUTER_STEPS} steps, lr={ROUTER_LR}, bs={ROUTER_BATCH})...")
     moe = TwentyExpertMoE(
