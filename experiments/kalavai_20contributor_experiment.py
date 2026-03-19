@@ -442,8 +442,12 @@ class TwentyExpertMoE(nn.Module):
 
         h_mean = torch.stack(all_h, dim=0).mean(dim=0).to(self.device)   # (B, H)
         gates  = torch.softmax(self.router(h_mean), dim=-1)               # (B, N)
-        stacked = torch.stack(all_logits, dim=1).to(self.device)          # (B, N, T, V)
-        fused   = (gates[:, :, None, None] * stacked).sum(dim=1)          # (B, T, V)
+        # Accumulate weighted sum one expert at a time to avoid (B, N, T, V) allocation.
+        # Peak GPU memory: O(B*T*V) instead of O(B*N*T*V) — critical at N=20.
+        fused: torch.Tensor = None
+        for i, logit in enumerate(all_logits):
+            weighted = gates[:, i, None, None] * logit.to(self.device)    # (B, T, V)
+            fused = weighted if fused is None else fused + weighted
 
         loss = None
         if labels is not None:
