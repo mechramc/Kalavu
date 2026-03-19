@@ -68,6 +68,7 @@ ROUTER_LR    = 2e-4
 parser = argparse.ArgumentParser()
 parser.add_argument("--rank",  type=int, default=8,  help="LoRA rank (8 or 64)")
 parser.add_argument("--seed",  type=int, default=42)
+parser.add_argument("--lr",    type=float, default=None, help="Override learning rate (default: 2e-4)")
 parser.add_argument("--skip-training", action="store_true",
                     help="Load existing checkpoints and skip specialist training")
 args = parser.parse_args()
@@ -75,9 +76,15 @@ args = parser.parse_args()
 LORA_RANK   = args.rank
 LORA_ALPHA  = LORA_RANK * 2   # standard: alpha = 2 * rank
 SEED        = args.seed
+if args.lr is not None:
+    LR = args.lr
+
+# build result tag for lr variants (e.g. lr5e-4 → "lr5e4")
+_lr_tag = f"_lr{LR:.0e}".replace("-0", "e-").replace("+0", "e") if args.lr is not None else ""
 
 RESULTS_DIR    = Path(f"results/analysis/lora_r{LORA_RANK}")
-CHECKPOINT_DIR = Path(f"checkpoints/analysis/lora_r{LORA_RANK}")
+_ckpt_lr_tag   = f"_lr{LR:.0e}".replace("-0", "e-").replace("+0", "e") if args.lr is not None else ""
+CHECKPOINT_DIR = Path(f"checkpoints/analysis/lora_r{LORA_RANK}{_ckpt_lr_tag}")
 CACHE_DIR      = Path("data_cache/phase1")
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -377,7 +384,7 @@ def main():
         "full_ft_comparison": {"div": full_ft_div, "gain": full_ft_gain},
     }
 
-    out_path = RESULTS_DIR / f"result_seed{SEED}.json"
+    out_path = RESULTS_DIR / f"result_seed{SEED}{_lr_tag}.json"
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"\nSaved: {out_path}")

@@ -1,0 +1,55 @@
+{
+  "experiment": "router_ablation_v2",
+  "eval_method": "per-domain-separate-equal-weight",
+  "eval_batch_size": 4,
+  "per_domain_specs": {
+    "code": {
+      "code": 1.879066,
+      "science": 2.908456,
+      "fiction": 2.976753,
+      "equal_weight_avg": 2.588092
+    },
+    "science": {
+      "code": 2.173822,
+      "science": 2.556521,
+      "fiction": 3.061315,
+      "equal_weight_avg": 2.597219
+    },
+    "fiction": {
+      "code": 2.101796,
+      "science": 2.890426,
+      "fiction": 2.219371,
+      "equal_weight_avg": 2.403864
+    }
+  },
+  "best_spec_equal_weight": 2.403864,
+  "router_variants": {
+    "uniform": {
+      "eval": {
+        "code": 2.003806,
+        "science": 2.675781,
+        "fiction": 2.617812,
+        "equal_weight_avg": 2.432466
+      },
+      "improvement_vs_spec": -1.1898
+    },
+    "linear": {
+      "eval": {
+        "code": 1.87942,
+        "science": 2.55625,
+        "fiction": 2.220431,
+        "equal_weight_avg": 2.2187
+      },
+      "improvement_vs_spec": 7.7028
+    },
+    "mlp": {
+      "eval": {
+        "code": 1.879072,
+        "science": 2.5565,
+        "fiction": 2.219387,
+        "equal_weight_avg": 2.21832
+      },
+      "improvement_vs_spec": 7.7186
+    }
+  }
+}

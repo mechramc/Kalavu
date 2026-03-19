@@ -1,0 +1,56 @@
+{
+  "experiment": "monolithic_v2",
+  "eval_method": "per-domain-separate-equal-weight",
+  "eval_batch_size": 4,
+  "models": {
+    "base": {
+      "code": 2.087168,
+      "science": 2.89201,
+      "fiction": 2.973911,
+      "equal_weight_avg": 2.65103
+    },
+    "monolithic_seed42": {
+      "code": 1.964438,
+      "science": 2.638889,
+      "fiction": 2.083184,
+      "equal_weight_avg": 2.228837
+    },
+    "wider_1b4_seed42": {
+      "code": 1.87485,
+      "science": 2.542854,
+      "fiction": 2.010225,
+      "equal_weight_avg": 2.142643
+    },
+    "code_spec_seed42": {
+      "code": 1.879066,
+      "science": 2.908456,
+      "fiction": 2.976753,
+      "equal_weight_avg": 2.588092
+    },
+    "science_spec_seed42": {
+      "code": 2.173822,
+      "science": 2.556521,
+      "fiction": 3.061315,
+      "equal_weight_avg": 2.597219
+    },
+    "fiction_spec_seed42": {
+      "code": 2.101796,
+      "science": 2.890426,
+      "fiction": 2.219371,
+      "equal_weight_avg": 2.403864
+    },
+    "moe_seed42": {
+      "code": 1.87907,
+      "science": 2.556519,
+      "fiction": 2.219404,
+      "equal_weight_avg": 2.218331
+    }
+  },
+  "metrics": {
+    "moe_vs_best_spec": 7.7181,
+    "moe_vs_monolithic": 0.4714,
+    "monolithic_vs_best_spec": 7.2811,
+    "moe_vs_wider": -3.5325,
+    "wider_vs_best_spec": 10.8667
+  }
+}

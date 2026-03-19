@@ -1,0 +1,80 @@
+{
+  "experiment": "classifier_v2",
+  "eval_method": "per-domain-separate-equal-weight",
+  "eval_batch_size": 4,
+  "cross_domain_matrix": {
+    "code_spec_seed42": {
+      "code": 1.879066,
+      "science": 2.908456,
+      "fiction": 2.976753,
+      "equal_weight_avg": 2.588092
+    },
+    "science_spec_seed42": {
+      "code": 2.173822,
+      "science": 2.556521,
+      "fiction": 3.061315,
+      "equal_weight_avg": 2.597219
+    },
+    "fiction_spec_seed42": {
+      "code": 2.101796,
+      "science": 2.890426,
+      "fiction": 2.219371,
+      "equal_weight_avg": 2.403864
+    }
+  },
+  "dispatch_scenarios": {
+    "oracle_per_domain": {
+      "description": "Route each domain to its own specialist (oracle domain classifier)",
+      "per_domain_losses": {
+        "code": 1.879066,
+        "science": 2.556521,
+        "fiction": 2.219371
+      },
+      "equal_weight_avg": 2.218319
+    },
+    "always_code_spec": {
+      "description": "Route ALL data to code specialist (fixed dispatch)",
+      "equal_weight_avg": 2.588092,
+      "per_domain_losses": {
+        "code": 1.879066,
+        "science": 2.908456,
+        "fiction": 2.976753
+      }
+    },
+    "always_science_spec": {
+      "description": "Route ALL data to science specialist (fixed dispatch)",
+      "equal_weight_avg": 2.597219,
+      "per_domain_losses": {
+        "code": 2.173822,
+        "science": 2.556521,
+        "fiction": 3.061315
+      }
+    },
+    "always_fiction_spec": {
+      "description": "Route ALL data to fiction specialist (fixed dispatch)",
+      "equal_weight_avg": 2.403864,
+      "per_domain_losses": {
+        "code": 2.101796,
+        "science": 2.890426,
+        "fiction": 2.219371
+      }
+    }
+  },
+  "moe_results": {
+    "seed42": {
+      "code": 1.879074,
+      "science": 2.556513,
+      "fiction": 2.219379,
+      "equal_weight_avg": 2.218322
+    }
+  },
+  "metrics": {
+    "moe_eq": 2.218322,
+    "best_spec_eq": 2.403864,
+    "oracle_dispatch_eq": 2.218319,
+    "moe_vs_best_spec": 7.7185,
+    "moe_vs_oracle_dispatch": -0.0001,
+    "best_fixed_dispatch_eq": 2.403864,
+    "moe_vs_best_fixed_dispatch": 7.7185
+  }
+}

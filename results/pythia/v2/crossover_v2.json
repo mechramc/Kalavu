@@ -1,0 +1,40 @@
+{
+  "experiment": "crossover_v2",
+  "results": [
+    {
+      "steps": 500,
+      "freeze": 0,
+      "moe_equal_weight": 2.405837,
+      "best_spec_equal_weight": 2.556101,
+      "improvement_vs_spec": 5.8786,
+      "per_domain_moe": {
+        "code": 1.958448,
+        "science": 2.575047,
+        "fiction": 2.684016,
+        "equal_weight_avg": 2.405837
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.958446,
+          "science": 2.893194,
+          "fiction": 2.983625,
+          "equal_weight_avg": 2.611755
+        },
+        "science": {
+          "code": 2.123063,
+          "science": 2.575043,
+          "fiction": 3.040203,
+          "equal_weight_avg": 2.579436
+        },
+        "fiction": {
+          "code": 2.09113,
+          "science": 2.893159,
+          "fiction": 2.684014,
+          "equal_weight_avg": 2.556101
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    }
+  ]
+}
