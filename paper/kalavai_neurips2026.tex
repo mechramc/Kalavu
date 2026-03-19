@@ -180,7 +180,7 @@ where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain e
 
 \begin{table}[t]
 \centering
-\caption{Main results across three model scales. \textbf{Corrected evaluation}: per-domain separate eval at consistent batch size (bs=4), equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$. Prior results used a mixed concatenated eval that excluded the fiction domain and applied asymmetric batch sizes. Seed 42 shown; 410M multi-seed mean +7.70\% $\pm$0.02\% (seeds 42/137/2026). 6.9B seed 42.}
+\caption{Main results across three model scales. \textbf{Corrected evaluation}: per-domain separate eval at consistent batch size (bs=4), equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$. Prior results used a mixed concatenated eval that excluded the fiction domain and applied asymmetric batch sizes. Seed 42 shown; 410M multi-seed mean +7.70\% $\pm$0.02\% (seeds 42/137/2026). 6.9B seed 42. Base model loss values here (corrected eval) differ from appendix tables using the original evaluation protocol; see Appendix~\ref{app:evalcorrection} for methodology.}
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule
@@ -526,7 +526,7 @@ The memory footprint remains $N\times$, since all specialist weights must be loa
 \paragraph{What this paper does not claim.}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
   \item We do not claim inference efficiency. The fused model is approximately $N\times$ more expensive to run than a single specialist.
-  \item We do not claim universal architecture generality. All primary results use Pythia (GPT-NeoX). The Qwen result provides a second architecture data point but is a negative result.
+  \item We do not claim universal architecture generality. All primary results use Pythia (GPT-NeoX). The Qwen result provides a second architecture data point with a modest positive gain (+1.06\%) that confirms the mechanism generalises beyond GPT-NeoX.
   \item We do not claim that downstream task performance reliably improves. Perplexity gains are clear; benchmark gains are modest ($<$1pp at 1B scale).
   \item We do not claim that a real multi-contributor cooperative has been demonstrated. All experiments are simulated cooperatives on single machines. The gap between simulated and deployed cooperative training---including data heterogeneity across contributors, checkpoint verification, contributor reliability, and communication of freeze specifications---remains open engineering work.
   \item We do not claim the method scales to frontier model sizes. Our experiments reach 6.9B; the mechanism produces positive results at all tested scales, but frontier-scale ($>$70B) behaviour is untested.
@@ -567,8 +567,9 @@ Table~\ref{tab:inventory} lists all experiments conducted for this paper with th
 \centering
 \caption{Complete experiment inventory. All experiments are committed to the repository with result JSONs. ``Seeds'' column indicates number of random seeds; std $\approx$0.00 for all multi-seed runs unless otherwise noted.}
 \label{tab:inventory}
-\small
-\begin{tabular}{llccl}
+\resizebox{\textwidth}{!}{%
+\footnotesize
+\begin{tabular}{p{5.0cm}p{2.8cm}p{5.5cm}p{1.8cm}p{3.5cm}}
 \toprule
 \textbf{Experiment} & \textbf{Model} & \textbf{Result} & \textbf{Seeds} & \textbf{Status} \\
 \midrule
@@ -604,7 +605,8 @@ Exp 1: Cross-lingual (410M) & Pythia-410M & +21.76\% (seeds 137/2026) & 2 GO / 1
 Exp 3: 20-contributor (1B) & Pythia-1B & \textit{pending} & 1 & \textit{In progress} \\
 6.9B step+freeze sweep & Pythia-6.9B & Best: k=4, 2k steps, +2.73\% $\pm$0.007pp & 3 & Done \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 \section{Synthetic 25M Proof-of-Concept}
