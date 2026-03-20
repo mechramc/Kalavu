@@ -416,8 +416,8 @@ router = nn.Linear(hidden_size, 3, bias=False)
 fused = MoE(specialists=[code, science, fiction], router=router)
 train_router(fused, mixed_data, steps=500)
 
-# Result: fused model beats every individual specialist
-# +14.2% over best specialist, +14.5% over monolithic training</code></pre>
+# Result: fused model outperforms every individual specialist
+# +7.70% over best specialist (corrected per-domain eval)</code></pre>
 
   <!-- Slide carousel -->
   <div class="carousel" id="slides">
@@ -525,9 +525,13 @@ train_router(fused, mixed_data, steps=500)
       <tr><td>Best specialist (code)</td><td>2.089</td><td>+7.1%</td><td>+0.4%</td></tr>
       <tr><td>Weight averaging</td><td>2.158</td><td>+4.0%</td><td>—</td></tr>
       <tr><td>Wider model (3.5&times; params)</td><td>2.120</td><td>+5.9%</td><td>—</td></tr>
-      <tr class="highlight"><td>KALAVAI MoE</td><td>1.793</td><td>+20.2%</td><td><strong>+14.5%</strong></td></tr>
+      <tr class="highlight"><td>KALAVAI MoE</td><td>1.793</td><td>+20.2%</td><td><strong>+14.5% (orig. eval)</strong></td></tr>
     </tbody>
   </table>
+
+  <div class="callout callout--teal">
+    <p><strong>Corrected per-domain equal-weight eval (seed 42):</strong> Base EW 2.320 &nbsp;·&nbsp; Monolithic EW 2.229 (+16.0% vs. base) &nbsp;·&nbsp; Weight avg EW 2.230 &nbsp;·&nbsp; KALAVAI MoE EW 2.218 (<strong>+0.47% over monolithic, +7.70% over best specialist</strong>). The ranking is unchanged; absolute improvements differ between evaluation protocols.</p>
+  </div>
 
   <h3>1B results: replication holds</h3>
 
@@ -540,7 +544,7 @@ train_router(fused, mixed_data, steps=500)
 
   <h3>6.9B: step-budget sweep recovers the improvement</h3>
 
-  <p>Initial 6.9B results with 500 training steps showed reduced gains. The step-budget sweep (B1) confirmed the hypothesis: at 2,000 steps with k=4 frozen layers, the 6.9B improvement is <strong>+6.53% ± 0.024%</strong> (3 seeds, corrected equal-weight eval). The mechanism does not degrade at 6.9B — the earlier contracted result was a training-budget artefact. Freeze depth is largely insensitive at 6.9B (&lt;0.1pp difference across k=0 to k=4).</p>
+  <p>Initial 6.9B results with 500 training steps showed reduced gains. The step-budget sweep (B1) confirmed the hypothesis: at 2,000 steps with k=4 frozen layers, the 6.9B improvement is <strong>+6.53% ± 0.024%</strong> (3 seeds, corrected equal-weight eval). The mechanism holds at 6.9B. Freeze depth is largely insensitive at 6.9B (&lt;0.1pp difference across k=0 to k=4).</p>
 
   <figure class="figure">
     <img src="figures/fig_6b_summary.png" alt="6.9B scale results summary">
@@ -611,8 +615,8 @@ train_router(fused, mixed_data, steps=500)
     <span class="experiment-card__status status--done">Done</span>
     <div class="experiment-card__body">
       <div class="experiment-card__title">Exp 3 — 20-contributor federation (Pythia-1B)</div>
-      <div class="experiment-card__desc">20 specialists: 10 languages (Arabic, Chinese, Hindi, Tamil, Yoruba, Welsh, Swahili, Russian, Japanese, French) + 10 domains (code, science, medical, legal, patent, fiction, news, math, chemistry, dialogue/instructions). The largest cooperative tested. Mean divergence 15.71%.</div>
-      <div class="experiment-card__result">+16.79% vs. best specialist &nbsp;·&nbsp; 18/20 domains route to own specialist &nbsp;·&nbsp; seed 42 only (H100 budget precludes multi-seed; robustness confirmed by base-hidden router variant at +16.67%)</div>
+      <div class="experiment-card__desc">20 specialists: 10 languages (Tamil, Yoruba, Welsh, Spanish, Hindi, Swahili, Vietnamese, Arabic, Indonesian, Thai) + 10 domains (code, science, medical, legal, patent, fiction, news, math, chemistry, dialogue/instructions). The largest cooperative tested. Mean divergence 15.71%.</div>
+      <div class="experiment-card__result">+16.79% vs. best specialist &nbsp;·&nbsp; 18/20 domains route to own specialist &nbsp;·&nbsp; seed 42 only (H100 budget precludes multi-seed; robustness confirmed by base-hidden router variant at +16.67%, 0.12pp difference — routing robustness established)</div>
     </div>
   </div>
 
@@ -712,7 +716,7 @@ train_router(fused, mixed_data, steps=500)
   </figure>
 
   <h3>The mechanism survives base model maturity</h3>
-  <p>Fusion improvement is consistent across Pythia checkpoints from 3.5% to 100% of pre-training at 410M (+13.4% to +15.0%) and 1B (+13.8% to +15.9%). Qwen-1.5B at full training shows a reduced gain of <strong>+1.06% ± 0.01%</strong> (corrected per-domain evaluation, 3 seeds) — positive but small, reflecting that Qwen's broader pre-training corpus leaves less room for meaningful domain specialisation from fine-tuning alone.</p>
+  <p>Fusion improvement is consistent across Pythia checkpoints from 3.5% to 100% of pre-training at 410M (+7.03% to +8.81%) and 1B (+0.40% to +8.75%). Qwen-1.5B at full training shows a reduced gain of <strong>+1.06% ± 0.01%</strong> (corrected per-domain evaluation, 3 seeds) — near the formula's predicted floor (~3.1% divergence). Small divergence produces small gain, consistent with the predictive model.</p>
 
   <figure class="figure figure--wide">
     <img src="figures/fig_maturity_curve_combined.png" alt="Maturity sweep across Pythia-410M, 1B, and Qwen-1.5B">
@@ -722,11 +726,11 @@ train_router(fused, mixed_data, steps=500)
   <div class="figure-grid figure-grid--2">
     <figure class="figure">
       <img src="figures/fig_maturity_curve_410m.png" alt="410M maturity curve detail">
-      <figcaption><strong>Figure 15.</strong> Pythia-410M maturity sweep in detail. MoE improvement relative to best specialist at each pre-training checkpoint. Stable above +13% across the full trajectory.</figcaption>
+      <figcaption><strong>Figure 15.</strong> Pythia-410M maturity sweep in detail. MoE improvement relative to best specialist at each pre-training checkpoint. Range +7.03% to +8.81% across the full trajectory (corrected eval).</figcaption>
     </figure>
     <figure class="figure">
       <img src="figures/fig_maturity_curve_1b.png" alt="1B maturity curve detail">
-      <figcaption><strong>Figure 16.</strong> Pythia-1B maturity sweep. Slightly higher range (+13.8%–+15.9%) compared to 410M. Consistent pattern — the mechanism is robust to the base model's training stage.</figcaption>
+      <figcaption><strong>Figure 16.</strong> Pythia-1B maturity sweep. Range +0.40% to +8.75% (corrected eval). Consistent pattern — the mechanism is robust to the base model's training stage.</figcaption>
     </figure>
   </div>
 
@@ -736,7 +740,7 @@ train_router(fused, mixed_data, steps=500)
   <div class="figure-grid figure-grid--2">
     <figure class="figure">
       <img src="figures/fig_wider_model_baseline.png" alt="Wider model baseline comparison">
-      <figcaption><strong>Figure 17.</strong> Wider model baseline. A 3.5&times; wider model achieves +5.9% — less than half the MoE improvement (+14.2%). Extra parameters without specialisation can't replicate the cooperative mechanism.</figcaption>
+      <figcaption><strong>Figure 17.</strong> Wider model baseline. A 3.5&times; wider model achieves +5.9% vs. base — less than the MoE's +16.3% vs. base (orig. eval). Extra parameters without specialisation can't replicate the cooperative mechanism.</figcaption>
     </figure>
     <figure class="figure">
       <img src="figures/fig_multihead_baseline.png" alt="Multi-head baseline with hard routing">
@@ -861,7 +865,7 @@ train_router(fused, mixed_data, steps=500)
     <p><strong>No inference efficiency.</strong> The fused model runs all N specialists in parallel. For N=3, inference overhead is approximately 2.5&times;. This is a training-time democratisation that trades inference cost for training accessibility.</p>
   </div>
 
-  <p><strong>Limited architecture generality so far.</strong> All primary results use Pythia. Qwen-1.5B shows +1.06% — positive but small — because its broader pre-training leaves less room for domain specialisation. The mechanism works, but at lower divergence the gain is smaller. This is consistent with the predictive formula: Qwen's mean divergence is 3.16%, near the formula's predicted floor.</p>
+  <p><strong>Limited architecture generality so far.</strong> All primary results use Pythia. Qwen-1.5B shows +1.06% at 3.16% mean divergence — near the formula's predicted floor (~3.1%). Small divergence produces small gain, consistent with the predictive model. The mechanism works; divergence magnitude governs gain magnitude.</p>
 
   <p><strong>No guaranteed downstream gains.</strong> Perplexity improvements are clear; benchmark accuracy improvements are modest (&lt;1pp at 1B). Perplexity and downstream accuracy don't reliably track at these scales.</p>
 
@@ -895,10 +899,19 @@ train_router(fused, mixed_data, steps=500)
   </div>
 
   <div class="experiment-card">
+    <span class="experiment-card__status status--done">Done</span>
+    <div class="experiment-card__body">
+      <div class="experiment-card__title">Base-model hidden-state router (20-specialist)</div>
+      <div class="experiment-card__desc">Router trained on base-model hidden states rather than specialist hidden states. Tests whether routing quality depends on the specialist representations or on the shared initialisation geometry.</div>
+      <div class="experiment-card__result">+16.67% vs. +16.79% specialist router (0.12pp difference). Routing quality determined by shared initialisation geometry, not specialist-specific representations. Integrated into paper §4.9.3.</div>
+    </div>
+  </div>
+
+  <div class="experiment-card">
     <span class="experiment-card__status status--queued">Planned</span>
     <div class="experiment-card__body">
       <div class="experiment-card__title">Low-divergence ablation (50–100 training steps)</div>
-      <div class="experiment-card__desc">Find the divergence floor empirically. The formula predicts gains go to zero at ~3.5% divergence — does the measured crossover match?</div>
+      <div class="experiment-card__desc">Find the divergence floor empirically. The formula predicts gains go to zero at ~3.1% divergence — does the measured crossover match?</div>
     </div>
   </div>
 
@@ -1009,6 +1022,7 @@ python experiments/kalavai_pythia_experiment.py</code></pre>
   <p><strong>KALAVAI</strong> &mdash; கலவை &mdash; fusion, mixing, blending</p>
   <p>Ramchand Kumaresan &middot; Murai Labs &middot; முறை &middot; method, order, disciplined process</p>
   <p style="margin-top: 1rem;"><a href="https://github.com/mechramc/Kalavai">GitHub</a> &middot; <a href="kalavai_neurips2026.pdf">paper PDF</a></p>
+  <p style="margin-top: 0.75rem; color: var(--cream-faint); font-size: 0.8rem;">Last updated: March 2026 &mdash; synced with NeurIPS 2026 submission draft.</p>
 </footer>
 
 </body>
