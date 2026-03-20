@@ -112,7 +112,7 @@
 \@writefile{toc}{\contentsline {paragraph}{Improvement is robust across specialist count.}{14}{section*.49}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Token-level routing confirms mid-sequence switching.}{14}{section*.50}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Representational divergence confirms specialisation.}{14}{section*.51}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Downstream benchmarks.}{14}{section*.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Downstream benchmarks.}{15}{section*.53}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Discussion and Limitations}{15}{section.6}\protected@file@percent }
 \newlabel{sec:discussion}{{6}{15}{Discussion and Limitations}{section.6}{}}
 \@writefile{toc}{\contentsline {paragraph}{What the 6.9B result means.}{15}{section*.54}\protected@file@percent }
@@ -134,8 +134,8 @@
 \bibcite{shazeer2017outrageously}{{8}{2017}{{Shazeer et~al.}}{{Shazeer, Mirhoseini, Maziarz, Davis, Le, Hinton, and Dean}}}
 \bibcite{sukhbaatar2024branchtrainmix}{{9}{2024}{{Sukhbaatar et~al.}}{{Sukhbaatar, Weston, and Szlam}}}
 \bibcite{wan2024fusellm}{{10}{2024}{{Wan et~al.}}{{Wan, Huang, Cai, Quan, Bi, and Shi}}}
-\bibcite{wortsman2022modelsoups}{{11}{2022}{{Wortsman et~al.}}{{Wortsman, Ilharco, Gadre, Roelofs, Gontijo-Lopes, Morcos, Namkoong, Farhadi, Carlin, Kornblith, and Schmidt}}}
 \@writefile{toc}{\contentsline {paragraph}{Broader impact.}{17}{section*.59}\protected@file@percent }
+\bibcite{wortsman2022modelsoups}{{11}{2022}{{Wortsman et~al.}}{{Wortsman, Ilharco, Gadre, Roelofs, Gontijo-Lopes, Morcos, Namkoong, Farhadi, Carlin, Kornblith, and Schmidt}}}
 \bibcite{yadav2023tiesmerging}{{12}{2023}{{Yadav et~al.}}{{Yadav, Tam, Choshen, Raffel, and Bansal}}}
 \bibcite{yadav2024merging}{{13}{2024}{{Yadav et~al.}}{{Yadav, Raffel, et~al.}}}
 \bibcite{yu2023dare}{{14}{2024}{{Yu et~al.}}{{Yu, Yu, Yu, Huang, and Li}}}
@@ -165,47 +165,47 @@
 \newlabel{app:dispatch}{{H}{20}{Dispatch Failure and Capacity Controls}{appendix.H}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline; this differs slightly from Table~\ref {tab:main}'s base (2.248) due to evaluation batch composition---a 0.1pp artefact, not a methodological inconsistency.}}{20}{table.caption.70}\protected@file@percent }
 \newlabel{tab:dispatch}{{16}{20}{Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline; this differs slightly from Table~\ref {tab:main}'s base (2.248) due to evaluation batch composition---a 0.1pp artefact, not a methodological inconsistency}{table.caption.70}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Maturity Sweeps}{20}{appendix.I}\protected@file@percent }
-\newlabel{app:maturity}{{I}{20}{Maturity Sweeps}{appendix.I}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces Capacity control comparison. All methods share the same base checkpoint (Pythia-410M, step10000). Wider model = Pythia-1.4B trained 6,000 steps on mixed data.}}{21}{table.caption.72}\protected@file@percent }
 \newlabel{tab:capacity}{{17}{21}{Capacity control comparison. All methods share the same base checkpoint (Pythia-410M, step10000). Wider model = Pythia-1.4B trained 6,000 steps on mixed data}{table.caption.72}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Maturity Sweeps}{21}{appendix.I}\protected@file@percent }
+\newlabel{app:maturity}{{I}{21}{Maturity Sweeps}{appendix.I}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces Maturity sweep results at Pythia-410M. \% Training indicates fraction of total Pythia pre-training steps. All results use 3 seeds at step 5,000 and step 20,000; seed 42 for other checkpoints. Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4).}}{21}{table.caption.73}\protected@file@percent }
 \newlabel{tab:maturity410}{{18}{21}{Maturity sweep results at Pythia-410M. \% Training indicates fraction of total Pythia pre-training steps. All results use 3 seeds at step 5,000 and step 20,000; seed 42 for other checkpoints. Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4)}{table.caption.73}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4). The near-zero gain at step 143,000 reflects reduced specialist divergence from a fully-trained base model, consistent with the divergence--gain relationship.}}{21}{table.caption.74}\protected@file@percent }
+\newlabel{tab:maturity1b}{{19}{21}{Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4). The near-zero gain at step 143,000 reflects reduced specialist divergence from a fully-trained base model, consistent with the divergence--gain relationship}{table.caption.74}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {J}5-Domain Specialist Scaling}{21}{appendix.J}\protected@file@percent }
 \newlabel{app:scaling}{{J}{21}{5-Domain Specialist Scaling}{appendix.J}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {K}Training Dynamics}{21}{appendix.K}\protected@file@percent }
-\newlabel{app:dynamics}{{K}{21}{Training Dynamics}{appendix.K}{}}
-\@writefile{toc}{\contentsline {paragraph}{Within-domain improvement and cross-domain degradation.}{21}{section*.78}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4). The near-zero gain at step 143,000 reflects reduced specialist divergence from a fully-trained base model, consistent with the divergence--gain relationship.}}{22}{table.caption.74}\protected@file@percent }
-\newlabel{tab:maturity1b}{{19}{22}{Maturity sweep results at Pythia-1B (seed 42 all checkpoints). Improvement vs.\ best individual specialist, corrected equal-weight per-domain evaluation (bs=4). The near-zero gain at step 143,000 reflects reduced specialist divergence from a fully-trained base model, consistent with the divergence--gain relationship}{table.caption.74}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {20}{\ignorespaces Maturity results at Pythia-6.9B (seed 42). \emph  {Note: these values are from the original mixed-batch evaluation protocol}; the corrected equal-weight result for step10000 is +6.53\% (Table~\ref {tab:main}). The relative ordering (step10k $\approx $ step143k) is preserved under corrected evaluation.}}{22}{table.caption.75}\protected@file@percent }
 \newlabel{tab:maturity6b}{{20}{22}{Maturity results at Pythia-6.9B (seed 42). \emph {Note: these values are from the original mixed-batch evaluation protocol}; the corrected equal-weight result for step10000 is +6.53\% (Table~\ref {tab:main}). The relative ordering (step10k $\approx $ step143k) is preserved under corrected evaluation}{table.caption.75}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {21}{\ignorespaces Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds.}}{22}{table.caption.77}\protected@file@percent }
+\newlabel{tab:scaling}{{21}{22}{Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds}{table.caption.77}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Training Dynamics}{22}{appendix.K}\protected@file@percent }
+\newlabel{app:dynamics}{{K}{22}{Training Dynamics}{appendix.K}{}}
+\@writefile{toc}{\contentsline {paragraph}{Within-domain improvement and cross-domain degradation.}{22}{section*.78}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Growing fusion benefit.}{22}{section*.79}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Cross-domain evaluation at training checkpoint.}{22}{section*.80}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {L}Downstream Benchmark Results}{22}{appendix.L}\protected@file@percent }
-\newlabel{app:benchmarks}{{L}{22}{Downstream Benchmark Results}{appendix.L}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {M}Qwen-1.5B Result}{22}{appendix.M}\protected@file@percent }
-\newlabel{app:qwen}{{M}{22}{Qwen-1.5B Result}{appendix.M}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {21}{\ignorespaces Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds.}}{23}{table.caption.77}\protected@file@percent }
-\newlabel{tab:scaling}{{21}{23}{Specialist count scaling at Pythia-410M. The 2-specialist result uses only code and fiction domains (narrower evaluation drives the higher score). 3--5 specialists all achieve $\approx $14.1\% with near-zero variance. Improvement vs.\ best individual specialist on mixed held-out evaluation. All results: 3 seeds}{table.caption.77}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {L}Downstream Benchmark Results}{23}{appendix.L}\protected@file@percent }
+\newlabel{app:benchmarks}{{L}{23}{Downstream Benchmark Results}{appendix.L}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {22}{\ignorespaces Downstream benchmark accuracy (\%) at Pythia-1B (step10000 base, freeze=4, seed=42, 500 examples per benchmark). Random chance: HellaSwag 25\%, ARC-Easy 25\%, LAMBADA 0\%, SciQ 25\%, WinoGrande 50\%.}}{23}{table.caption.84}\protected@file@percent }
 \newlabel{tab:bench1b}{{22}{23}{Downstream benchmark accuracy (\%) at Pythia-1B (step10000 base, freeze=4, seed=42, 500 examples per benchmark). Random chance: HellaSwag 25\%, ARC-Easy 25\%, LAMBADA 0\%, SciQ 25\%, WinoGrande 50\%}{table.caption.84}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {23}{\ignorespaces Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \textsc  {Kalavai}\xspace  MoE were benchmarked; individual specialists and monolithic variants were not evaluated.}}{23}{table.caption.85}\protected@file@percent }
+\newlabel{tab:bench6b}{{23}{23}{Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \kalavai MoE were benchmarked; individual specialists and monolithic variants were not evaluated}{table.caption.85}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Qwen-1.5B Result}{23}{appendix.M}\protected@file@percent }
+\newlabel{app:qwen}{{M}{23}{Qwen-1.5B Result}{appendix.M}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {N}Hybrid Routing Visualisation}{23}{appendix.N}\protected@file@percent }
 \newlabel{app:routing}{{N}{23}{Hybrid Routing Visualisation}{appendix.N}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {O}Inference Benchmark}{23}{appendix.O}\protected@file@percent }
-\newlabel{app:inference}{{O}{23}{Inference Benchmark}{appendix.O}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {23}{\ignorespaces Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \textsc  {Kalavai}\xspace  MoE were benchmarked; individual specialists and monolithic variants were not evaluated.}}{24}{table.caption.85}\protected@file@percent }
-\newlabel{tab:bench6b}{{23}{24}{Downstream benchmark accuracy (\%) at Pythia-6.9B (step10000 base, freeze=6, seed=42, 500 examples per benchmark). Due to compute constraints at 6.9B scale, only base and \kalavai MoE were benchmarked; individual specialists and monolithic variants were not evaluated}{table.caption.85}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {24}{\ignorespaces Token-level gate weights (softmax over 3 experts: code, science, fiction) for hybrid-domain prompts. Pythia-410M, freeze=4, seed=42. Dominant weight ($>$0.5) shown in bold. ``---'' indicates transition token.}}{24}{table.caption.86}\protected@file@percent }
 \newlabel{tab:routing}{{24}{24}{Token-level gate weights (softmax over 3 experts: code, science, fiction) for hybrid-domain prompts. Pythia-410M, freeze=4, seed=42. Dominant weight ($>$0.5) shown in bold. ``---'' indicates transition token}{table.caption.86}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {O}Inference Benchmark}{24}{appendix.O}\protected@file@percent }
+\newlabel{app:inference}{{O}{24}{Inference Benchmark}{appendix.O}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {25}{\ignorespaces Inference benchmark results. Latency and VRAM are per-forward-pass. ``Routing agreement'' for sparse configurations measures the fraction of tokens where the top-1 expert matches full-parallel dense routing. ``---'' indicates not applicable. All results: single seed 42.}}{24}{table.caption.88}\protected@file@percent }
+\newlabel{tab:inferencebench}{{25}{24}{Inference benchmark results. Latency and VRAM are per-forward-pass. ``Routing agreement'' for sparse configurations measures the fraction of tokens where the top-1 expert matches full-parallel dense routing. ``---'' indicates not applicable. All results: single seed 42}{table.caption.88}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {P}Results Integrity Audit}{24}{appendix.P}\protected@file@percent }
 \newlabel{app:audit}{{P}{24}{Results Integrity Audit}{appendix.P}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {Q}Phase 2 Detailed Results}{24}{appendix.Q}\protected@file@percent }
-\newlabel{app:phase2}{{Q}{24}{Phase 2 Detailed Results}{appendix.Q}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {Q.1}Experiment 2: Private-Domain Fusion}{24}{subsection.Q.1}\protected@file@percent }
-\newlabel{app:phase2_private}{{Q.1}{24}{Experiment 2: Private-Domain Fusion}{subsection.Q.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {25}{\ignorespaces Inference benchmark results. Latency and VRAM are per-forward-pass. ``Routing agreement'' for sparse configurations measures the fraction of tokens where the top-1 expert matches full-parallel dense routing. ``---'' indicates not applicable. All results: single seed 42.}}{25}{table.caption.88}\protected@file@percent }
-\newlabel{tab:inferencebench}{{25}{25}{Inference benchmark results. Latency and VRAM are per-forward-pass. ``Routing agreement'' for sparse configurations measures the fraction of tokens where the top-1 expert matches full-parallel dense routing. ``---'' indicates not applicable. All results: single seed 42}{table.caption.88}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {Q}Phase 2 Detailed Results}{25}{appendix.Q}\protected@file@percent }
+\newlabel{app:phase2}{{Q}{25}{Phase 2 Detailed Results}{appendix.Q}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {Q.1}Experiment 2: Private-Domain Fusion}{25}{subsection.Q.1}\protected@file@percent }
+\newlabel{app:phase2_private}{{Q.1}{25}{Experiment 2: Private-Domain Fusion}{subsection.Q.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {26}{\ignorespaces Experiment 2 per-seed results. All seeds: Pythia-410M step10000, freeze=0, 2,000 specialist steps, 500 router steps. Divergences are computed as relative per-domain loss improvement over base (same definition as Table~\ref {tab:divergence}).}}{25}{table.caption.89}\protected@file@percent }
 \newlabel{tab:app_phase2_private}{{26}{25}{Experiment 2 per-seed results. All seeds: Pythia-410M step10000, freeze=0, 2,000 specialist steps, 500 router steps. Divergences are computed as relative per-domain loss improvement over base (same definition as Table~\ref {tab:divergence})}{table.caption.89}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {Q.2}Experiment 1: Cross-Lingual Fusion}{25}{subsection.Q.2}\protected@file@percent }
@@ -214,7 +214,7 @@
 \newlabel{tab:app_phase2_crosslingual}{{27}{25}{Experiment 1 per-seed results. Pythia-410M step10000, freeze=0, 2,000 specialist steps. Wikipedia fallback used for Tamil/Yoruba/Welsh (cc100 uses legacy loading scripts blocked at datasets$\geq $3.0; Wikipedia provides equivalent or better content)}{table.caption.90}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {R}Evaluation Correction Methodology}{25}{appendix.R}\protected@file@percent }
 \newlabel{app:evalcorrection}{{R}{25}{Evaluation Correction Methodology}{appendix.R}{}}
-\@writefile{toc}{\contentsline {paragraph}{Bug A: Asymmetric batch sizes.}{25}{section*.91}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Bug A: Asymmetric batch sizes.}{26}{section*.91}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Bug B: Concatenated mixed evaluation.}{26}{section*.92}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Additional 6.9B fix.}{26}{section*.93}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Corrected infrastructure.}{26}{section*.94}\protected@file@percent }
