@@ -2,7 +2,7 @@
 
 20 people. 20 GPUs. 1 model none of them could build alone.
 
-**Fusion gain ≈ 0.82 × divergence − 2.84** (R² = 0.865). Before you train a single specialist, you can predict whether the cooperative is worth it.
+**Fusion gain ≈ 0.81 × divergence − 2.52** (R² = 0.850). Before you train a single specialist, you can predict whether the cooperative is worth it.
 
 ```
 pip install transformers datasets torch
@@ -65,20 +65,20 @@ Cross-lingual highlights: Yoruba perplexity 41.9 → 7.7 (5.4×). Welsh 102.7 �
 Across all experimental conditions, fusion gain scales linearly with specialist divergence:
 
 ```
-gain ≈ 0.82 × divergence − 2.84    (R² = 0.865, n = 6)
+gain ≈ 0.81 × divergence − 2.52    (R² = 0.850, n = 6)
 ```
 
-Before committing to a cooperative, measure how much your specialists diverge from the base model. If divergence is 15%, expect ~+10% gain. If divergence is 25% (cross-lingual), expect ~+18% — and likely more, since high-divergence settings exceed the linear prediction.
+Before committing to a cooperative, measure how much your specialists diverge from the base model. If divergence is 15%, expect ~+10% gain. If divergence is 25% (cross-lingual), expect ~+18% — and likely more, since high-divergence settings exceed the linear prediction. Below ~3.1% divergence, expect no gain.
 
 | Condition | Mean Div. | Gain | Predicted | Residual |
 |---|---|---|---|---|
-| Qwen-1.5B | 3.16% | +1.06% | < 0 | — |
-| Pythia-6.9B | 8.29% | +6.53% | +3.96% | +2.57pp |
-| Pythia-1B | 15.28% | +7.49% | +9.70% | −2.21pp |
-| Pythia-410M | 15.65% | +7.72% | +10.01% | −2.29pp |
-| Private-domain | 18.52% | +10.17% | +12.36% | −2.19pp |
-| Cross-lingual | 25.65% | +21.76% | +18.22% | +3.54pp |
-| 20-contributor | 15.71% | +16.79% | +10.04% | +6.75pp |
+| Qwen-1.5B | 3.16% | +1.06% | ≈0% | — |
+| Pythia-6.9B | 8.29% | +6.53% | +4.17% | +2.36pp |
+| Pythia-1B | 15.28% | +7.49% | +9.81% | −2.32pp |
+| Pythia-410M | 15.65% | +7.72% | +10.11% | −2.39pp |
+| Private-domain | 18.52% | +10.17% | +12.43% | −2.26pp |
+| Cross-lingual | 25.65% | +21.76% | +18.18% | +3.58pp |
+| 20-contributor | 15.71% | +16.79% | +10.16% | +6.63pp |
 
 ### Key Controls
 

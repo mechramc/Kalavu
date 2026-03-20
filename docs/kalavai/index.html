@@ -362,7 +362,7 @@
   <div class="hero__stats">
     <div><div class="hero__stat-value">+7.72%</div><div class="hero__stat-label">410M vs best specialist</div></div>
     <div><div class="hero__stat-value">+21.76%</div><div class="hero__stat-label">cross-lingual (Tamil/Yoruba/Welsh)</div></div>
-    <div><div class="hero__stat-value">gain ≈ 0.82×div</div><div class="hero__stat-label">predictive formula, R²=0.865</div></div>
+    <div><div class="hero__stat-value">gain ≈ 0.81×div</div><div class="hero__stat-label">predictive formula, R²=0.850</div></div>
     <div><div class="hero__stat-value">322/322</div><div class="hero__stat-label">audit checks passed</div></div>
   </div>
 
@@ -555,7 +555,7 @@ train_router(fused, mixed_data, steps=500)
   <p>The headline result of the paper is not that fusion works — it's that <em>you can predict how well it will work</em> from a single measurement taken before any training. Across all experimental conditions, fusion gain scales linearly with the mean divergence of the specialists from the base model:</p>
 
   <div class="callout callout--teal">
-    <p><strong>gain ≈ 0.82 &times; divergence &minus; 2.84</strong> &nbsp;&nbsp; (R² = 0.865, n = 6)</p>
+    <p><strong>gain ≈ 0.81 &times; divergence &minus; 2.52</strong> &nbsp;&nbsp; (R² = 0.850, n = 6)</p>
     <p style="margin-top:0.5rem">Measure how much your specialists diverge from the base model. The formula tells you what gain to expect before committing to the cooperative.</p>
   </div>
 
@@ -564,19 +564,19 @@ train_router(fused, mixed_data, steps=500)
   <table class="data-table">
     <thead><tr><th>Condition</th><th>Mean Divergence</th><th>Gain vs. Best Spec.</th><th>Conv. Rate</th><th>Predicted</th><th>Residual</th></tr></thead>
     <tbody>
-      <tr><td>Qwen-1.5B</td><td>3.16%</td><td>+1.06%</td><td>0.34×</td><td>&lt;0</td><td>—</td></tr>
-      <tr><td>Pythia-6.9B</td><td>8.29%</td><td>+6.53%</td><td>0.79×</td><td>+3.96%</td><td>+2.57pp</td></tr>
-      <tr><td>Pythia-1B</td><td>15.28%</td><td>+7.49%</td><td>0.49×</td><td>+9.70%</td><td>−2.21pp</td></tr>
-      <tr><td>Pythia-410M</td><td>15.65%</td><td>+7.72%</td><td>0.49×</td><td>+10.01%</td><td>−2.29pp</td></tr>
-      <tr><td>Exp 2: Private-domain</td><td>18.52%</td><td>+10.17%</td><td>0.55×</td><td>+12.36%</td><td>−2.19pp</td></tr>
-      <tr><td>Exp 1: Cross-lingual</td><td>25.65%</td><td>+21.76%</td><td>0.85×</td><td>+18.22%</td><td>+3.54pp</td></tr>
-      <tr style="font-style:italic; color: var(--cream-faint)"><td>Exp 3: 20-contributor (OOS)</td><td>15.71%</td><td>+16.79%</td><td>1.07×</td><td>+10.04%</td><td>+6.75pp</td></tr>
+      <tr><td>Qwen-1.5B</td><td>3.16%</td><td>+1.06%</td><td>0.34×</td><td>≈0%</td><td>—</td></tr>
+      <tr><td>Pythia-6.9B</td><td>8.29%</td><td>+6.53%</td><td>0.79×</td><td>+4.17%</td><td>+2.36pp</td></tr>
+      <tr><td>Pythia-1B</td><td>15.28%</td><td>+7.49%</td><td>0.49×</td><td>+9.81%</td><td>−2.32pp</td></tr>
+      <tr><td>Pythia-410M</td><td>15.65%</td><td>+7.72%</td><td>0.49×</td><td>+10.11%</td><td>−2.39pp</td></tr>
+      <tr><td>Exp 2: Private-domain</td><td>18.52%</td><td>+10.17%</td><td>0.55×</td><td>+12.43%</td><td>−2.26pp</td></tr>
+      <tr><td>Exp 1: Cross-lingual</td><td>25.65%</td><td>+21.76%</td><td>0.85×</td><td>+18.18%</td><td>+3.58pp</td></tr>
+      <tr style="font-style:italic; color: var(--cream-faint)"><td>Exp 3: 20-contributor (OOS)</td><td>15.71%</td><td>+16.79%</td><td>1.07×</td><td>+10.16%</td><td>+6.63pp</td></tr>
     </tbody>
   </table>
 
-  <p>The four English-domain conditions cluster within ±2.3pp of the line. The cross-lingual condition exceeds the prediction because the base model is near-random on Yoruba and Welsh — when the base achieves near-random perplexity, specialists correct from a high-loss floor and the router routes with near-certainty. The 20-contributor out-of-sample point (+6.75pp residual) follows the same pattern: its heterogeneous mix of high-divergence language specialists pulls the cooperative above what English-domain regression would predict.</p>
+  <p>The four English-domain conditions cluster within ±2.4pp of the line. The cross-lingual condition exceeds the prediction because the base model is near-random on Yoruba and Welsh — when the base achieves near-random perplexity, specialists correct from a high-loss floor and the router routes with near-certainty. The 20-contributor out-of-sample point (+6.63pp residual) follows the same pattern: its heterogeneous mix of high-divergence language specialists pulls the cooperative above what English-domain regression would predict.</p>
 
-  <p>The formula also sets a divergence floor: below approximately 3.5% mean divergence, the predicted gain becomes negative. A cooperative of specialists that are too similar to the base model is unlikely to produce positive returns.</p>
+  <p>The formula also sets a divergence floor: below approximately 3.1% mean divergence, the predicted gain approaches zero. A cooperative of specialists that are too similar to the base model is unlikely to produce positive returns.</p>
 
   <!-- ═══ PHASE 2 ═══ -->
   <hr class="sep">
@@ -616,7 +616,7 @@ train_router(fused, mixed_data, steps=500)
     </div>
   </div>
 
-  <p>The 20-contributor result is out-of-sample for the regression (the formula was fit on 6 conditions). It lands +6.75pp above the linear prediction — consistent with the cross-lingual pattern: a cooperative with high-divergence language specialists converts more efficiently than the English-domain regression predicts. Medical and chemistry specialists share routing (60/40 split), reflecting genuine semantic overlap rather than routing failure. Two domains (dialogue, instructions) show degradation due to data scarcity (&lt;300 training chunks), not a mechanism failure — the router routes correctly (97–89% to own specialist), but the specialists themselves are undertrained.</p>
+  <p>The 20-contributor result is out-of-sample for the regression (the formula was fit on 6 conditions). It lands +6.63pp above the linear prediction — consistent with the cross-lingual pattern: a cooperative with high-divergence language specialists converts more efficiently than the English-domain regression predicts. Medical and chemistry specialists share routing (60/40 split), reflecting genuine semantic overlap rather than routing failure. Two domains (dialogue, instructions) show degradation due to data scarcity (&lt;300 training chunks), not a mechanism failure — the router routes correctly (97–89% to own specialist), but the specialists themselves are undertrained.</p>
 
   <!-- ═══ CONDITIONS ═══ -->
   <hr class="sep">
