@@ -25,6 +25,7 @@ apply_style()
 
 # ── result paths ──────────────────────────────────────────────────────────────
 RESULTS = REPO_ROOT / "results" / "pythia"
+RESULTS_V2 = REPO_ROOT / "results" / "pythia" / "v2"
 RESULTS_6B = REPO_ROOT / "results" / "pythia_6b"
 
 # ── load data (corrected eval) ────────────────────────────────────────────────
@@ -36,13 +37,17 @@ with open(RESULTS / "corrected_eval_137.json") as f:
 with open(RESULTS / "corrected_eval_2026.json") as f:
     corr_410m_2026 = json.load(f)
 
-# 1B: corrected eval (seed 42)
+# 1B: corrected eval (3 seeds)
 with open(RESULTS / "pythia_1b" / "corrected_eval_42.json") as f:
     corr_1b_42 = json.load(f)
+with open(RESULTS / "pythia_1b" / "corrected_eval_137.json") as f:
+    corr_1b_137 = json.load(f)
+with open(RESULTS / "pythia_1b" / "corrected_eval_2026.json") as f:
+    corr_1b_2026 = json.load(f)
 
-# Training duration crossover (original eval — relative ordering unchanged)
-with open(RESULTS / "training_duration_crossover.json") as f:
-    crossover_data = json.load(f)
+# Training duration crossover (v2 corrected equal-weight eval)
+with open(RESULTS_V2 / "crossover_v2.json") as f:
+    crossover_raw = json.load(f)
 
 with open(RESULTS / "domain_classifier_baseline.json") as f:
     classifier_data = json.load(f)
@@ -61,14 +66,30 @@ imps_410m = [
 imp_410m_mean = float(np.mean(imps_410m))
 imp_410m_std  = float(np.std(imps_410m, ddof=1))
 
-# 1B: seed 42 only (corrected)
-imp_1b_mean = corr_1b_42["metrics"]["improvement_vs_spec"]
-imp_1b_std  = 0.0
+# 1B: 3 seeds (corrected)
+imps_1b = [
+    corr_1b_42["metrics"]["improvement_vs_spec"],
+    corr_1b_137["metrics"]["improvement_vs_spec"],
+    corr_1b_2026["metrics"]["improvement_vs_spec"],
+]
+imp_1b_mean = float(np.mean(imps_1b))
+imp_1b_std  = float(np.std(imps_1b, ddof=1))
 
-# 6.9B: corrected numbers (per-domain equal-weight, seeded shuffle fix)
-# Code 10.16%, Sci 7.11%, Fiction 7.61%, mean div 8.29%, fusion gain +5.81%
-imp_6b_mean = 5.81
-imp_6b_std  = 0.0
+# 6.9B: corrected per-domain equal-weight, seeded shuffle fix, 3 seeds
+imp_6b_mean = 6.53
+imp_6b_std  = 0.024
+
+# Panel B crossover: extract from v2 results list (improvement_vs_spec)
+_results = crossover_raw["results"]
+_f0 = [(r["steps"], r["improvement_vs_spec"]) for r in _results if r["freeze"] == 0]
+_f4 = [(r["steps"], r["improvement_vs_spec"]) for r in _results if r["freeze"] == 4]
+_f0.sort(); _f4.sort()
+crossover_data = {
+    "steps":               [s for s, _ in _f0],
+    "freeze0_improvement": [v for _, v in _f0],
+    "freeze4_improvement": [v for _, v in _f4],
+    "crossover_steps":     5000,
+}
 
 # Panel D: monolithic comparison (corrected equal-weight, seed 42)
 m42 = corr_410m_42["eval_matrix"]
@@ -138,7 +159,7 @@ ax_b.text(crossover * 1.12, y_annot,
 
 ax_b.set_xscale("log")
 ax_b.set_xlabel("Training steps (log scale)")
-ax_b.set_ylabel("MoE improvement over base (%)")
+ax_b.set_ylabel("MoE improvement over best specialist (%)")
 ax_b.set_title("(B)  Training Duration Crossover: Freeze=0 vs Freeze=4")
 ax_b.legend(loc="upper left")
 clean_axes(ax_b)
