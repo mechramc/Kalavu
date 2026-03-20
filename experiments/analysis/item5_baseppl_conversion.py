@@ -77,7 +77,7 @@ CONDITIONS = [
     {
         "label":     "Pythia-6.9B",
         "color":     "#2196F3", "marker": "D",
-        "div":       8.29,  "gain": 5.81, "conv": 0.70,
+        "div":       8.73,  "gain": 6.53, "conv": 0.75,
         "domains":   ["code", "science", "fiction"],
         "base_loss": d6b["eval_heldout"]["base"],
     },
@@ -129,7 +129,8 @@ for c in CONDITIONS:
           f"{c['mean_base_ppl']:>14.2f}  {c['max_base_ppl']:>12.2f}")
 
 # ── Correlation: conv rate vs mean base PPL ───────────────────────────────────
-convs = np.array([c["conv"] for c in CONDITIONS])
+# Use exact conv = gain/div (not rounded table values) for correct Pearson r
+convs = np.array([c["gain"] / c["div"] for c in CONDITIONS])
 ppls  = np.array([c["mean_base_ppl"] for c in CONDITIONS])
 log_ppls = np.log(ppls)
 

@@ -30,7 +30,7 @@ import matplotlib.patches as mpatches
 # ── Data (from corrected Table 9 / paper) ─────────────────────────────────────
 CONDITIONS = [
     {"label": "Qwen-1.5B",         "div": 3.16,  "gain": 1.06,  "color": "#888888", "marker": "s"},
-    {"label": "Pythia-6.9B",        "div": 8.29,  "gain": 5.81,  "color": "#2196F3", "marker": "D"},
+    {"label": "Pythia-6.9B",        "div": 8.73,  "gain": 6.53,  "color": "#2196F3", "marker": "D"},
     {"label": "Pythia-1B",          "div": 15.28, "gain": 7.49,  "color": "#4CAF50", "marker": "^"},
     {"label": "Pythia-410M",        "div": 15.65, "gain": 7.72,  "color": "#FF9800", "marker": "o"},
     {"label": "Exp2: Private",      "div": 18.52, "gain": 10.17, "color": "#9C27B0", "marker": "P"},

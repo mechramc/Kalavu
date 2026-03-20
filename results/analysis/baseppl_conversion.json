@@ -19,9 +19,9 @@
       "label": "Pythia-6.9B",
       "color": "#2196F3",
       "marker": "D",
-      "div": 8.29,
-      "gain": 5.81,
-      "conv": 0.7,
+      "div": 8.73,
+      "gain": 6.53,
+      "conv": 0.75,
       "domains": [
         "code",
         "science",
@@ -98,13 +98,13 @@
     }
   ],
   "correlations": {
-    "r_baseppl_conv": 0.6042643014999582,
-    "r_log_baseppl_conv": 0.612551104233273,
-    "r_div_conv": 0.6632647058916251
+    "r_baseppl_conv": 0.5454507560924168,
+    "r_log_baseppl_conv": 0.5602555003623358,
+    "r_div_conv": 0.6142503029821104
   },
   "anomaly_analysis": {
     "410m_vs_69b_ppl_ratio": 0.7182190544747304,
-    "410m_vs_69b_conv_ratio": 1.4285714285714286,
+    "410m_vs_69b_conv_ratio": 1.530612244897959,
     "base_ppl_explains_anomaly": true
   }
 }

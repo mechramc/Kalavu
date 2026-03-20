@@ -292,7 +292,7 @@ print("fig_divergence_gain_regression.png  (paper/figures/)")
 # Data points: (div%, gain%, label)
 POINTS = [
     (3.16,  1.06,  "Qwen-1.5B"),
-    (8.29,  6.53,  "Pythia-6.9B"),   # corrected
+    (8.73,  6.53,  "Pythia-6.9B"),   # corrected div (was 8.29)
     (15.28, 7.49,  "Pythia-1B"),
     (15.65, 7.72,  "Pythia-410M"),
     (18.52, 10.17, "Private-domain"),
