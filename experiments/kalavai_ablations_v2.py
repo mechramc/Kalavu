@@ -303,13 +303,15 @@ class ThreeExpertMoE_MLP(nn.Module):
 
 
 class ThreeExpertMoE_Linear(nn.Module):
-    """410M MoE with single linear router."""
-    def __init__(self, spec_a, spec_b, spec_c):
+    """MoE with single linear router. hidden_size inferred from spec config if not provided."""
+    def __init__(self, spec_a, spec_b, spec_c, hidden_size=None):
         super().__init__()
         self.spec_a, self.spec_b, self.spec_c = spec_a, spec_b, spec_c
         for p in list(self.spec_a.parameters()) + list(self.spec_b.parameters()) + list(self.spec_c.parameters()):
             p.requires_grad_(False)
-        self.router = nn.Linear(HIDDEN_SIZE, 3, bias=False)
+        if hidden_size is None:
+            hidden_size = getattr(spec_a.config, "hidden_size", HIDDEN_SIZE)
+        self.router = nn.Linear(hidden_size, 3, bias=False)
 
     def _run(self, model, input_ids):
         with torch.no_grad():

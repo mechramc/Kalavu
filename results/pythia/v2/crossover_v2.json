@@ -35,6 +35,391 @@
       },
       "eval_method": "per-domain-separate-equal-weight",
       "eval_batch_size": 4
+    },
+    {
+      "steps": 1000,
+      "freeze": 0,
+      "moe_equal_weight": 2.36009,
+      "best_spec_equal_weight": 2.509171,
+      "improvement_vs_spec": 5.9414,
+      "per_domain_moe": {
+        "code": 1.912517,
+        "science": 2.633058,
+        "fiction": 2.534694,
+        "equal_weight_avg": 2.36009
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.912499,
+          "science": 2.898082,
+          "fiction": 2.982854,
+          "equal_weight_avg": 2.597812
+        },
+        "science": {
+          "code": 2.139982,
+          "science": 2.54648,
+          "fiction": 3.053429,
+          "equal_weight_avg": 2.579964
+        },
+        "fiction": {
+          "code": 2.096496,
+          "science": 2.896325,
+          "fiction": 2.534693,
+          "equal_weight_avg": 2.509171
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 2000,
+      "freeze": 0,
+      "moe_equal_weight": 2.240392,
+      "best_spec_equal_weight": 2.438363,
+      "improvement_vs_spec": 8.119,
+      "per_domain_moe": {
+        "code": 1.864998,
+        "science": 2.544434,
+        "fiction": 2.311744,
+        "equal_weight_avg": 2.240392
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.864995,
+          "science": 2.90697,
+          "fiction": 2.98558,
+          "equal_weight_avg": 2.585848
+        },
+        "science": {
+          "code": 2.167934,
+          "science": 2.544435,
+          "fiction": 3.077653,
+          "equal_weight_avg": 2.596674
+        },
+        "fiction": {
+          "code": 2.103789,
+          "science": 2.899557,
+          "fiction": 2.311744,
+          "equal_weight_avg": 2.438363
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 5000,
+      "freeze": 0,
+      "moe_equal_weight": 2.181816,
+      "best_spec_equal_weight": 2.366096,
+      "improvement_vs_spec": 7.7884,
+      "per_domain_moe": {
+        "code": 1.839971,
+        "science": 2.632035,
+        "fiction": 2.073442,
+        "equal_weight_avg": 2.181816
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.839963,
+          "science": 2.932765,
+          "fiction": 3.004819,
+          "equal_weight_avg": 2.592516
+        },
+        "science": {
+          "code": 2.228567,
+          "science": 2.632189,
+          "fiction": 3.154259,
+          "equal_weight_avg": 2.671672
+        },
+        "fiction": {
+          "code": 2.12122,
+          "science": 2.903664,
+          "fiction": 2.073405,
+          "equal_weight_avg": 2.366096
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 10000,
+      "freeze": 0,
+      "moe_equal_weight": 2.209109,
+      "best_spec_equal_weight": 2.345873,
+      "improvement_vs_spec": 5.83,
+      "per_domain_moe": {
+        "code": 1.856156,
+        "science": 2.772293,
+        "fiction": 1.998877,
+        "equal_weight_avg": 2.209109
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.856137,
+          "science": 2.960955,
+          "fiction": 3.033902,
+          "equal_weight_avg": 2.616998
+        },
+        "science": {
+          "code": 2.276274,
+          "science": 2.772555,
+          "fiction": 3.239336,
+          "equal_weight_avg": 2.762722
+        },
+        "fiction": {
+          "code": 2.131281,
+          "science": 2.907462,
+          "fiction": 1.998877,
+          "equal_weight_avg": 2.345873
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 20000,
+      "freeze": 0,
+      "moe_equal_weight": 2.262271,
+      "best_spec_equal_weight": 2.341441,
+      "improvement_vs_spec": 3.3813,
+      "per_domain_moe": {
+        "code": 1.890587,
+        "science": 2.920164,
+        "fiction": 1.976062,
+        "equal_weight_avg": 2.262271
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.890591,
+          "science": 2.984694,
+          "fiction": 3.061408,
+          "equal_weight_avg": 2.645564
+        },
+        "science": {
+          "code": 2.311602,
+          "science": 2.920438,
+          "fiction": 3.319366,
+          "equal_weight_avg": 2.850469
+        },
+        "fiction": {
+          "code": 2.139155,
+          "science": 2.909134,
+          "fiction": 1.976034,
+          "equal_weight_avg": 2.341441
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 500,
+      "freeze": 4,
+      "moe_equal_weight": 2.431788,
+      "best_spec_equal_weight": 2.568237,
+      "improvement_vs_spec": 5.3129,
+      "per_domain_moe": {
+        "code": 1.976687,
+        "science": 2.592341,
+        "fiction": 2.726335,
+        "equal_weight_avg": 2.431788
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.976682,
+          "science": 2.893945,
+          "fiction": 2.981063,
+          "equal_weight_avg": 2.61723
+        },
+        "science": {
+          "code": 2.121097,
+          "science": 2.592323,
+          "fiction": 3.023703,
+          "equal_weight_avg": 2.579041
+        },
+        "fiction": {
+          "code": 2.089137,
+          "science": 2.88924,
+          "fiction": 2.726335,
+          "equal_weight_avg": 2.568237
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 1000,
+      "freeze": 4,
+      "moe_equal_weight": 2.363633,
+      "best_spec_equal_weight": 2.527385,
+      "improvement_vs_spec": 6.4791,
+      "per_domain_moe": {
+        "code": 1.934983,
+        "science": 2.55953,
+        "fiction": 2.596386,
+        "equal_weight_avg": 2.363633
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.934931,
+          "science": 2.898309,
+          "fiction": 2.979439,
+          "equal_weight_avg": 2.604226
+        },
+        "science": {
+          "code": 2.135617,
+          "science": 2.559526,
+          "fiction": 3.034498,
+          "equal_weight_avg": 2.576547
+        },
+        "fiction": {
+          "code": 2.093758,
+          "science": 2.892018,
+          "fiction": 2.596378,
+          "equal_weight_avg": 2.527385
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 2000,
+      "freeze": 4,
+      "moe_equal_weight": 2.274562,
+      "best_spec_equal_weight": 2.460671,
+      "improvement_vs_spec": 7.5633,
+      "per_domain_moe": {
+        "code": 1.888932,
+        "science": 2.546496,
+        "fiction": 2.388257,
+        "equal_weight_avg": 2.274562
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.888946,
+          "science": 2.905384,
+          "fiction": 2.979914,
+          "equal_weight_avg": 2.591415
+        },
+        "science": {
+          "code": 2.158125,
+          "science": 2.546559,
+          "fiction": 3.051293,
+          "equal_weight_avg": 2.585326
+        },
+        "fiction": {
+          "code": 2.099446,
+          "science": 2.894311,
+          "fiction": 2.388257,
+          "equal_weight_avg": 2.460671
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 5000,
+      "freeze": 4,
+      "moe_equal_weight": 2.188391,
+      "best_spec_equal_weight": 2.380436,
+      "improvement_vs_spec": 8.0676,
+      "per_domain_moe": {
+        "code": 1.852333,
+        "science": 2.585569,
+        "fiction": 2.12727,
+        "equal_weight_avg": 2.188391
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.852325,
+          "science": 2.92266,
+          "fiction": 2.991053,
+          "equal_weight_avg": 2.588679
+        },
+        "science": {
+          "code": 2.20261,
+          "science": 2.585589,
+          "fiction": 3.096644,
+          "equal_weight_avg": 2.628281
+        },
+        "fiction": {
+          "code": 2.115186,
+          "science": 2.898861,
+          "fiction": 2.12726,
+          "equal_weight_avg": 2.380436
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 10000,
+      "freeze": 4,
+      "moe_equal_weight": 2.181902,
+      "best_spec_equal_weight": 2.354371,
+      "improvement_vs_spec": 7.3255,
+      "per_domain_moe": {
+        "code": 1.852556,
+        "science": 2.657942,
+        "fiction": 2.035207,
+        "equal_weight_avg": 2.181902
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.852559,
+          "science": 2.941104,
+          "fiction": 3.008248,
+          "equal_weight_avg": 2.600637
+        },
+        "science": {
+          "code": 2.235417,
+          "science": 2.657988,
+          "fiction": 3.140987,
+          "equal_weight_avg": 2.678131
+        },
+        "fiction": {
+          "code": 2.125773,
+          "science": 2.902202,
+          "fiction": 2.035138,
+          "equal_weight_avg": 2.354371
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
+    },
+    {
+      "steps": 20000,
+      "freeze": 4,
+      "moe_equal_weight": 2.199606,
+      "best_spec_equal_weight": 2.34749,
+      "improvement_vs_spec": 6.2997,
+      "per_domain_moe": {
+        "code": 1.868246,
+        "science": 2.724742,
+        "fiction": 2.005829,
+        "equal_weight_avg": 2.199606
+      },
+      "per_domain_specs": {
+        "code": {
+          "code": 1.868206,
+          "science": 2.95478,
+          "fiction": 3.023863,
+          "equal_weight_avg": 2.615616
+        },
+        "science": {
+          "code": 2.252444,
+          "science": 2.724776,
+          "fiction": 3.168811,
+          "equal_weight_avg": 2.715344
+        },
+        "fiction": {
+          "code": 2.132291,
+          "science": 2.904394,
+          "fiction": 2.005785,
+          "equal_weight_avg": 2.34749
+        }
+      },
+      "eval_method": "per-domain-separate-equal-weight",
+      "eval_batch_size": 4
     }
   ]
 }

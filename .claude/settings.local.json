@@ -1,6 +1,10 @@
 {
   "permissions": {
     "allow": [
+      "Bash(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
       "Bash(python:*)",
       "Skill(browse)",
       "Bash(taskkill:*)",
@@ -43,7 +47,8 @@
       "Bash(done)",
       "Bash(for f in experiments/results/pythia/pythia_6b_step_sweep/*.json)",
       "Bash(do echo \"=== $f ===\")",
-      "Bash(kill 586:*)"
+      "Bash(kill 586:*)",
+      "Bash(gh workflow:*)"
     ]
   }
 }
