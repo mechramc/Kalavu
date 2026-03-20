@@ -79,7 +79,7 @@ N_SAMPLES          = 2000   # per domain (long articles — 2000 texts → thous
 N_SAMPLES_LANGUAGE = 50000  # per cc100 language (short sentences ~20-50 tokens each;
                              # need 50k lines to get ~1000+ packed 512-token chunks)
 
-SEEDS           = [42]
+SEEDS           = [137, 2026]
 
 # Override via env vars to redirect large checkpoint/cache dirs to local NVMe
 # (avoids filling network drive — 20 × Pythia-1B checkpoints = ~56 GB)
