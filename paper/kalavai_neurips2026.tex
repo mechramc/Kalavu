@@ -131,7 +131,7 @@ The \kalavai protocol consists of four phases.
 
 \paragraph{Phase 2: Optional freezing.} Optionally, the first $K$ transformer layers are frozen during specialist training. Frozen layers guarantee that lower-level representations remain shared across specialists, providing a structural anchor that is robust to extended training. Our experiments show freezing is unnecessary at short training horizons ($\leq$5,000 steps) but becomes beneficial beyond approximately 5,000 steps (Section~\ref{sec:crossover}).
 
-\paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); preliminary experiments with LoRA showed insufficient specialist divergence to produce fusion gains.
+\paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); LoRA specialists exhibit negative divergence from base (specialists become worse than the base model even on their target domain), making fusion impossible (Appendix~\ref{app:design}, Table~\ref{tab:lora}).
 
 Formally, contributor $i$ trains specialist $\theta_i$ by minimising:
 \[
@@ -697,7 +697,27 @@ To validate the mechanism on a fully controlled setting, we ran the cooperative 
 \label{app:design}
 
 \begin{itemize}[leftmargin=*, itemsep=4pt]
-  \item \textbf{Why not LoRA?} Preliminary experiments showed LoRA-trained specialists failed to diverge sufficiently in representation space; their domain-specific improvements were insufficient to produce meaningful fusion gains. Full fine-tuning of unfrozen layers is required.
+  \item \textbf{Why not LoRA?} LoRA-trained specialists fail to diverge usefully from the base checkpoint; at higher ranks they exhibit \emph{negative} divergence---specialists become worse than the base model even on their own target domain. Table~\ref{tab:lora} shows the ablation at Pythia-410M, seed 42.
+
+\begin{table}[h]
+\centering
+\caption{LoRA ablation at Pythia-410M (seed 42, 2,000 training steps). ``Mean div.'' is the equal-weight average of each specialist's improvement over base on its assigned domain. Negative divergence means the specialist is \emph{worse} than the base model. Full fine-tuning (bottom row) is the main \kalavai result. Corrected equal-weight per-domain evaluation.}
+\label{tab:lora}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{LR} & \textbf{Mean div.} & \textbf{MoE vs.\ spec} & \textbf{MoE vs.\ base} \\
+\midrule
+LoRA $r=8$              & 2e-4 & $-$1.48\%  & $+$0.32\%  & $+$0.65\% \\
+LoRA $r=64$             & 2e-4 & $-$20.31\% & $-$13.85\% & $-$14.92\% \\
+LoRA $r=64$             & 5e-4 & $-$29.25\% & $-$15.22\% & $-$19.97\% \\
+\midrule
+Full FT (freeze=4) & 2e-4 & $+$15.65\% & $+$7.72\%  & $+$16.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At $r=8$, LoRA adapters produce near-zero divergence (+0.32\% fusion gain---not worth the overhead). At $r=64$, specialists become markedly worse than the base model on their own domain (code specialist: $-$37.3\% on code; science specialist: $-$29.0\% on science), causing the fused model to underperform the base by 15--20\%. The mechanism is over-fitting: LoRA at this rank modifies enough capacity to harm generalisation without producing the stable representational divergence that full fine-tuning achieves. Full fine-tuning of unfrozen layers is required for \kalavai to work.
   \item \textbf{Why softmax over argmax?} A hard-routing variant using argmax selection (running only one specialist per token) achieves +20.27\% over base; soft routing achieves +20.24\%---a 0.03pp difference that is not practically meaningful. We use softmax as the default. Critically, \emph{both} variants run all specialists at inference; routing to a single specialist while suppressing the others causes catastrophic failure (Appendix~\ref{app:dispatch}).
   \item \textbf{Why a linear router?} A 2-layer MLP router achieves +14.17\% versus +14.16\% for a linear router---an immaterial difference. Router complexity is irrelevant; the representational structure created by shared initialisation, not the routing mechanism, drives improvement.
 \end{itemize}
