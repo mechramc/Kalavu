@@ -411,7 +411,7 @@ specialist_code    = train(copy(base), code_data,    steps=2000)
 specialist_science = train(copy(base), science_data, steps=2000)
 specialist_fiction  = train(copy(base), fiction_data, steps=2000)
 
-# A router learns who's good at what (500 steps, one linear layer)
+# A router learns who's good at what (1000 steps, one linear layer)
 router = nn.Linear(hidden_size, 3, bias=False)
 fused = MoE(specialists=[code, science, fiction], router=router)
 train_router(fused, mixed_data, steps=500)
@@ -615,7 +615,7 @@ train_router(fused, mixed_data, steps=500)
     <span class="experiment-card__status status--done">Done</span>
     <div class="experiment-card__body">
       <div class="experiment-card__title">Exp 3 — 20-contributor federation (Pythia-1B)</div>
-      <div class="experiment-card__desc">20 specialists: 10 languages (Tamil, Yoruba, Welsh, Spanish, Hindi, Swahili, Vietnamese, Arabic, Indonesian, Thai) + 10 domains (code, science, medical, legal, patent, fiction, news, math, chemistry, dialogue/instructions). The largest cooperative tested. Mean divergence 15.71%.</div>
+      <div class="experiment-card__desc">20 specialists: 10 languages (Tamil, Yoruba, Welsh, Spanish, Hindi, Swahili, Vietnamese, Arabic, Indonesian, Thai) + 10 domains (code, medical, legal, patent, math, finance, chemistry, fiction, dialogue, instructions). The largest cooperative tested. Mean divergence 15.71%.</div>
       <div class="experiment-card__result">+16.79% vs. best specialist &nbsp;·&nbsp; 18/20 domains route to own specialist &nbsp;·&nbsp; seed 42 only (H100 budget precludes multi-seed; robustness confirmed by base-hidden router variant at +16.67%, 0.12pp difference — routing robustness established)</div>
     </div>
   </div>
