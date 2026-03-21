@@ -71,3 +71,7 @@ paper/*.blg
 paper/*.out
 paper/*.fls
 paper/*.fdb_latexmk
+results/pythia_6b/held_out_chunks.pkl
+**/*.pkl
+results/pythia_6b/held_out_chunks.pkl
+**/*.pkl
