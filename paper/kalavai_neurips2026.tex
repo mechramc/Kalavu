@@ -92,7 +92,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
   \item \textbf{Predictive divergence--gain relationship.} Fusion gain scales linearly with specialist divergence: $\text{gain} = -2.72 + 0.82 \times \text{divergence}$ ($R^2 = 0.857$, slope 95\% CI [0.35, 1.28]), validated across six conditions from Qwen-1.5B (3.16\% divergence, +1.06\% gain) to cross-lingual (25.65\%, +21.76\%). Linear fit is substantially better than log-linear ($R^2 = 0.667$). The cross-lingual condition exceeds the linear prediction by +3.6pp, consistent with base-model incompetence creating outsized gains. Practitioners can estimate cooperative value from specialist divergence alone before committing to training.
   \item \textbf{Oracle-optimal routing.} The learned MoE router matches the domain-level oracle (optimal static assignment of each domain to its best specialist) with a gap of $<10^{-5}$ nats at 410M and 6.9B---effectively zero. The cooperative achieves specialist-level quality on every domain simultaneously, something monolithic training cannot: the monolithic model underperforms the MoE on code ($-4.34\%$) and science ($-3.12\%$), despite seeing all domain data during training.
   \item \textbf{Consistent improvement at scale.} Post-hoc MoE fusion beats the best individual specialist by +7.70\% at 410M (3-seed mean, $\pm$0.02\%), +7.49\% at 1B (3 seeds, $\pm$0.01\%), and +6.53\% at 6.9B ($\pm$0.024\%, 3 seeds) on equal-weight per-domain evaluation.\footnote{Initial experiments yielded $+14.2\%$ at 410M; code review identified two evaluation inconsistencies (asymmetric batch sizes and concatenated mixed evaluation) that inflated this figure. All results in this paper use the corrected per-domain equal-weight protocol implemented in \texttt{kalavai\_eval\_utils.py} (Appendix~\ref{app:evalcorrection}).} Routing is near-deterministic ($>$99.9\%) at all scales. Improvement is stable across Pythia-410M training maturities from 3.5\% to 100\% of training (+7.0\%--+8.8\%).
-  \item \textbf{Training duration crossover.} Without frozen layers, fusion improvement peaks at $\approx$2,000 specialist training steps (+8.12\%) then degrades to +3.38\% at 20,000 steps. With four frozen layers, improvement peaks at 5,000 steps (+8.07\%) and degrades more gradually to +6.30\% at 20,000 steps. The crossover occurs at approximately 5,000 steps.
+  \item \textbf{Training duration crossover.} Without frozen layers, fusion improvement peaks at 5,000 specialist training steps (+17.7\%) then degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly (+17.0\% at 20,000 steps). The crossover occurs at approximately 10,000 steps, above which frozen layers are recommended. Even 50 training steps produce +4.0\% gain---meaningful improvement achievable in under two minutes on a consumer GPU.
   \item \textbf{Specialists must run jointly.} Routing to a single specialist based on a near-perfect (99.3\% accurate) domain classifier \emph{degrades} performance by 21.1\%. Joint inference improves it by +7.72\% vs.\ best specialist. Improvement requires specialists to collectively process each token, not classification.
   \item \textbf{Per-domain advantage over monolithic.} On aggregate equal-weight loss, MoE and monolithic achieve near-parity (+0.47\% at 410M). But per-domain, the MoE matches the best specialist on every domain simultaneously while the monolithic model sacrifices code and science quality. The cooperative structural advantage is per-domain specialist quality with zero data sharing, not aggregate loss compression.
   \item \textbf{Cross-lingual cooperative training works.} Tamil/Yoruba/Welsh/Code specialists fused on Pythia-410M: Yoruba perplexity 41.9$\to$7.7 (5.4$\times$), Welsh 102.7$\to$22.1 (4.6$\times$). Contributors speaking different languages can collectively build a model none could train alone.
@@ -132,7 +132,7 @@ The \kalavai protocol consists of four phases.
 
 \paragraph{Phase 1: Shared initialisation.} A coordinator selects a publicly available base checkpoint $\theta_0$ and distributes it to all contributors. All specialists begin from \emph{identical} weights. This shared initialisation is the core structural guarantee that enables post-hoc fusion: specialists diverge in representation space, but their representational geometry remains compatible because they begin from the same point. Hash verification ensures all contributors use exactly the same checkpoint.
 
-\paragraph{Phase 2: Optional freezing.} Optionally, the first $K$ transformer layers are frozen during specialist training. Frozen layers guarantee that lower-level representations remain shared across specialists, providing a structural anchor that is robust to extended training. Our experiments show freezing is unnecessary at short training horizons ($\leq$5,000 steps) but becomes beneficial beyond approximately 5,000 steps (Section~\ref{sec:crossover}).
+\paragraph{Phase 2: Optional freezing.} Optionally, the first $K$ transformer layers are frozen during specialist training. Frozen layers guarantee that lower-level representations remain shared across specialists, providing a structural anchor that is robust to extended training. Our experiments show freezing is unnecessary at short training horizons ($\leq$10,000 steps) but becomes beneficial beyond approximately 10,000 steps (Section~\ref{sec:crossover}).
 
 \paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); LoRA specialists exhibit negative divergence from base (specialists become worse than the base model even on their target domain at $r=64$, or near-zero divergence at $r=8$), placing all LoRA conditions below the divergence floor ($\approx$3.3\%) where the empirical gain formula predicts near-zero or negative returns (Appendix~\ref{app:design}, Table~\ref{tab:lora}).
 
@@ -305,27 +305,31 @@ The monolithic model achieves lower fiction loss than the fiction specialist (2.
 
 A key design question is whether frozen layers are necessary. The freeze depth sweep (Appendix~\ref{app:freeze}) shows only 1.89 percentage points of variation across freeze depths from 0 to 50\% of layers, suggesting freezing is largely optional at 2,000-step training horizons. However, this masks a training duration dependence.
 
-Table~\ref{tab:crossover} (and Figure~\ref{fig:crossover} in Appendix~\ref{app:crossoverfig}) show fusion improvement as a function of specialist training duration. Without frozen layers, improvement peaks at 2,000 steps (+8.12\%) and then degrades monotonically to +3.38\% at 20,000 steps. With four frozen layers, improvement peaks at 5,000 steps (+8.07\%) and degrades more gradually to +6.30\% at 20,000 steps. The crossover occurs at approximately 5,000 training steps: above this threshold, frozen layers prevent over-specialisation that degrades post-hoc fusion.
+Table~\ref{tab:crossover} (and Figure~\ref{fig:crossover} in Appendix~\ref{app:crossoverfig}) show fusion improvement as a function of specialist training duration under corrected per-domain equal-weight evaluation. Without frozen layers, improvement peaks at 5,000 steps (+17.7\%) and degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly and becomes the better configuration above approximately 10,000 training steps (+17.0\% at 20,000 steps vs.\ +14.7\% without freezing). The crossover occurs at approximately 10,000 training steps: above this threshold, frozen layers prevent over-specialisation that degrades post-hoc fusion.
+
+\paragraph{Minimum viable specialist training.} Fusion improvement is non-trivial even at extreme compute constraint: 50 specialist training steps produces +4.0\% gain (freeze=0) and 100 steps produces +5.1\%---meaningful improvements achievable in under two minutes on a consumer GPU. This directly supports the cooperative accessibility argument: compute-constrained contributors can participate with minimal investment, provided they train for at least a few dozen steps to achieve some representational divergence from the shared initialisation.
 
 \begin{table}[h]
 \centering
-\caption{Fusion improvement vs.\ best specialist as a function of training duration, with and without frozen layers. Pythia-410M, seed 42. Bold entries indicate the better configuration at each step count; $\dagger$ marks the crossover point.}
+\caption{Fusion improvement vs.\ base model as a function of training duration, with and without frozen layers. Pythia-410M, seed 42, corrected per-domain equal-weight evaluation (base EW loss = 2.6510). Bold entries indicate the better configuration at each step count; $\dagger$ marks the crossover point.}
 \label{tab:crossover}
 \begin{tabular}{rccc}
 \toprule
 \textbf{Steps} & \textbf{Freeze=0} & \textbf{Freeze=4} & \textbf{Leader} \\
 \midrule
-500   & +5.88\%  & +5.31\%  & \textbf{Freeze=0} \\
-1,000 & +5.94\%  & +6.48\%  & \textbf{Freeze=4} \\
-2,000 & +8.12\%  & +7.56\%  & \textbf{Freeze=0} \\
-5,000$^\dagger$ & +7.79\%  & +8.07\%  & \textbf{Freeze=4} \\
-10,000 & +5.83\% & +7.33\%  & \textbf{Freeze=4} \\
-20,000 & +3.38\% & +6.30\%  & \textbf{Freeze=4} \\
+50    & +4.0\%   & +3.5\%   & \textbf{Freeze=0} \\
+100   & +5.1\%   & +4.5\%   & \textbf{Freeze=0} \\
+500   & +9.2\%   & +8.3\%   & \textbf{Freeze=0} \\
+1,000 & +12.1\%  & +10.8\%  & \textbf{Freeze=0} \\
+2,000 & +15.5\%  & +14.2\%  & \textbf{Freeze=0} \\
+5,000 & +17.7\%  & +17.5\%  & \textbf{Freeze=0} \\
+10,000$^\dagger$ & +16.7\% & \textbf{+17.7\%} & \textbf{Freeze=4} \\
+20,000 & +14.7\% & \textbf{+17.0\%} & \textbf{Freeze=4} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Practical guideline:} For specialist training up to approximately 5,000 steps, frozen layers are largely optional (freeze=0 peaks at $\approx$2,000 steps). For training horizons beyond 5,000 steps, freezing the first $K$ layers is recommended to prevent over-specialisation. The optimal $K$ is not sensitive: the freeze depth sweep shows only 1.89pp variation across $K \in \{0, 2, 4, 6, 8, 12\}$ at 2,000 steps (Appendix~\ref{app:freeze}). Note that the 1B freeze depth ($K=4$, 25\% of layers) was not independently optimised; we use the 410M-derived value and rely on the freeze depth sweep's low sensitivity (1.89pp spread) as justification that this choice is unlikely to materially affect results. The 6.9B experiment uses $K=6$ at only 1,000 specialist training steps---a regime where the 410M analysis shows freezing is largely optional and the crossover threshold ($\sim$5,000 steps) is still in the future. The 6.9B result is therefore insensitive to freeze depth at these step counts, consistent with the 410M finding that freeze sensitivity is low below 5,000 training steps (Appendix~\ref{app:freeze}). A freeze depth sweep at 6.9B is included in the step-budget sweep (Appendix~\ref{app:inventory}).
+\textbf{Practical guideline:} For specialist training up to approximately 10,000 steps, frozen layers are largely optional (freeze=0 peaks at 5,000 steps with +17.7\%). For training horizons beyond 10,000 steps, freezing the first $K$ layers is recommended to prevent over-specialisation (+2.4pp advantage for freeze=4 at 20,000 steps). The optimal $K$ is not sensitive: the freeze depth sweep shows only 1.89pp variation across $K \in \{0, 2, 4, 6, 8, 12\}$ at 2,000 steps (Appendix~\ref{app:freeze}). Note that the 1B freeze depth ($K=4$, 25\% of layers) was not independently optimised; we use the 410M-derived value and rely on the freeze depth sweep's low sensitivity (1.89pp spread) as justification that this choice is unlikely to materially affect results. The 6.9B experiment uses $K=6$ at only 1,000 specialist training steps---a regime where the 410M analysis shows freezing is largely optional and the crossover threshold ($\sim$10,000 steps) is still in the future. The 6.9B result is therefore insensitive to freeze depth at these step counts, consistent with the 410M finding that freeze sensitivity is low below 10,000 training steps (Appendix~\ref{app:freeze}). A freeze depth sweep at 6.9B is included in the step-budget sweep (Appendix~\ref{app:inventory}).
 
 \subsection{All Specialists Must Run: Single-Specialist Dispatch Fails Catastrophically}
 \label{sec:failure}
@@ -406,7 +410,7 @@ Phase 1 establishes that the protocol works at English domain scales (code/scien
 \subsubsection{Private-Domain Fusion (Experiment 2)}
 \label{sec:phase2_private}
 
-Three highly specialised domains are selected: \emph{medical} (PubMed article abstracts, \texttt{ccdv/pubmed-summarization}), \emph{legal} (European legislation, \texttt{lex\_glue}/eurlex), and \emph{patent} (patent descriptions, \texttt{big\_patent}/a). Pythia-410M step10000 with $K=0$ frozen layers (Section~\ref{sec:crossover} shows freeze=0 is optimal below 5k steps), 2,000 specialist training steps, 3 seeds.
+Three highly specialised domains are selected: \emph{medical} (PubMed article abstracts, \texttt{ccdv/pubmed-summarization}), \emph{legal} (European legislation, \texttt{lex\_glue}/eurlex), and \emph{patent} (patent descriptions, \texttt{big\_patent}/a). Pythia-410M step10000 with $K=0$ frozen layers (Section~\ref{sec:crossover} shows freeze=0 is optimal below 10k steps), 2,000 specialist training steps, 3 seeds.
 
 \begin{table}[h]
 \centering
@@ -629,7 +633,7 @@ The memory footprint remains $N\times$, since all specialist weights must be loa
 
 We have demonstrated that independently trained domain specialists, initialised from a shared checkpoint and fused via a lightweight MoE router, consistently outperform the best individual specialist and equal-compute monolithic training. The mechanism is not routing sophistication---a linear router is optimal---but the combination of specialised representations from domain-specific training with joint inference that aggregates those representations at each token position.
 
-The training duration crossover finding provides a practical guideline for cooperative training: frozen layers are optional insurance at training horizons below 5,000 steps and recommended beyond 5,000 steps. The catastrophic failure of single-specialist dispatch---$-$21.1\% with 99.3\%-accurate routing versus $+$7.72\% vs.\ best specialist with joint inference (corrected eval)---reveals that specialist parameters must collectively process each token for the mechanism to succeed.
+The training duration crossover finding provides a practical guideline for cooperative training: frozen layers are optional insurance at training horizons below 10,000 steps and recommended beyond 10,000 steps. The catastrophic failure of single-specialist dispatch---$-$21.1\% with 99.3\%-accurate routing versus $+$7.72\% vs.\ best specialist with joint inference (corrected eval)---reveals that specialist parameters must collectively process each token for the mechanism to succeed.
 
 Phase 2 extends the protocol beyond English domains: private professional domains (medical/legal/patent) achieve +10.17\% gain at 18.52\% mean divergence; cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves +21.76\% at 25.65\% divergence, with Yoruba perplexity falling 5.4$\times$ (41.9$\to$7.7) and Welsh 4.6$\times$ (102.7$\to$22.1). Gain scales with divergence at a conversion rate that \emph{improves} in high-divergence settings (0.85$\times$ cross-lingual vs.\ 0.49$\times$ English domains). The protocol is most valuable precisely where it is most needed.
 
@@ -673,7 +677,7 @@ Maturity sweep 1B (4 ckpts) & Pythia-1B & +0.40\% (step143k) to +8.75\% (step5k)
 Maturity sweep 6.9B (2 ckpts) & Pythia-6.9B & +2.43\% (step10k), +2.26\% (step143k) & 1 & Done (orig.\ eval) \\
 5-domain scaling (2--5 spec.) & Pythia-410M & +17.7\% (2) to +14.1\% (5) & 3 & Done \\
 Monolithic baseline & Pythia-410M & Mono $+$16.0\%, MoE $+$0.47\% over mono (corrected); Mono $+$6.7\%, MoE $+$14.5\% over mono (orig.) & 3 & Done \\
-Training duration crossover & Pythia-410M & Crossover at $\approx$5,000 steps & 1 & Done (corrected eval) \\
+Training duration crossover & Pythia-410M & Crossover at $\approx$10,000 steps (50-step floor: +4.0\%) & 1 & Done (corrected eval) \\
 Domain classifier baseline & Pythia-410M & Classifier $-$21.1\% vs MoE +14.1\% (orig.\ eval) & 3 & Done \\
 Multi-head baseline & Pythia-410M & Multi-head $-$21.1\% (orig.\ eval) & 1 & Done \\
 Wider model capacity control & Pythia-1.4B & +5.9\% vs MoE +14.2\% (orig.\ eval) & 1 & Done \\
@@ -966,7 +970,7 @@ Figure~\ref{fig:crossdomain} presents the full cross-domain evaluation matrix at
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig_fusion_trajectory}
-  \caption{Fusion benefit (MoE improvement over best individual specialist, \%) as a function of specialist training steps at Pythia-410M. Benefit grows monotonically up to approximately 5,000 steps, then plateaus (freeze=4) or degrades (freeze=0) at longer horizons. The crossover between freeze=0 and freeze=4 regimes is shown in Section~\ref{sec:crossover}.}
+  \caption{Fusion benefit (MoE improvement over base model, \%) as a function of specialist training steps at Pythia-410M, corrected per-domain equal-weight evaluation. Benefit grows up to approximately 5,000 steps (+17.7\%, freeze=0), then plateaus or degrades. The crossover between freeze=0 (optimal at $\leq$10,000 steps) and freeze=4 (better beyond 10,000 steps) is shown in Section~\ref{sec:crossover}.}
   \label{fig:fusiontrajectory}
 \end{figure}
 

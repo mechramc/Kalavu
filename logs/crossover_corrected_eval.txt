@@ -300,3 +300,141 @@ Loading base model for corrected baseline eval...
 Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3544.11it/s]
   Loading cached science freeze=4 steps=5000 from checkpoints\pythia\crossover_science_freeze4_steps5000_seed42.pt
 Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3654.81it/s]
+  Loading cached fiction freeze=4 steps=5000 from checkpoints\pythia\crossover_fiction_freeze4_steps5000_seed42.pt
+  Training router (500 steps)...
+    Router step 100/500: loss=2.3994
+    Router step 200/500: loss=2.5227
+    Router step 300/500: loss=3.2974
+    Router step 400/500: loss=2.5936
+    Router step 500/500: loss=2.6990
+    code    : 1.8523  (156/158 chunks, 1.7s)
+    science : 2.5856  (64/67 chunks, 0.7s)
+    fiction : 2.1273  (200/778 chunks, 2.3s)
+  Result: moe_ew_loss=2.1884, improvement=+17.5%
+  Combo time: 26s
+
+  Intermediate results saved to results\pythia\training_duration_crossover_corrected.json
+
+============================================================
+  steps=10000, freeze=0
+============================================================
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3223.59it/s]
+  Loading cached code freeze=0 steps=10000 from checkpoints\pythia\crossover_code_freeze0_steps10000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3621.64it/s]
+  Loading cached science freeze=0 steps=10000 from checkpoints\pythia\crossover_science_freeze0_steps10000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3527.50it/s]
+  Loading cached fiction freeze=0 steps=10000 from checkpoints\pythia\crossover_fiction_freeze0_steps10000_seed42.pt
+  Training router (500 steps)...
+    Router step 100/500: loss=3.0618
+    Router step 200/500: loss=2.2344
+    Router step 300/500: loss=3.1311
+    Router step 400/500: loss=2.3395
+    Router step 500/500: loss=2.6587
+    code    : 1.8561  (156/158 chunks, 1.7s)
+    science : 2.7725  (64/67 chunks, 0.7s)
+    fiction : 1.9989  (200/778 chunks, 2.3s)
+  Result: moe_ew_loss=2.2092, improvement=+16.7%
+  Combo time: 26s
+
+  Intermediate results saved to results\pythia\training_duration_crossover_corrected.json
+
+============================================================
+  steps=10000, freeze=4
+============================================================
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3465.87it/s]
+  Loading cached code freeze=4 steps=10000 from checkpoints\pythia\crossover_code_freeze4_steps10000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3578.22it/s]
+  Loading cached science freeze=4 steps=10000 from checkpoints\pythia\crossover_science_freeze4_steps10000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3704.23it/s]
+  Loading cached fiction freeze=4 steps=10000 from checkpoints\pythia\crossover_fiction_freeze4_steps10000_seed42.pt
+  Training router (500 steps)...
+    Router step 100/500: loss=2.3734
+    Router step 200/500: loss=3.3929
+    Router step 300/500: loss=3.1982
+    Router step 400/500: loss=2.6027
+    Router step 500/500: loss=2.9444
+    code    : 1.8525  (156/158 chunks, 1.8s)
+    science : 2.6580  (64/67 chunks, 0.7s)
+    fiction : 2.0351  (200/778 chunks, 2.3s)
+  Result: moe_ew_loss=2.1819, improvement=+17.7%
+  Combo time: 25s
+
+  Intermediate results saved to results\pythia\training_duration_crossover_corrected.json
+
+============================================================
+  steps=20000, freeze=0
+============================================================
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3430.99it/s]
+  Loading cached code freeze=0 steps=20000 from checkpoints\pythia\crossover_code_freeze0_steps20000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3706.22it/s]
+  Loading cached science freeze=0 steps=20000 from checkpoints\pythia\crossover_science_freeze0_steps20000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3319.20it/s]
+  Loading cached fiction freeze=0 steps=20000 from checkpoints\pythia\crossover_fiction_freeze0_steps20000_seed42.pt
+  Training router (500 steps)...
+    Router step 100/500: loss=2.2241
+    Router step 200/500: loss=2.1831
+    Router step 300/500: loss=2.6383
+    Router step 400/500: loss=2.7307
+    Router step 500/500: loss=2.1997
+    code    : 1.8906  (156/158 chunks, 1.8s)
+    science : 2.9204  (64/67 chunks, 0.7s)
+    fiction : 1.9761  (200/778 chunks, 2.2s)
+  Result: moe_ew_loss=2.2623, improvement=+14.7%
+  Combo time: 25s
+
+  Intermediate results saved to results\pythia\training_duration_crossover_corrected.json
+
+============================================================
+  steps=20000, freeze=4
+============================================================
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3527.67it/s]
+  Loading cached code freeze=4 steps=20000 from checkpoints\pythia\crossover_code_freeze4_steps20000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3404.23it/s]
+  Loading cached science freeze=4 steps=20000 from checkpoints\pythia\crossover_science_freeze4_steps20000_seed42.pt
+Loading weights:   0%|          | 0/292 [00:00<?, ?it/s]Loading weights: 100%|██████████| 292/292 [00:00<00:00, 3555.81it/s]
+warning: in the working copy of 'paper/kalavai_neurips2026.aux', LF will be replaced by CRLF the next time Git touches it
+[main e068351] [kalavai] crossover corrected eval: crossover_steps=10000
+ 6 files changed, 649 insertions(+), 24 deletions(-)
+ create mode 100644 logs/crossover_corrected_eval.txt
+ create mode 100644 results/pythia/training_duration_crossover_corrected.json
+To https://github.com/mechramc/Kalavai.git
+   0becb7d..e068351  main -> main
+  Loading cached fiction freeze=4 steps=20000 from checkpoints\pythia\crossover_fiction_freeze4_steps20000_seed42.pt
+  Training router (500 steps)...
+    Router step 100/500: loss=2.4658
+    Router step 200/500: loss=2.6870
+    Router step 300/500: loss=1.8516
+    Router step 400/500: loss=3.0289
+    Router step 500/500: loss=3.0267
+    code    : 1.8682  (156/158 chunks, 1.7s)
+    science : 2.7248  (64/67 chunks, 0.7s)
+    fiction : 2.0069  (200/778 chunks, 2.2s)
+  Result: moe_ew_loss=2.1999, improvement=+17.0%
+  Combo time: 25s
+
+  Intermediate results saved to results\pythia\training_duration_crossover_corrected.json
+
+======================================================================
+FINAL RESULTS
+======================================================================
+   Steps   freeze=0   freeze=4    delta
+----------------------------------------
+      50      +4.0%      +3.5%   -0.5pp
+     100      +5.1%      +4.5%   -0.6pp
+     500      +9.2%      +8.3%   -1.0pp
+    1000     +12.1%     +10.8%   -1.2pp
+    2000     +15.5%     +14.2%   -1.3pp
+    5000     +17.7%     +17.5%   -0.2pp
+   10000     +16.7%     +17.7%   +1.0pp
+   20000     +14.7%     +17.0%   +2.4pp
+
+Crossover detected at steps=10000
+
+Saving figure...
+  Saved: figures\pythia\fig_training_duration_crossover.png
+Saved: results\pythia\training_duration_crossover_corrected.json
+
+[git] Committing: [kalavai] crossover corrected eval: crossover_steps=10000
+[git] Pushed successfully.
+
+Done.
