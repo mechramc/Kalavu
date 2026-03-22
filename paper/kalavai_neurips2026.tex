@@ -68,7 +68,7 @@ In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisatio
 Fusion gains are consistent across scales: $+7.72\%$ at 410M ($\pm$0.02\%, 3 seeds), $+7.49\%$ at 1B, $+6.53\%$ at 6.9B.
 The fused model achieves oracle-optimal routing: the learned router matches the domain oracle with gap $<10^{-5}$ nats.
 Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.76\%$, with Yoruba perplexity falling $41.9\to7.7$.
-A 20-contributor federation (10 languages + 10 domains) achieves $+16.79\%$ vs.\ best specialist.
+A 20-contributor federation (10 languages + 10 domains) achieves $+16.71\%$ ($\pm$0.07pp, 3 seeds) vs.\ best specialist.
 
 Three conditions define the operating envelope: (1)~\emph{Shared initialisation} is required for routing stability; (2)~\emph{Frozen layers} are optional below 5,000 training steps but become necessary beyond that threshold; (3)~\emph{Joint inference} is required---single-specialist dispatch degrades by $-21.1\%$ despite 99.3\%-accurate domain classification.
 All results use a corrected per-domain equal-weight evaluation protocol.
@@ -467,11 +467,11 @@ Mean fusion gain (all 3 seeds): +16.55\% $\pm$9.02pp; mean divergence 25.65\%; f
 \subsubsection{20-Contributor Federation (Experiment 3)}
 \label{sec:phase2_twenty}
 
-This is the largest cooperative tested: 20 specialists (10 languages + 10 domains) on Pythia-1B, scaling from the 3--4 specialists of Phase~1. Each specialist trains 2,000 steps on its own data; the linear router then trains 1,000 steps on mixed data (physical bs\,=\,4, gradient accumulation\,=\,5, effective bs\,=\,20, lr\,=\,0.0002).\footnote{The default router uses mean-pooled specialist hidden states as input. A base-model hidden-state router variant---using only the frozen base model's hidden states, with no specialist-specific signal---achieves +16.67\% vs.\ best specialist (MoE EW loss 2.3143), compared to +16.79\% for the specialist-hidden-state router (2.3108). The 0.12pp difference is within noise. Routing distributions are nearly identical across both variants, including the medical--chemistry confusion pattern (Section~\ref{sec:phase2_twenty}). This confirms that routing quality is determined by the representational geometry of the shared initialisation, not by specialist-specific hidden states.} The fused model achieves base EW loss 2.7898, best-specialist EW 2.7771 (Arabic), MoE EW \textbf{2.3108}---a \textbf{+16.79\%} gain vs.\ best specialist and +17.17\% vs.\ base (mean divergence 15.71\%, seed~42). STOP/GO verdict: \textbf{GO}.
+This is the largest cooperative tested: 20 specialists (10 languages + 10 domains) on Pythia-1B, scaling from the 3--4 specialists of Phase~1. Each specialist trains 2,000 steps on its own data; the linear router then trains 1,000 steps on mixed data (physical bs\,=\,4, gradient accumulation\,=\,5, effective bs\,=\,20, lr\,=\,0.0002).\footnote{The default router uses mean-pooled specialist hidden states as input. A base-model hidden-state router variant---using only the frozen base model's hidden states, with no specialist-specific signal---achieves +16.67\% vs.\ best specialist (MoE EW loss 2.3143), compared to +16.79\% for the specialist-hidden-state router (2.3108). The 0.12pp difference is within noise. Routing distributions are nearly identical across both variants, including the medical--chemistry confusion pattern (Section~\ref{sec:phase2_twenty}). This confirms that routing quality is determined by the representational geometry of the shared initialisation, not by specialist-specific hidden states.} The fused model achieves base EW loss 2.7898, best-specialist EW 2.7771 (Arabic), MoE EW \textbf{2.3130}---a \textbf{+16.71\%} gain vs.\ best specialist and +17.09\% vs.\ base (mean divergence 15.68\%, 3 seeds, $\pm$0.07pp). STOP/GO verdict: \textbf{GO}.
 
 \begin{table}[h]
 \centering
-\caption{Per-domain MoE gain vs.\ base (\%) for the 20-contributor federation (Pythia-1B, seed~42). Gain\,=\,$(L_\text{base}-L_\text{MoE})/L_\text{base}\times100$. $\dagger$~Undertrained domains: fewer than 500 training chunks (dialogue: 184, instructions: 283), flagged as warnings during data loading. All other domains show positive gains; language specialists (mean +23.8\%) outperform domain specialists (mean +10.4\% excluding $\dagger$) due to higher base-model perplexity on non-English text.}
+\caption{Per-domain MoE gain vs.\ base (\%) for the 20-contributor federation (Pythia-1B, 3-seed mean across seeds 42/137/2026). Gain\,=\,$(L_\text{base}-L_\text{MoE})/L_\text{base}\times100$. $\dagger$~Undertrained domains: fewer than 500 training chunks (dialogue: 184, instructions: 283), flagged as warnings during data loading. All other domains show positive gains; language specialists (mean +23.8\%) outperform domain specialists (mean +14.8\% excluding $\dagger$) due to higher base-model perplexity on non-English text.}
 \label{tab:exp3_perdomain}
 \small
 \begin{tabular}{lrlr}
@@ -479,23 +479,23 @@ This is the largest cooperative tested: 20 specialists (10 languages + 10 domain
 \multicolumn{2}{c}{\textbf{Language Specialists}} & \multicolumn{2}{c}{\textbf{Domain Specialists}} \\
 \textbf{Specialist} & \textbf{Gain} & \textbf{Specialist} & \textbf{Gain} \\
 \midrule
-Tamil      & +25.30\% & Code         & +2.71\%  \\
-Yoruba     & +58.39\% & Medical      & +14.29\% \\
-Welsh      & +37.22\% & Legal        & +36.57\% \\
-Spanish    & +5.20\%  & Patent       & +8.39\%  \\
-Hindi      & +18.04\% & Math         & +22.27\% \\
-Swahili    & +38.25\% & Finance      & +12.44\% \\
-Vietnamese & +12.34\% & Chemistry    & +13.00\% \\
-Arabic     & +11.24\% & Fiction      & +8.24\%  \\
-Indonesian & +12.51\% & Dialogue     & $-$24.85\%$^\dagger$ \\
-Thai       & +19.13\% & Instructions & $-$16.54\%$^\dagger$ \\
+Tamil      & +25.29\% & Code         & +2.70\%  \\
+Yoruba     & +58.37\% & Medical      & +14.41\% \\
+Welsh      & +37.21\% & Legal        & +36.48\% \\
+Spanish    & +5.20\%  & Patent       & +8.37\%  \\
+Hindi      & +18.04\% & Math         & +22.47\% \\
+Swahili    & +38.26\% & Finance      & +12.54\% \\
+Vietnamese & +12.34\% & Chemistry    & +13.12\% \\
+Arabic     & +11.24\% & Fiction      & +8.34\%  \\
+Indonesian & +12.49\% & Dialogue     & $-$23.84\%$^\dagger$ \\
+Thai       & +19.15\% & Instructions & $-$12.54\%$^\dagger$ \\
 \midrule
-\textit{Mean} & \textit{+23.76\%} & \textit{Mean (all)} & \textit{+7.65\%} \\
+\textit{Mean} & \textit{+23.76\%} & \textit{Mean (all)} & \textit{+8.21\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\emph{Router robustness note.} A base-model hidden-state router variant achieves +16.67\% vs.\ best specialist (EW loss 2.3143) with near-identical per-domain routing, confirming router input choice does not affect fusion quality at this scale.
+\emph{Router robustness note.} A base-model hidden-state router variant (seed~42) achieves +16.67\% vs.\ best specialist (EW loss 2.3143) with near-identical per-domain routing, confirming router input choice does not affect fusion quality at this scale.
 
 \paragraph{Router distribution.} The linear router achieves near-perfect specialisation: 17 of 20 domains assign ${>}$98\% gate weight to the correct specialist, and all 10 language specialists route ${>}$99.4\% correctly. Two patterns merit attention.
 
@@ -505,14 +505,14 @@ Thai       & +19.13\% & Instructions & $-$16.54\%$^\dagger$ \\
 
 \paragraph{Scale validation.} The +16.79\% gain at 15.71\% mean divergence is +6.68pp above the linear regression prediction (+10.11\%) from Section~\ref{sec:divergence_gain}, consistent with the pattern that heterogeneous multi-domain cooperatives---mixing language and domain specialists with widely varying divergence levels---outperform the English-domain regression baseline. The routing saturation result holds at scale: a simple linear router on 20 specialists converges to near-optimal domain assignment, confirming that router architecture does not matter once shared initialisation is in place.
 
-\paragraph{Replication note.} Experiment 3 reports seed 42 only; the 20-specialist H100 training budget precludes multi-seed replication. Phase 1 multi-seed variance across all scales (±0.01--0.024\%, Table~\ref{tab:main}) and Experiment 2 three-seed variance (±0.15pp, Table~\ref{tab:phase2_private}) suggest the result is stable, and the base-model hidden-state router variant achieves +16.67\% on the same seed (§\ref{sec:phase2_twenty}, router robustness note), providing an independent robustness check on the routing outcome. Multi-seed confirmation remains future work.
+\paragraph{Replication note.} Experiment 3 was replicated across three random seeds (42, 137, 2026). The 3-seed mean is \textbf{+16.71\% $\pm$0.07pp} vs.\ best specialist (+17.09\% $\pm$0.07pp vs.\ base), with mean divergence 15.68\% $\pm$0.04pp. Variance is tighter than Experiment 2 ($\pm$0.15pp) and comparable to Phase 1 ($\pm$0.01--0.02pp at 410M/1B). Per-domain routing distributions are near-identical across seeds, with all 10 language specialists routing $>$99\% correctly in every seed. The result is confirmed stable.
 
 % ============================================================
 \subsection{Divergence--Gain Relationship}
 \label{sec:divergence_gain}
 % ============================================================
 
-Across six experimental conditions---Qwen-1.5B (mean div.\ 3.16\%), Pythia-6.9B (8.73\%), Pythia-1B (15.28\%), Pythia-410M (15.65\%), Exp 2 private-domain (18.52\%), and Exp 1 cross-lingual (25.65\%)---fusion gain scales monotonically with specialist divergence (Figure~\ref{fig:divergence_gain_regression}). Exp 3 (20-contributor, 15.71\%, +16.79\%) serves as an out-of-sample validation point (Table~\ref{tab:divergence_gain}).
+Across six experimental conditions---Qwen-1.5B (mean div.\ 3.16\%), Pythia-6.9B (8.73\%), Pythia-1B (15.28\%), Pythia-410M (15.65\%), Exp 2 private-domain (18.52\%), and Exp 1 cross-lingual (25.65\%)---fusion gain scales monotonically with specialist divergence (Figure~\ref{fig:divergence_gain_regression}). Exp 3 (20-contributor, 15.68\%, +16.71\%, 3-seed mean) serves as an out-of-sample validation point (Table~\ref{tab:divergence_gain}).
 
 \paragraph{Linear regression fit.} We fit OLS regression to the six data points. The linear model ($\text{gain} = -2.72 + 0.82 \times \text{divergence}$) achieves $R^2 = 0.857$ (slope 95\% CI [0.35, 1.28], $n=6$, $t$-distribution). A log-linear fit achieves only $R^2 = 0.667$---the relationship is closer to linear than sublinear across the 3--26\% divergence range. The regression line and 95\% prediction band are shown in Figure~\ref{fig:divergence_gain_regression}.
 
@@ -539,12 +539,12 @@ Pythia-410M (Ph.1)          & 15.65\% & +7.72\%  & 0.49$\times$ & +10.11\% & $-$
 Exp 2: private (Ph.2)       & 18.52\% & +10.17\% & 0.55$\times$ & +12.43\% & $-$2.26pp \\
 Exp 1: cross-lingual (Ph.2) & 25.65\% & +21.76\% & 0.85$\times$ & +18.18\% & +3.58pp \\
 \midrule
-\textit{Exp 3: 20-contrib (Ph.2, OOS)} & \textit{15.71\%} & \textit{+16.79\%} & \textit{1.07$\times$$^{\ddagger}$} & \textit{+10.11\%} & \textit{+6.68pp} \\
+\textit{Exp 3: 20-contrib (Ph.2, OOS)} & \textit{15.68\%} & \textit{+16.71\%} & \textit{1.07$\times$$^{\ddagger}$} & \textit{+10.14\%} & \textit{+6.57pp} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The residual pattern is informative. The four English-domain conditions (Pythia 410M/1B/6.9B and Private) all lie within $\pm$2.4pp of the line, forming a coherent cluster. The 6.9B point sits +2.12pp above the line---consistent with larger models converting divergence more efficiently. The cross-lingual condition is the largest in-sample outlier (+3.58pp), explained by base-model near-incompetence on Yoruba and Welsh: when the base model achieves near-random perplexity on a domain, the specialist corrects this from a high baseline and the router routes with near-perfect confidence, leaving no gain on the table. The out-of-sample Exp~3 point (+6.68pp residual) lies further above the line, consistent with its heterogeneous mix of high-divergence language specialists (Yoruba +58\%, Welsh +37\%, Swahili +38\%) pulling the cooperative gain above what the English-domain regression would predict.
+The residual pattern is informative. The four English-domain conditions (Pythia 410M/1B/6.9B and Private) all lie within $\pm$2.4pp of the line, forming a coherent cluster. The 6.9B point sits +2.12pp above the line---consistent with larger models converting divergence more efficiently. The cross-lingual condition is the largest in-sample outlier (+3.58pp), explained by base-model near-incompetence on Yoruba and Welsh: when the base model achieves near-random perplexity on a domain, the specialist corrects this from a high baseline and the router routes with near-perfect confidence, leaving no gain on the table. The out-of-sample Exp~3 point (+6.57pp residual, 3-seed mean) lies further above the line, consistent with its heterogeneous mix of high-divergence language specialists (Yoruba +58\%, Welsh +37\%, Swahili +38\%) pulling the cooperative gain above what the English-domain regression would predict.
 
 The practical implication is that the formula $\text{gain} \approx 0.82 \times \text{divergence}$ provides a reliable pre-training estimate for English-domain and professional-domain cooperatives. Cross-lingual settings with low-resource languages will likely exceed this prediction. The formula also sets a divergence floor: below $\approx$3.3\% mean divergence, the linear prediction approaches zero, indicating the cooperative is unlikely to produce positive gains over individual specialists.
 
@@ -690,7 +690,7 @@ Results integrity audit & All & 322/322 checks passed, 0 issues & --- & Done \\
 \midrule
 Exp 2: Private-domain (410M) & Pythia-410M & +10.17\% $\pm$0.15pp & 3 & Done (corrected eval) \\
 Exp 1: Cross-lingual (410M) & Pythia-410M & +21.76\% (seeds 137/2026) & 2 GO / 1 PIVOT & Done (corrected eval) \\
-Exp 3: 20-contributor (1B) & Pythia-1B & +16.79\% vs.\ spec (mean div.\ 15.71\%) & 1 GO & Done (seed 42) \\
+Exp 3: 20-contributor (1B) & Pythia-1B & +16.71\% $\pm$0.07pp vs.\ spec (mean div.\ 15.68\%) & 3 GO & Done (seeds 42/137/2026) \\
 6.9B step+freeze sweep & Pythia-6.9B & Best: k=4, 2k steps, +2.73\% $\pm$0.007pp & 3 & Done \\
 \bottomrule
 \end{tabular}%

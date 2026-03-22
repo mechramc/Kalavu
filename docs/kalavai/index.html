@@ -616,7 +616,7 @@ train_router(fused, mixed_data, steps=500)
     <div class="experiment-card__body">
       <div class="experiment-card__title">Exp 3 — 20-contributor federation (Pythia-1B)</div>
       <div class="experiment-card__desc">20 specialists: 10 languages (Tamil, Yoruba, Welsh, Spanish, Hindi, Swahili, Vietnamese, Arabic, Indonesian, Thai) + 10 domains (code, medical, legal, patent, math, finance, chemistry, fiction, dialogue, instructions). The largest cooperative tested. Mean divergence 15.71%.</div>
-      <div class="experiment-card__result">+16.79% vs. best specialist &nbsp;·&nbsp; 18/20 domains route to own specialist &nbsp;·&nbsp; seed 42 only (H100 budget precludes multi-seed; robustness confirmed by base-hidden router variant at +16.67%, 0.12pp difference — routing robustness established)</div>
+      <div class="experiment-card__result">+16.71% ±0.07pp vs. best specialist &nbsp;·&nbsp; 3 seeds (42/137/2026) &nbsp;·&nbsp; 18/20 domains route to own specialist</div>
     </div>
   </div>
 
