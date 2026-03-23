@@ -741,7 +741,7 @@ At $r=8$, LoRA adapters produce near-zero divergence ($-$1.48\% mean, below the 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.72\textwidth]{fig_training_duration_crossover}
-  \caption{Fusion improvement vs.\ best specialist as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42. See Table~\ref{tab:crossover} in Section~\ref{sec:crossover} for exact values.}
+  \caption{Fusion improvement vs.\ base model as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42, corrected per-domain equal-weight evaluation. See Table~\ref{tab:crossover} in Section~\ref{sec:crossover} for exact values.}
   \label{fig:crossover}
 \end{figure}
 
