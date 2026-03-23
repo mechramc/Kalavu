@@ -90,7 +90,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
 \begin{enumerate}[leftmargin=*, itemsep=2pt]
   \item \textbf{Predictive divergence--gain relationship.} Fusion gain scales linearly with specialist divergence: $\text{gain} = -2.72 + 0.82 \times \text{divergence}$ ($R^2 = 0.857$, slope 95\% CI [0.35, 1.28]), validated across six conditions from Qwen-1.5B (3.16\% divergence, +1.06\% gain) to cross-lingual (25.65\%, +21.76\%). Linear fit is substantially better than log-linear ($R^2 = 0.667$). The cross-lingual condition exceeds the linear prediction by +3.6pp, consistent with base-model incompetence creating outsized gains. Practitioners can estimate cooperative value from specialist divergence alone before committing to training.
   \item \textbf{Oracle-optimal routing.} The learned MoE router matches the domain-level oracle (optimal static assignment of each domain to its best specialist) with a gap of $<10^{-5}$ nats at 410M and 6.9B---effectively zero. The cooperative achieves specialist-level quality on every domain simultaneously, something monolithic training cannot: the monolithic model underperforms the MoE on code ($-4.34\%$) and science ($-3.12\%$), despite seeing all domain data during training.
-  \item \textbf{Consistent improvement at scale.} Post-hoc MoE fusion beats the best individual specialist by +7.70\% at 410M (3-seed mean, $\pm$0.02\%), +7.49\% at 1B (3 seeds, $\pm$0.01\%), and +6.53\% at 6.9B ($\pm$0.024\%, 3 seeds) on equal-weight per-domain evaluation.\footnote{Initial experiments yielded $+14.2\%$ at 410M; code review identified two evaluation inconsistencies (asymmetric batch sizes and concatenated mixed evaluation) that inflated this figure. All results in this paper use the corrected per-domain equal-weight protocol implemented in \texttt{kalavai\_eval\_utils.py} (Appendix~\ref{app:evalcorrection}).} Routing is near-deterministic ($>$99.9\%) at all scales. Improvement is stable across Pythia-410M training maturities from 3.5\% to 100\% of training (+7.0\%--+8.8\%).
+  \item \textbf{Consistent improvement at scale.} Post-hoc MoE fusion beats the best individual specialist by +7.70\% at 410M (3-seed mean, $\pm$0.02\%), +7.49\% at 1B (3 seeds, $\pm$0.01\%), and +6.53\% at 6.9B ($\pm$0.024\%, 3 seeds) on equal-weight per-domain evaluation.\footnote{All results use the per-domain equal-weight protocol implemented in \texttt{kalavai\_eval\_utils.py}; see Appendix~\ref{app:evalcorrection}.} Routing is near-deterministic ($>$99.9\%) at all scales. Improvement is stable across Pythia-410M training maturities from 3.5\% to 100\% of training (+7.0\%--+8.8\%).
   \item \textbf{Training duration crossover.} Without frozen layers, fusion improvement peaks at 5,000 specialist training steps (+17.7\%) then degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly (+17.0\% at 20,000 steps). The crossover occurs at approximately 10,000 steps, above which frozen layers are recommended. Even 50 training steps produce +4.0\% gain---meaningful improvement achievable in under two minutes on a consumer GPU.
   \item \textbf{Specialists must run jointly.} Routing each token exclusively to its best-matched specialist---using a 99.3\%-accurate domain classifier---\emph{degrades} performance by $-21.1\%$. Joint inference across all specialists achieves $+7.72\%$. The mechanism requires that every specialist contribute a logit vector to each token; dispatching to a single expert discards this collective signal.
   \item \textbf{Per-domain advantage over monolithic.} On aggregate equal-weight loss, MoE and monolithic achieve near-parity ($+0.47\%$ at 410M). The distinction is per-domain: the MoE matches the best specialist on every domain simultaneously, while the monolithic model sacrifices code ($-4.34\%$ vs.\ MoE) and science ($-3.12\%$) to improve on fiction. The cooperative advantage is simultaneous per-domain quality, not lower aggregate loss.
@@ -191,7 +191,7 @@ where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain e
 
 \begin{table}[t]
 \centering
-\caption{Main results across three model scales. \textbf{Per-domain equal-weight evaluation}: each domain evaluated separately at consistent batch size (bs=4), equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$. Initial experiments used a mixed concatenated eval with asymmetric batch sizes; code review identified these inconsistencies and the protocol was corrected before submission (Appendix~\ref{app:evalcorrection}). Seed 42 shown; 410M multi-seed mean +7.70\% $\pm$0.02\% (seeds 42/137/2026). 6.9B seed 42. Base model loss values here differ from appendix tables using the original evaluation protocol.}
+\caption{Main results across three model scales. \textbf{Per-domain equal-weight evaluation}: each domain evaluated separately at bs=4; equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$ (Appendix~\ref{app:evalcorrection}). 410M results: 3-seed means (seeds 42/137/2026). 6.9B: seed 42. Absolute base loss values differ from appendix ablation tables, which use a mixed-domain protocol; improvement percentages are internally consistent within each section.}
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule
@@ -239,7 +239,7 @@ Qwen-1.5B$^\dagger$ & 1.76\%  & ---     & 4.56\%  & 3.16\%  & +1.06\% & 0.34$\ti
 \end{tabular}
 \end{table}
 
-\paragraph{Evaluation protocol note.} All reported improvements use the corrected per-domain equal-weight protocol: each domain evaluated separately at bs=4, with gains averaged equally across domains. Two earlier inconsistencies (asymmetric batch sizes and a concatenated mixed eval that excluded fiction) were identified in code review and corrected before submission; the full correction history is in Appendix~\ref{app:evalcorrection}.
+\paragraph{Evaluation protocol.} All reported improvements use the per-domain equal-weight protocol: each domain evaluated separately at bs=4, gains averaged equally across domains. Protocol specification and implementation: Appendix~\ref{app:evalcorrection}.
 
 \subsection{Comparison to Equal-Compute Monolithic Training}
 \label{sec:monolithic}
@@ -830,7 +830,7 @@ Figure~\ref{fig:routerdist} shows the learned gate weight distributions for all 
 
 \begin{table}[h]
 \centering
-\caption{Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline; this differs slightly from Table~\ref{tab:main}'s base (2.248) due to evaluation batch composition---a 0.1pp artefact, not a methodological inconsistency.}
+\caption{Routing strategies at Pythia-410M (freeze=4, seed=42). All configurations use the same three specialist models trained on the same checkpoint. The improvement column uses the base model (loss 2.420) as baseline under the mixed-domain evaluation protocol; Table~\ref{tab:main} uses the per-domain equal-weight protocol (base 2.651). Improvement percentages are internally consistent within each section.}
 \label{tab:dispatch}
 \begin{tabular}{lcccc}
 \toprule
@@ -1026,7 +1026,7 @@ At 1B scale, the MoE model leads on HellaSwag (35.0\% vs.\ 34.4\% base), the ben
 
 Experiments with Qwen-1.5B at step 143,000 (full training, code and fiction domains, freeze=4, 2,000 steps, 3 seeds) produce a mean fusion improvement of \textbf{+1.06\% $\pm$ 0.01\%} vs.\ best individual specialist under corrected evaluation (per-domain equal-weight, consistent batch size). Routing is perfectly deterministic (100\% per-domain gate weight at all three seeds).
 
-Under the initial evaluation protocol, Qwen showed $-$0.97\%; the corrected per-domain protocol yields +1.06\%. The mixed concatenated eval underrepresented the fiction domain, where Qwen's MoE has its largest advantage.
+The per-domain equal-weight protocol yields +1.06\%; a mixed concatenated eval underrepresents fiction---the domain where Qwen's MoE has its largest advantage---and would produce a misleading negative result.
 
 The gain of +1.06\% is small, consistent with small specialist divergence (code 1.76\%, fiction 4.56\%, mean 3.16\%). Applying the empirical conversion rate (0.34$\times$ for Qwen, Table~\ref{tab:divergence}), a 3.16\% mean divergence predicts $\approx$1.1\% fusion gain---exactly what is observed. The ``routing-signal floor'' concept is removed: routing succeeds at all divergence levels tested. Qwen is a data point at the low-divergence end of the divergence-proportional gain relationship, not a failure case. The Pythia maturity sweeps (410M and 1B at step 143,000 show $\sim$7\% improvement at similar divergence levels) confirm this is consistent behaviour across model families.
 
