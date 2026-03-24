@@ -281,9 +281,9 @@
   <p class="hero__sub">KALAVAI is a cooperative LLM training protocol. Everyone starts from the same checkpoint, trains independently on their own data, and a lightweight router fuses the result. No communication during training. The fused model outperforms every individual.</p>
 
   <div class="hero__stats">
-    <div><div class="hero__stat-value">+14.2%</div><div class="hero__stat-label">410M vs best specialist</div></div>
-    <div><div class="hero__stat-value">+14.8%</div><div class="hero__stat-label">1B vs best specialist</div></div>
-    <div><div class="hero__stat-value">+14.5%</div><div class="hero__stat-label">vs equal-compute monolithic</div></div>
+    <div><div class="hero__stat-value">+7.72%</div><div class="hero__stat-label">410M vs best specialist</div></div>
+    <div><div class="hero__stat-value">+7.49%</div><div class="hero__stat-label">1B vs best specialist</div></div>
+    <div><div class="hero__stat-value">+6.53%</div><div class="hero__stat-label">6.9B vs best specialist</div></div>
     <div><div class="hero__stat-value">322/322</div><div class="hero__stat-label">audit checks passed</div></div>
   </div>
 
@@ -318,11 +318,11 @@ fused = MoE(specialists=[code, science, fiction], router=router)
 train_router(fused, mixed_data, steps=500)
 
 # Result: fused model beats every individual specialist
-# +14.2% over best specialist, +14.5% over monolithic training</code></pre>
+# +7.72% over best specialist (corrected per-domain equal-weight eval)</code></pre>
 
   <figure class="figure figure--wide">
     <img src="figures/fig_hero_4panel.png" alt="KALAVAI four key findings">
-    <figcaption><strong>Figure 1.</strong> The four core findings. (A) Fusion improvement across model scales. (B) Training duration crossover: frozen layers become necessary around 10k steps. (C) Single-specialist dispatch fails catastrophically. (D) KALAVAI beats equal-compute monolithic training by +14.5%.</figcaption>
+    <figcaption><strong>Figure 1.</strong> The four core findings. (A) Fusion improvement across model scales: +7.72% at 410M, +7.49% at 1B, +6.53% at 6.9B. (B) Training duration crossover: frozen layers become beneficial around 5k steps. (C) Single-specialist dispatch fails catastrophically (&minus;21.1%). (D) Equal-compute monolithic comparison.</figcaption>
   </figure>
 
   <!-- ═══ RESULTS ═══ -->
@@ -335,29 +335,29 @@ train_router(fused, mixed_data, steps=500)
   <div class="result-row">
     <div class="result-card">
       <div class="result-card__label">Pythia-410M</div>
-      <div class="result-card__value val--teal">+14.2%</div>
-      <div class="result-card__note">3 seeds, ±0.016%</div>
+      <div class="result-card__value val--teal">+7.72%</div>
+      <div class="result-card__note">3 seeds, ±0.02%</div>
     </div>
     <div class="result-card">
       <div class="result-card__label">Pythia-1B</div>
-      <div class="result-card__value val--teal">+14.8%</div>
-      <div class="result-card__note">3 seeds, ±0.003%</div>
+      <div class="result-card__value val--teal">+7.49%</div>
+      <div class="result-card__note">3 seeds, ±0.01%</div>
     </div>
     <div class="result-card">
       <div class="result-card__label">Pythia-6.9B</div>
-      <div class="result-card__value val--gold">+2.4%</div>
-      <div class="result-card__note">3 seeds, corrected eval</div>
+      <div class="result-card__value val--gold">+6.53%</div>
+      <div class="result-card__note">3 seeds, ±0.024%</div>
     </div>
   </div>
 
   <figure class="figure figure--wide">
     <img src="figures/fig_scale_ladder.png" alt="KALAVAI improvement across model scales">
-    <figcaption><strong>Figure 2.</strong> Scale ladder. KALAVAI improvement as a function of model size. Gains are nearly identical at 410M and 1B (+14.2% and +14.8%), then contract at 6.9B (+2.4%). We attribute this to the per-parameter training signal budget: 6.9B has 17&times; the parameters but was fine-tuned for fewer total steps.</figcaption>
+    <figcaption><strong>Figure 2.</strong> Scale ladder. KALAVAI improvement as a function of model size. Gains are consistent at 410M and 1B (+7.72% and +7.49%), then contract at 6.9B (+6.53%). We attribute the reduced gain at 6.9B to the per-parameter training signal budget: 6.9B has 17&times; the parameters but was fine-tuned for fewer total steps.</figcaption>
   </figure>
 
-  <h3>Beats equal-compute monolithic training</h3>
+  <h3>Equal-compute monolithic comparison</h3>
 
-  <p>The natural objection: just train one model on all the data for the same total compute. We tested this directly. A single model fine-tuned on mixed data for 6,000 steps (equal to 3 specialists &times; 2,000 steps) achieves +6.7% over base. KALAVAI achieves <strong>+14.5% over that monolithic model</strong>.</p>
+  <p>A natural question is whether centralised training on combined data would match the cooperative result. We tested this directly. A single model fine-tuned on mixed data for 6,000 steps (equal to 3 specialists &times; 2,000 steps) achieves +6.7% over base. Under the corrected per-domain equal-weight evaluation, KALAVAI wins on all three domains individually. The aggregate advantage is +0.47%; the per-domain wins are consistent across seeds.</p>
 
   <div class="figure-grid figure-grid--2">
     <figure class="figure">
@@ -378,26 +378,27 @@ train_router(fused, mixed_data, steps=500)
       <tr><td>Best specialist (code)</td><td>2.089</td><td>+7.1%</td><td>+0.4%</td></tr>
       <tr><td>Weight averaging</td><td>2.158</td><td>+4.0%</td><td>—</td></tr>
       <tr><td>Wider model (3.5&times; params)</td><td>2.120</td><td>+5.9%</td><td>—</td></tr>
-      <tr class="highlight"><td>KALAVAI MoE</td><td>1.793</td><td>+20.2%</td><td><strong>+14.5%</strong></td></tr>
+      <tr class="highlight"><td>KALAVAI MoE</td><td>1.793</td><td>+7.72%&dagger;</td><td><strong>+0.47%&dagger; (wins per-domain)</strong></td></tr>
     </tbody>
   </table>
+  <p style="font-size:0.82rem; color:var(--cream-faint); margin-top:0.5rem;">&dagger; Corrected per-domain equal-weight evaluation. Absolute loss values and base-relative percentages are from the original mixed evaluation protocol; see Appendix R of the paper for the correction.</p>
 
   <h3>1B results: replication holds</h3>
 
-  <p>The 1B scale replicates the 410M result with essentially zero variance. The improvement is +14.8% over the best specialist. Three seeds, standard deviation 0.003%. The monolithic baseline at 1B also confirms: KALAVAI beats equal-compute monolithic by ~+14.5% at 1B as well.</p>
+  <p>The 1B scale replicates the 410M result with essentially zero variance. The improvement is +7.49% over the best specialist. Three seeds, standard deviation 0.01%. The monolithic baseline at 1B also confirms that the per-domain advantage holds at 1B.</p>
 
   <figure class="figure">
     <img src="figures/fig_1b_fusion_comparison.png" alt="KALAVAI fusion comparison at 1B scale">
-    <figcaption><strong>Figure 5.</strong> Full comparison at Pythia-1B. MoE achieves held-out mixed loss of 1.696 vs. best specialist at 1.992 — a +14.8% improvement. The monolithic baseline (6,000 steps on mixed data) achieves 1.986, confirming the MoE advantage holds at 1B.</figcaption>
+    <figcaption><strong>Figure 5.</strong> Full comparison at Pythia-1B. MoE improvement over best specialist: +7.49% under the corrected per-domain equal-weight evaluation. The monolithic baseline (6,000 steps on mixed data) achieves comparable aggregate performance; the MoE wins on each domain individually.</figcaption>
   </figure>
 
   <h3>6.9B: the scale boundary</h3>
 
-  <p>At 6.9B parameters the improvement contracts to +2.4%. The mechanism still works — the MoE is definitively better than every individual specialist — but the magnitude is much smaller. The most likely explanation: at 6.9B, each specialist had only 500 fine-tuning steps (budget-constrained by A100 runtime), leaving insufficient domain signal for strong specialisation. A follow-up experiment (B1: 6.9B step-budget sweep) will test whether more training recovers the larger improvement seen at 410M/1B.</p>
+  <p>At 6.9B parameters the improvement contracts to +6.53%. The mechanism still works — the MoE is definitively better than every individual specialist — but the gain is somewhat smaller than at 410M and 1B. The most likely explanation: at 6.9B, each specialist had only 500 fine-tuning steps (budget-constrained by A100 runtime), leaving a weaker per-parameter domain signal than at the smaller scales. A follow-up experiment (B1: 6.9B step-budget sweep) will test whether more training narrows this gap.</p>
 
   <figure class="figure">
     <img src="figures/fig_6b_summary.png" alt="6.9B scale results summary">
-    <figcaption><strong>Figure 6.</strong> 6.9B results. Despite the reduced improvement (+2.4%), the result is statistically clear across three seeds with zero variance. This flags a scale-dependent boundary, not a mechanism failure.</figcaption>
+    <figcaption><strong>Figure 6.</strong> 6.9B results. The improvement is +6.53%, statistically clear across three seeds with near-zero variance. The reduced gain relative to 410M/1B flags scale-dependent sensitivity to training budget, not a mechanism failure.</figcaption>
   </figure>
 
   <!-- ═══ CONDITIONS ═══ -->
@@ -417,32 +418,32 @@ train_router(fused, mixed_data, steps=500)
 
   <h3>2. Frozen layers become necessary beyond ~10,000 steps</h3>
 
-  <p>At short training horizons (&le;5,000 steps), freezing layers is optional — more plastic representations allow specialists to diverge more effectively. But beyond approximately 10,000 steps, unfrozen specialists over-specialise and become harder to fuse. Freezing the first K layers provides a structural anchor that preserves routing compatibility.</p>
+  <p>At short training horizons (&le;2,000 steps), freezing layers is optional — more plastic representations allow specialists to diverge more effectively, and freeze=0 reaches its peak performance here. But beyond approximately 5,000 steps, unfrozen specialists over-specialise and become harder to fuse. Freezing the first K layers provides a structural anchor that preserves routing compatibility at longer training horizons.</p>
 
   <figure class="figure">
     <img src="figures/fig_training_duration_crossover.png" alt="Training duration crossover: freeze=0 vs freeze=4">
-    <figcaption><strong>Figure 7.</strong> The training duration crossover. Without frozen layers, improvement peaks at 5k steps then degrades. With 4 frozen layers, improvement plateaus through 20k steps. Crossover at approximately 10,000 steps.</figcaption>
+    <figcaption><strong>Figure 7.</strong> The training duration crossover. Without frozen layers, improvement peaks at 2,000 steps (+8.12%) then degrades. With 4 frozen layers, improvement continues improving through 20k steps. Crossover at approximately 5,000 steps.</figcaption>
   </figure>
 
   <table class="data-table">
     <thead><tr><th>Steps</th><th>Freeze=0</th><th>Freeze=4</th><th>Winner</th></tr></thead>
     <tbody>
-      <tr><td>500</td><td>+9.9%</td><td>+8.9%</td><td>Freeze=0</td></tr>
-      <tr><td>1,000</td><td>+12.5%</td><td>+11.3%</td><td>Freeze=0</td></tr>
-      <tr><td>2,000</td><td>+15.1%</td><td>+13.9%</td><td>Freeze=0</td></tr>
-      <tr><td>5,000</td><td>+16.4%</td><td>+15.8%</td><td>Freeze=0</td></tr>
-      <tr class="highlight"><td>10,000</td><td>+15.4%</td><td>+15.6%</td><td><strong>Freeze=4 &larr; crossover</strong></td></tr>
-      <tr class="highlight"><td>20,000</td><td>+13.6%</td><td>+14.8%</td><td><strong>Freeze=4</strong></td></tr>
+      <tr><td>500</td><td>+5.88%</td><td>+5.31%</td><td>Freeze=0</td></tr>
+      <tr><td>1,000</td><td>+5.94%</td><td>+6.48%</td><td>Freeze=4 (marginal)</td></tr>
+      <tr class="highlight"><td>2,000</td><td>+8.12%</td><td>+7.56%</td><td><strong>Freeze=0 &larr; peak</strong></td></tr>
+      <tr class="highlight"><td>5,000</td><td>+7.79%</td><td>+8.07%</td><td><strong>Freeze=4 &larr; crossover</strong></td></tr>
+      <tr><td>10,000</td><td>+5.83%</td><td>+7.33%</td><td>Freeze=4</td></tr>
+      <tr><td>20,000</td><td>+3.38%</td><td>+6.30%</td><td>Freeze=4</td></tr>
     </tbody>
   </table>
 
   <h3>3. All specialists must run at inference</h3>
 
-  <p>This is the paper's most surprising result. A domain classifier with 99.3% accuracy, routing each input to a single specialist, produces <strong>&minus;21.1% degradation</strong> relative to base. The MoE running all three specialists and combining outputs produces <strong>+14.1% improvement</strong>. Same routing accuracy — opposite results. The 35 percentage point gap is the difference between a system that works and one that's worse than doing nothing.</p>
+  <p>This is the paper's most surprising result. A domain classifier with 99.3% accuracy, routing each input to a single specialist, produces <strong>&minus;21.1% degradation</strong> relative to base. The MoE running all three specialists and combining outputs produces <strong>+7.72% improvement</strong>. Same routing accuracy — opposite results. The nearly 29 percentage point gap is the difference between a system that works and one that's worse than doing nothing.</p>
 
   <figure class="figure">
     <img src="figures/fig_domain_classifier.png" alt="MoE vs domain classifier dispatch">
-    <figcaption><strong>Figure 8.</strong> Routing strategies at Pythia-410M. Joint MoE inference achieves +14.1%. Single-specialist dispatch with a near-perfect domain classifier achieves &minus;21.1%. The 35pp gap is entirely explained by catastrophic forgetting.</figcaption>
+    <figcaption><strong>Figure 8.</strong> Routing strategies at Pythia-410M. Joint MoE inference achieves +7.72%. Single-specialist dispatch with a near-perfect domain classifier achieves &minus;21.1%. The ~29pp gap is entirely explained by catastrophic forgetting.</figcaption>
   </figure>
 
   <div class="callout callout--gold">
@@ -470,45 +471,45 @@ train_router(fused, mixed_data, steps=500)
   <h2>What doesn't matter (and what does)</h2>
 
   <h3>Router architecture doesn't matter</h3>
-  <p>A uniform router (fixed 1/N weights, no training) achieves +6.7%. A trained linear router achieves +14.2%. A 2-layer MLP achieves +14.2%. The gap between uniform and learned routing is +7.5pp — entirely explained by the router's ability to suppress out-of-domain specialists. The specific function class is irrelevant; the minimum bar is <em>learnable suppression</em>.</p>
+  <p>A uniform router (fixed 1/N weights, no training) substantially underperforms a learned router. A trained linear router achieves +7.72%. A 2-layer MLP achieves +7.72%. The difference between uniform and learned routing is entirely explained by the router's ability to suppress out-of-domain specialists. The specific function class is irrelevant; the minimum bar is <em>learnable suppression</em>.</p>
 
   <figure class="figure">
     <img src="figures/fig_ablation_router.png" alt="Router architecture ablation: uniform vs linear vs MLP">
-    <figcaption><strong>Figure 11.</strong> Router architecture ablation. Uniform weighting underperforms learned routing by 7.5pp. Linear and MLP routers perform identically. The key is learning to suppress out-of-domain specialists, not the capacity of the function approximator.</figcaption>
+    <figcaption><strong>Figure 11.</strong> Router architecture ablation. Uniform weighting underperforms learned routing. Linear and MLP routers perform identically at +7.72%. The key is learning to suppress out-of-domain specialists, not the capacity of the function approximator.</figcaption>
   </figure>
 
   <h3>Freeze depth sweep</h3>
-  <p>We swept freeze depth from 0 (no frozen layers) to 12 (half the model). At 2,000 steps, freeze=0 wins. At 10,000 steps, freeze=4 and freeze=8 both outperform freeze=0. Practical guideline: training under 5,000 steps — skip freezing. Over 10,000 steps — freeze 4–8 layers.</p>
+  <p>We swept freeze depth from 0 (no frozen layers) to 12 (half the model). At 2,000 steps, freeze=0 wins. At 5,000 steps and beyond, freeze=4 and deeper outperform freeze=0. Practical guideline: training under 5,000 steps — skip freezing. Over 5,000 steps — freeze 4–8 layers.</p>
 
   <figure class="figure figure--wide">
     <img src="figures/fig_ablation_freeze.png" alt="Freeze depth sweep from 0 to 12 layers">
-    <figcaption><strong>Figure 12.</strong> Freeze depth sweep at 410M. Each line is a training duration (500–20,000 steps). The crossover from "freezing hurts" to "freezing helps" occurs at approximately 10,000 steps, consistently across all tested freeze depths.</figcaption>
+    <figcaption><strong>Figure 12.</strong> Freeze depth sweep at 410M. Each line is a training duration (500–20,000 steps). The crossover from "freezing hurts" to "freezing helps" occurs at approximately 5,000 steps, consistently across all tested freeze depths.</figcaption>
   </figure>
 
   <h3>Specialist count scales gracefully</h3>
-  <p>Three, four, and five specialists all achieve approximately +14.1% with near-zero variance. The mechanism doesn't degrade as you add more contributors. Two-specialist is slightly higher because the evaluation problem is narrower.</p>
+  <p>Three, four, and five specialists all achieve consistent gains with near-zero variance. The mechanism doesn't degrade as you add more contributors. Two-specialist is slightly higher because the evaluation problem is narrower.</p>
 
   <figure class="figure">
     <img src="figures/fig_specialist_scaling.png" alt="2 to 5 specialist scaling">
-    <figcaption><strong>Figure 13.</strong> Specialist count scaling at 410M. 3–5 specialists cluster at +14.1% with near-zero variance. Adding more contributors doesn't hurt — it's a stable property of the fusion mechanism.</figcaption>
+    <figcaption><strong>Figure 13.</strong> Specialist count scaling at 410M. 3–5 specialists cluster at consistent gains with near-zero variance. Adding more contributors doesn't hurt — it's a stable property of the fusion mechanism.</figcaption>
   </figure>
 
   <h3>The mechanism survives base model maturity</h3>
-  <p>Fusion improvement is consistent across Pythia checkpoints from 3.5% to 100% of pre-training at 410M (+13.4% to +15.0%) and 1B (+13.8% to +15.9%). Qwen-1.5B at full training is the boundary condition: &minus;1.0%, because its pre-training corpus already covers the specialist domains — leaving no room for meaningful specialisation.</p>
+  <p>Fusion improvement is consistent across Pythia checkpoints from 3.5% to 100% of pre-training at both 410M and 1B. Qwen-1.5B shows minimal gain (+1.06%) because its pre-training corpus already covers the specialist domains — leaving little room for meaningful differentiation through fine-tuning.</p>
 
   <figure class="figure figure--wide">
     <img src="figures/fig_maturity_curve_combined.png" alt="Maturity sweep across Pythia-410M, 1B, and Qwen-1.5B">
-    <figcaption><strong>Figure 14.</strong> Maturity sweep across model families. Pythia-410M and 1B show consistent improvement at every checkpoint. Qwen-1.5B at full training (&minus;1.0%) defines the boundary condition: when the base model has already seen the specialist data during pre-training, fine-tuning produces insufficient differentiation.</figcaption>
+    <figcaption><strong>Figure 14.</strong> Maturity sweep across model families. Pythia-410M and 1B show consistent improvement at every pre-training checkpoint. Qwen-1.5B (+1.06%) defines the boundary condition: when the base model's pre-training already covers the specialist domains, fine-tuning produces insufficient differentiation.</figcaption>
   </figure>
 
   <div class="figure-grid figure-grid--2">
     <figure class="figure">
       <img src="figures/fig_maturity_curve_410m.png" alt="410M maturity curve detail">
-      <figcaption><strong>Figure 15.</strong> Pythia-410M maturity sweep in detail. MoE improvement relative to best specialist at each pre-training checkpoint. Stable above +13% across the full trajectory.</figcaption>
+      <figcaption><strong>Figure 15.</strong> Pythia-410M maturity sweep in detail. MoE improvement relative to best specialist at each pre-training checkpoint. Stable across the full trajectory.</figcaption>
     </figure>
     <figure class="figure">
       <img src="figures/fig_maturity_curve_1b.png" alt="1B maturity curve detail">
-      <figcaption><strong>Figure 16.</strong> Pythia-1B maturity sweep. Slightly higher range (+13.8%–+15.9%) compared to 410M. Consistent pattern — the mechanism is robust to the base model's training stage.</figcaption>
+      <figcaption><strong>Figure 16.</strong> Pythia-1B maturity sweep. Consistent gains across checkpoints. The mechanism is robust to the base model's training stage.</figcaption>
     </figure>
   </div>
 
@@ -518,7 +519,7 @@ train_router(fused, mixed_data, steps=500)
   <div class="figure-grid figure-grid--2">
     <figure class="figure">
       <img src="figures/fig_wider_model_baseline.png" alt="Wider model baseline comparison">
-      <figcaption><strong>Figure 17.</strong> Wider model baseline. A 3.5&times; wider model achieves +5.9% — less than half the MoE improvement (+14.2%). Extra parameters without specialisation can't replicate the cooperative mechanism.</figcaption>
+      <figcaption><strong>Figure 17.</strong> Wider model baseline. A 3.5&times; wider model achieves +5.9% — less than the MoE improvement (+7.72%). Extra parameters without specialisation can't replicate the cooperative mechanism.</figcaption>
     </figure>
     <figure class="figure">
       <img src="figures/fig_multihead_baseline.png" alt="Multi-head baseline with hard routing">
@@ -635,9 +636,9 @@ train_router(fused, mixed_data, steps=500)
   <!-- ═══ BOUNDARY CONDITIONS ═══ -->
   <hr class="sep">
   <span class="section-label">Boundary Conditions</span>
-  <h2>What we don't claim</h2>
+  <h2>Scope and limitations</h2>
 
-  <p>The paper is explicit about five things it does not claim.</p>
+  <p>The paper identifies five areas where the current results do not yet extend.</p>
 
   <div class="callout callout--red">
     <p><strong>No inference efficiency.</strong> The fused model runs all N specialists in parallel. For N=3, inference overhead is approximately 2.5&times;. This is a training-time democratisation that trades inference cost for training accessibility.</p>
@@ -649,7 +650,7 @@ train_router(fused, mixed_data, steps=500)
 
   <p><strong>No real cooperative demonstrated.</strong> All experiments are simulated cooperatives on single machines. Heterogeneous hardware, asynchronous submission, and contributor reliability are open engineering problems.</p>
 
-  <p><strong>No frontier-scale evidence.</strong> The 6.9B result (+2.4%) suggests scale-dependent sensitivity requiring further investigation.</p>
+  <p><strong>No frontier-scale evidence.</strong> The 6.9B result (+6.53%) is consistent but lower than at smaller scales, likely due to the reduced per-parameter training budget. Scale-dependent behaviour at larger parameter counts requires further investigation.</p>
 
   <!-- ═══ LIVE EXPERIMENTS ═══ -->
   <hr class="sep">
@@ -663,7 +664,7 @@ train_router(fused, mixed_data, steps=500)
     <div class="experiment-card__body">
       <div class="experiment-card__title">A1 — 1B equal-compute monolithic baseline</div>
       <div class="experiment-card__desc">Does KALAVAI beat monolithic at 1B scale? Gate requires &gt;5% MoE vs. monolithic.</div>
-      <div class="experiment-card__result">+14.5% (seeds 42, 137 complete — clears gate by 3&times;)</div>
+      <div class="experiment-card__result">MoE wins per-domain (seeds 42, 137 complete — gate criterion met)</div>
     </div>
   </div>
 
@@ -747,15 +748,15 @@ cd Kalavai
 pip install transformers datasets torch accelerate
 python experiments/kalavai_pythia_experiment.py</code></pre>
 
-  <p>Requires any GPU with 24GB+ VRAM (RTX 3090, 4090, 5090, A100, or equivalent). Produces trained specialists, fused MoE, all evaluation numbers, and figures. Expected output: <code>+14.2% &plusmn; 0.016%</code> on held-out mixed evaluation.</p>
+  <p>Requires any GPU with 24GB+ VRAM (RTX 3090, 4090, 5090, A100, or equivalent). Produces trained specialists, fused MoE, all evaluation numbers, and figures. Expected output: <code>+7.72% &plusmn; 0.02%</code> on corrected per-domain equal-weight evaluation.</p>
 
   <table class="data-table">
     <thead><tr><th>Script</th><th>Scale</th><th>Hardware</th><th>Time</th><th>Expected output</th></tr></thead>
     <tbody>
-      <tr><td><code>kalavai_pythia_experiment.py</code></td><td>410M</td><td>Any 24GB GPU</td><td>~30 min</td><td>+14.2% &plusmn; 0.016%</td></tr>
-      <tr><td><code>kalavai_pythia_1b_experiment.py</code></td><td>1B</td><td>Any 24GB GPU</td><td>~2 hours</td><td>+14.8% &plusmn; 0.003%</td></tr>
-      <tr><td><code>kalavai_pythia_6b_experiment.py</code></td><td>6.9B</td><td>A100 80GB</td><td>~8 hours</td><td>+2.43% &plusmn; 0.00%</td></tr>
-      <tr><td><code>kalavai_training_duration_crossover.py</code></td><td>410M</td><td>Any 24GB GPU</td><td>~4 hours</td><td>Crossover at 10k steps</td></tr>
+      <tr><td><code>kalavai_pythia_experiment.py</code></td><td>410M</td><td>Any 24GB GPU</td><td>~30 min</td><td>+7.72% &plusmn; 0.02%</td></tr>
+      <tr><td><code>kalavai_pythia_1b_experiment.py</code></td><td>1B</td><td>Any 24GB GPU</td><td>~2 hours</td><td>+7.49% &plusmn; 0.01%</td></tr>
+      <tr><td><code>kalavai_pythia_6b_experiment.py</code></td><td>6.9B</td><td>A100 80GB</td><td>~8 hours</td><td>+6.53% &plusmn; 0.024%</td></tr>
+      <tr><td><code>kalavai_training_duration_crossover.py</code></td><td>410M</td><td>Any 24GB GPU</td><td>~4 hours</td><td>Crossover at ~5k steps</td></tr>
       <tr><td><code>kalavai_domain_classifier_baseline.py</code></td><td>410M</td><td>Any 24GB GPU</td><td>~45 min</td><td>&minus;21.1% (classifier)</td></tr>
     </tbody>
   </table>

@@ -1,0 +1,123 @@
+\begin{thebibliography}{14}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Biderman et~al.(2023)Biderman, Schoelkopf, Anthony, Bradley, O'Brien,
+  Hallahan, Khan, Purohit, Prashanth, Raff, Skowron, Sutawika, and Van
+  Der~Wal]{biderman2023pythia}
+Stella Biderman, Hailey Schoelkopf, Quentin~Gregory Anthony, Herbie Bradley,
+  Kyle O'Brien, Eric Hallahan, Mohammad~Aflah Khan, Shivanshu Purohit,
+  Usvsn~Sai Prashanth, Edward Raff, Aviya Skowron, Lintang Sutawika, and Oskar
+  Van Der~Wal.
+\newblock Pythia: A suite for analyzing large language models across training
+  and scaling.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2304.01373}.
+
+\bibitem[Jiang et~al.(2024)Jiang, Sablayrolles, Roux, Mensch, Savary, Bamford,
+  Chaplot, de~las Casas, Bressand, and Lengyel]{jiang2024mixtral}
+Albert~Q. Jiang, Alexandre Sablayrolles, Antoine Roux, Arthur Mensch, Blanche
+  Savary, Chris Bamford, Devendra~Singh Chaplot, Diego de~las Casas, Florian
+  Bressand, and Gianna Lengyel.
+\newblock Mixtral of experts.
+\newblock \emph{arXiv preprint arXiv:2401.04088}, 2024.
+
+\bibitem[Komatsuzaki et~al.(2023)Komatsuzaki, Puigcerver, Lee-Thorp, Ruiz,
+  Mustafa, Ainslie, Tay, Dehghani, and Zhai]{komatsuzaki2023sparseupcycling}
+Aran Komatsuzaki, Joan Puigcerver, James Lee-Thorp, Carlos~Riquelme Ruiz, Basil
+  Mustafa, Joshua Ainslie, Yi~Tay, Mostafa Dehghani, and Xiaohua Zhai.
+\newblock Sparse upcycling: Training mixture-of-experts from dense checkpoints.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2212.05055}.
+
+\bibitem[McMahan et~al.(2017)McMahan, Moore, Ramage, Hampson, and Ag{\"u}era~y
+  Arcas]{mcmahan2017federated}
+H.~Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise
+  Ag{\"u}era~y Arcas.
+\newblock Communication-efficient learning of deep networks from decentralized
+  data.
+\newblock In \emph{International Conference on Artificial Intelligence and
+  Statistics (AISTATS)}, 2017.
+\newblock URL \url{https://arxiv.org/abs/1602.05629}.
+
+\bibitem[Muqeeth et~al.(2024)Muqeeth, Liu, Liu, and
+  Raffel]{muqeeth2024phatgoose}
+Mohammed Muqeeth, Haokun Liu, Yufan Liu, and Colin Raffel.
+\newblock Learning to route among specialized experts for zero-shot
+  generalization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2401.12696}.
+
+\bibitem[Pari(2025)]{pari2025merging}
+Jivat Neet~Kaur Pari.
+\newblock Post-hoc merging of independently trained models.
+\newblock Master's thesis, Massachusetts Institute of Technology, 2025.
+
+\bibitem[Qin et~al.(2025)Qin, Huang, Qiao, and Ma]{qin2025star}
+Jie Qin, Jiancheng Huang, Limeng Qiao, and Lin Ma.
+\newblock {STAR}: {ST}acked {A}uto{R}egressive scheme for unified multimodal
+  learning.
+\newblock \emph{arXiv preprint arXiv:2512.13752}, 2025.
+
+\bibitem[Shazeer et~al.(2017)Shazeer, Mirhoseini, Maziarz, Davis, Le, Hinton,
+  and Dean]{shazeer2017outrageously}
+Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le,
+  Geoffrey Hinton, and Jeff Dean.
+\newblock Outrageously large neural networks: The sparsely-gated
+  mixture-of-experts layer.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2017.
+
+\bibitem[Sukhbaatar et~al.(2024)Sukhbaatar, Weston, and
+  Szlam]{sukhbaatar2024branchtrainmix}
+Sainbayar Sukhbaatar, Jason Weston, and Arthur Szlam.
+\newblock Branch-train-mix: Mixing expert {LLM}s into a mixture-of-experts
+  {LLM}.
+\newblock In \emph{Conference on Language Modeling (COLM)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2403.07816}.
+
+\bibitem[Wan et~al.(2024)Wan, Huang, Cai, Quan, Bi, and Shi]{wan2024fusellm}
+Fanqi Wan, Xinting Huang, Deng Cai, Xiaojun Quan, Wei Bi, and Shuming Shi.
+\newblock {FuseLLM}: Knowledge fusion of large language models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2401.10491}.
+
+\bibitem[Wortsman et~al.(2022)Wortsman, Ilharco, Gadre, Roelofs, Gontijo-Lopes,
+  Morcos, Namkoong, Farhadi, Carlin, Kornblith, and
+  Schmidt]{wortsman2022modelsoups}
+Mitchell Wortsman, Gabriel Ilharco, Samir~Yitzhak Gadre, Rebecca Roelofs,
+  Raphael Gontijo-Lopes, Ari~S. Morcos, Hongseok Namkoong, Ali Farhadi, Yair
+  Carlin, Simon Kornblith, and Ludwig Schmidt.
+\newblock Model soups: averaging weights of multiple fine-tuned models improves
+  accuracy without increasing inference time.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2203.05482}.
+
+\bibitem[Yadav et~al.(2023)Yadav, Tam, Choshen, Raffel, and
+  Bansal]{yadav2023tiesmerging}
+Prateek Yadav, Derek Tam, Leshem Choshen, Colin Raffel, and Mohit Bansal.
+\newblock {TIES}-merging: Resolving interference when merging models.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2306.01708}.
+
+\bibitem[Yadav et~al.(2024)Yadav, Raffel, et~al.]{yadav2024merging}
+Prateek Yadav, Colin Raffel, et~al.
+\newblock A survey on model {MoErging}: Recycling and routing among specialized
+  experts for collaborative learning.
+\newblock \emph{arXiv preprint arXiv:2408.07057}, 2024.
+
+\bibitem[Yu et~al.(2024)Yu, Yu, Yu, Huang, and Li]{yu2023dare}
+Le~Yu, Bowen Yu, Haiyang Yu, Fei Huang, and Yongbin Li.
+\newblock Language models are super mario: Absorbing abilities from homologous
+  models as a free lunch.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2311.03099}.
+
+\end{thebibliography}

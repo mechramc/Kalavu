@@ -246,7 +246,7 @@ Initial experiments produced +14.2% at 410M. Code review identified two evaluati
 
 | Experiment | Purpose | Status |
 |---|---|---|
-| LoRA ablation (r=8, r=64) at 410M | Preempt reviewer objection: does LoRA produce sufficient divergence? | Done — LoRA r=64 produces *negative* divergence (−20% div, −13.9% gain); full FT is necessary |
+| LoRA ablation (r=8, r=64) at 410M | Does LoRA produce sufficient divergence? | Done — LoRA r=64 produces *negative* divergence (−20% div, −13.9% gain); full FT is necessary |
 | Base-PPL as conversion rate predictor | Explain why cross-lingual exceeds the linear prediction | Done — r=+0.560 (n=6, suggestive); integrated into §4.10 |
 | Low-divergence ablation (50-100 training steps) | Find the divergence floor where gains go to zero | Planned |
 | 20-contributor with robust data (replace thin domains) | Clean Exp3 without data-insufficient specialists | Planned |
