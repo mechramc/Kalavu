@@ -149,6 +149,26 @@
   .status-progress  { color: var(--accent);  border: 1px solid rgba(196,149,106,0.3); }
   .status-live      { color: #7ea8c4;        border: 1px solid rgba(126,168,196,0.3); }
 
+  /* PRODUCTS */
+  .products { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .products-header { display: grid; grid-template-columns: 280px 1fr; gap: 80px; margin-bottom: 64px; }
+  .products-intro { color: var(--text-secondary); font-size: 1.05rem; max-width: 520px; line-height: 1.8; }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); }
+  .product-card { background: var(--bg-secondary); padding: 40px 36px; transition: background 0.4s; position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+  .product-card:hover { background: var(--bg-card); }
+  .product-card::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.5s ease; }
+  .product-card:hover::before { width: 100%; }
+  .product-card-top { display: flex; flex-direction: column; gap: 12px; }
+  .product-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; }
+  .product-card p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.8; }
+  .product-card-footer { display: flex; justify-content: space-between; align-items: center; }
+  .product-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; white-space: nowrap; }
+  .tag-live    { color: var(--success); border: 1px solid rgba(107,158,120,0.3); }
+  .tag-soon    { color: #7ea8c4;        border: 1px solid rgba(126,168,196,0.3); }
+  .tag-hackathon { color: var(--accent-dim); border: 1px solid rgba(196,149,106,0.2); }
+  .product-link { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.05em; transition: color 0.3s; }
+  .product-link:hover { color: var(--accent); }
+
   /* FOUNDER */
   .founder { padding: 100px 0; border-top: 1px solid var(--border-light); }
   .founder-grid { display: grid; grid-template-columns: 280px 1fr; gap: 80px; }
@@ -209,7 +229,7 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 900px) {
-    .philosophy-grid, .services-header, .proof-grid, .research-grid { grid-template-columns: 1fr; gap: 32px; }
+    .philosophy-grid, .services-header, .proof-grid, .research-grid, .products-header { grid-template-columns: 1fr; gap: 32px; }
     .section-label { position: static; }
     .services-grid { grid-template-columns: 1fr; }
     .proof-item { grid-template-columns: 1fr; gap: 8px; }
@@ -257,6 +277,7 @@
       <li><a href="#philosophy">Philosophy</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="#research">Research</a></li>
+      <li><a href="#products">Products</a></li>
       <li><a href="#founder">Founder</a></li>
       <li><a href="mailto:ramchand@murailabs.com" class="nav-cta">Work With Us</a></li>
     </ul>
@@ -270,6 +291,7 @@
     <li><a href="#philosophy">Philosophy</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#research">Research</a></li>
+    <li><a href="#products">Products</a></li>
     <li><a href="#founder">Founder</a></li>
     <li><a href="mailto:ramchand@murailabs.com" class="nav-cta">Work With Us</a></li>
   </ul>
@@ -381,9 +403,56 @@
           <div><h4>ĀTAVI — Multi-Agent Research Protocol</h4><span>A host-agnostic agent orchestration layer that scales team size dynamically and actively resists coherence collapse.</span></div>
           <a href="https://github.com/mechramc/Atavi" target="_blank" class="research-status status-progress" style="text-decoration:none;">View on GitHub →</a>
         </div>
-        <div class="research-item">
-          <div><h4>Vithai — Living Reflection Engine</h4><span>Intergenerational memory preservation for diaspora families via voice-first bilingual capture</span></div>
-          <span class="research-status status-live">In Development</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="products" id="products">
+  <div class="container">
+    <div class="products-header reveal">
+      <div class="section-label">Products<span class="tamil">உற்பத்தி — creation, output</span></div>
+      <div class="products-intro">Shipped products, hackathon builds, and upcoming launches — AI that exists outside the lab.</div>
+    </div>
+    <div class="products-grid reveal">
+      <div class="product-card">
+        <div class="product-card-top">
+          <h3>StoryForge AI</h3>
+          <p>Live, production AI storytelling for kids. Children co-create illustrated adventures with an AI narrator that adapts to their age, vocabulary, and imagination in real time.</p>
+        </div>
+        <div class="product-card-footer">
+          <span class="product-tag tag-live">Live</span>
+          <a href="https://storyforgekidsai.com" target="_blank" class="product-link">storyforgekidsai.com →</a>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card-top">
+          <h3>Vithai.AI</h3>
+          <p>Voice-first bilingual memory capture for diaspora families. Grandparents speak in their language. The stories survive, translated and preserved, for the next generation.</p>
+        </div>
+        <div class="product-card-footer">
+          <span class="product-tag tag-soon">Coming Soon</span>
+          <span class="product-link">vithai.ai</span>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card-top">
+          <h3>Blueflame</h3>
+          <p>Microsoft AI Dev Days Hackathon submission. An AI-native development accelerator — turning rough intent into structured, executable engineering plans at speed.</p>
+        </div>
+        <div class="product-card-footer">
+          <span class="product-tag tag-hackathon">Hackathon</span>
+          <a href="https://github.com/mechramc/Blueflame" target="_blank" class="product-link">GitHub →</a>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card-top">
+          <h3>Katha</h3>
+          <p>AI Collective Data Portability Hackathon submission. Your data, your story — a portable AI identity layer that travels with you across platforms without re-training from scratch.</p>
+        </div>
+        <div class="product-card-footer">
+          <span class="product-tag tag-hackathon">Hackathon</span>
+          <a href="https://github.com/mechramc/Katha" target="_blank" class="product-link">GitHub →</a>
         </div>
       </div>
     </div>
