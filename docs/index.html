@@ -1,11 +1,1048 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=/kalavai/">
-  <title>Murai Labs</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Murai Labs — Disciplined AI Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0a0b;
+    --bg-secondary: #111113;
+    --bg-card: #16161a;
+    --bg-card-hover: #1c1c21;
+    --text-primary: #e8e6e3;
+    --text-secondary: #9a9890;
+    --text-dim: #5a5850;
+    --accent: #c4956a;
+    --accent-dim: #8a6848;
+    --accent-glow: rgba(196, 149, 106, 0.08);
+    --border: #2a2a2e;
+    --border-light: #1e1e22;
+    --tamil-gold: #d4a574;
+    --success: #6b9e78;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 clamp(24px, 5vw, 80px); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 0;
+    background: rgba(10, 10, 11, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-light);
+  }
+  nav .container { display: flex; justify-content: space-between; align-items: center; }
+  .logo { display: flex; align-items: baseline; gap: 10px; text-decoration: none; }
+  .logo-mark { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+  .logo-tamil { font-size: 0.95rem; color: var(--accent); opacity: 0.8; letter-spacing: 0.05em; }
+  .nav-links { display: flex; gap: 32px; align-items: center; list-style: none; }
+  .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; transition: color 0.3s; }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg-primary) !important; padding: 8px 20px; border-radius: 4px; font-weight: 600 !important; transition: opacity 0.3s !important; }
+  .nav-cta:hover { opacity: 0.9; }
+
+  /* HERO */
+  .hero { position: relative; height: 100vh; min-height: 680px; overflow: hidden; padding: 0; }
+  /* Text overlay — sits over the canvas in the lower-centre portion */
+  .hero > .container {
+    position: absolute;
+    bottom: 13%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 100%;
+  }
+  .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.2s; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 6vw, 5.2rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; max-width: 800px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s; text-shadow: 0 2px 40px rgba(0,0,0,0.8); }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub { font-size: 1.15rem; color: var(--text-secondary); max-width: 560px; margin-top: 28px; line-height: 1.8; opacity: 0; animation: fadeUp 0.8s ease forwards 0.6s; text-shadow: 0 1px 20px rgba(0,0,0,0.9); }
+  .hero-actions { margin-top: 48px; display: flex; gap: 16px; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s ease forwards 0.8s; }
+  .btn-primary { background: var(--accent); color: var(--bg-primary); padding: 14px 32px; border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--text-secondary); padding: 14px 32px; border: 1px solid var(--border); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.3s; }
+  .btn-secondary:hover { border-color: var(--text-dim); color: var(--text-primary); }
+
+  /* CANVAS — fills the entire hero section */
+  .hero-canvas-wrapper {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #02020c;
+  }
+  #hero-canvas { display: block; width: 100%; height: 100%; }
+
+  /* Gradient mask — fades only on sides and bottom into the page */
+  .hero-canvas-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      linear-gradient(to bottom, transparent 0%, transparent 88%, #0a0a0b 100%),
+      linear-gradient(to right,  #0a0a0b 0%, transparent 6%,  transparent 94%, #0a0a0b 100%);
+  }
+
+  /* PHILOSOPHY */
+  .philosophy { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .philosophy-grid { display: grid; grid-template-columns: 280px 1fr; gap: 80px; align-items: start; }
+  .section-label { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; text-transform: none; position: sticky; top: 100px; line-height: 1.2; }
+  .section-label .tamil { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; color: var(--tamil-gold); letter-spacing: 0.08em; text-transform: none; margin-top: 6px; opacity: 0.65; }
+  .philosophy-statement { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.5; color: var(--text-primary); max-width: 640px; }
+  .philosophy-statement strong { color: var(--accent); font-weight: 600; }
+
+  /* SERVICES */
+  .services { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .services-header { display: grid; grid-template-columns: 280px 1fr; gap: 80px; margin-bottom: 64px; }
+  .services-intro { color: var(--text-secondary); font-size: 1.05rem; max-width: 520px; line-height: 1.8; }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); }
+  .service-card { background: var(--bg-secondary); padding: 48px 40px; transition: background 0.4s; position: relative; }
+  .service-card:hover { background: var(--bg-card); }
+  .service-card::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.5s ease; }
+  .service-card:hover::before { width: 100%; }
+  .service-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 20px; }
+  .service-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.01em; }
+  .service-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+  .service-tag { display: inline-block; margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent-dim); letter-spacing: 0.08em; padding: 4px 10px; border: 1px solid var(--accent-dim); border-radius: 2px; opacity: 0.7; }
+
+  /* PROOF */
+  .proof { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .proof-grid { display: grid; grid-template-columns: 280px 1fr; gap: 80px; }
+  .proof-items { display: grid; gap: 40px; }
+  .proof-item { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: start; }
+  .proof-metric { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: var(--accent); line-height: 1; min-width: 120px; text-align: right; }
+  .proof-desc h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .proof-desc p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.7; }
+
+  /* RESEARCH */
+  .research { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .research-grid { display: grid; grid-template-columns: 280px 1fr; gap: 80px; }
+  .research-list { display: grid; gap: 1px; background: var(--border-light); }
+  .research-item { background: var(--bg-primary); padding: 28px 0; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; transition: padding-left 0.3s; }
+  .research-item:hover { padding-left: 12px; }
+  .research-item h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+  .research-item span { color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 4px; font-family: 'DM Sans', sans-serif; }
+  .research-status { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; white-space: nowrap; }
+  .status-published { color: var(--success); border: 1px solid rgba(107,158,120,0.3); }
+  .status-progress  { color: var(--accent);  border: 1px solid rgba(196,149,106,0.3); }
+  .status-live      { color: #7ea8c4;        border: 1px solid rgba(126,168,196,0.3); }
+
+  /* FOUNDER */
+  .founder { padding: 100px 0; border-top: 1px solid var(--border-light); }
+  .founder-grid { display: grid; grid-template-columns: 280px 1fr; gap: 80px; }
+  .founder-content { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; }
+  .founder-photo { width: 200px; height: 240px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .founder-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 700; color: var(--accent); opacity: 0.4; background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary)); }
+  .founder-bio h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .founder-title { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+  .founder-bio p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.85; margin-bottom: 16px; }
+  .founder-credentials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .credential-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.06em; padding: 5px 12px; border: 1px solid var(--border); border-radius: 2px; text-transform: uppercase; }
+  .founder-links { display: flex; gap: 20px; margin-top: 28px; }
+  .founder-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.3s; display: flex; align-items: center; gap: 6px; }
+  .founder-links a:hover { color: var(--accent); }
+  .founder-links a::before { content: '→'; font-size: 0.75rem; opacity: 0.5; }
+
+  /* CTA */
+  .cta { padding: 120px 0; border-top: 1px solid var(--border-light); text-align: center; }
+  .cta h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.02em; max-width: 600px; margin: 0 auto 20px; }
+  .cta p { color: var(--text-secondary); font-size: 1.05rem; max-width: 480px; margin: 0 auto 40px; line-height: 1.8; }
+  .cta-email { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent); text-decoration: none; letter-spacing: 0.02em; border-bottom: 1px solid var(--accent-dim); padding-bottom: 2px; transition: opacity 0.3s; }
+  .cta-email:hover { opacity: 0.8; }
+
+  /* FOOTER */
+  footer { padding: 40px 0; border-top: 1px solid var(--border-light); }
+  footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-left { font-size: 0.8rem; color: var(--text-dim); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 0.8rem; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--text-secondary); }
+
+  /* HAMBURGER */
+  .nav-hamburger {
+    display: none; flex-direction: column; justify-content: center; gap: 5px;
+    cursor: pointer; padding: 6px; background: none; border: none; z-index: 101;
+  }
+  .nav-hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--text-secondary); border-radius: 2px; transition: all 0.3s;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .nav-mobile {
+    display: none; position: fixed; top: 61px; left: 0; right: 0; z-index: 99;
+    background: rgba(10,10,11,0.97); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-light); padding: 28px 24px;
+  }
+  .nav-mobile.open { display: block; }
+  .nav-mobile ul { list-style: none; display: flex; flex-direction: column; gap: 22px; }
+  .nav-mobile ul a { color: var(--text-secondary); text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.3s; }
+  .nav-mobile ul a:hover { color: var(--text-primary); }
+  .nav-mobile .nav-cta { color: var(--accent) !important; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    .philosophy-grid, .services-header, .proof-grid, .research-grid { grid-template-columns: 1fr; gap: 32px; }
+    .section-label { position: static; }
+    .services-grid { grid-template-columns: 1fr; }
+    .proof-item { grid-template-columns: 1fr; gap: 8px; }
+    .proof-metric { text-align: left; }
+    .founder-grid, .founder-content { grid-template-columns: 1fr; gap: 24px; }
+    .founder-photo { width: 160px; height: 192px; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    .hero { min-height: 560px; }
+    .hero > .container { bottom: 10%; }
+    .hero-sub { font-size: 1rem; }
+    .philosophy { padding: 72px 0; }
+    .services { padding: 72px 0; }
+    .service-card { padding: 36px 28px; }
+    .cta { padding: 88px 0; }
+  }
+
+  @media (max-width: 480px) {
+    .hero { min-height: 100svh; }
+    .hero > .container { bottom: 7%; }
+    .hero h1 { font-size: clamp(1.7rem, 9vw, 2.8rem); }
+    .hero-sub { font-size: 0.92rem; margin-top: 14px; max-width: 100%; }
+    .hero-actions { margin-top: 24px; gap: 10px; }
+    .btn-primary, .btn-secondary { padding: 12px 22px; font-size: 0.88rem; }
+    .philosophy { padding: 56px 0; }
+    .services { padding: 56px 0; }
+    .service-card { padding: 28px 20px; }
+    .proof-metric { font-size: 1.9rem; }
+    .founder-bio h3 { font-size: 1.5rem; }
+    .cta { padding: 72px 0; }
+    .cta h2 { font-size: clamp(1.5rem, 8vw, 2.2rem); }
+    .footer-links { gap: 16px; }
+  }
+</style>
 </head>
 <body>
-  <p>Redirecting to <a href="/kalavai/">KALAVAI</a>…</p>
+
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <span class="logo-mark">Murai Labs</span>
+      <span class="logo-tamil">முறை</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#philosophy">Philosophy</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#founder">Founder</a></li>
+      <li><a href="mailto:ramchand@murailabs.com" class="nav-cta">Work With Us</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile" id="nav-mobile" aria-hidden="true">
+  <ul>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#founder">Founder</a></li>
+    <li><a href="mailto:ramchand@murailabs.com" class="nav-cta">Work With Us</a></li>
+  </ul>
+</div>
+
+<section class="hero">
+  <div class="hero-canvas-wrapper">
+    <canvas id="hero-canvas"></canvas>
+  </div>
+  <div class="container">
+    <div class="hero-eyebrow">AI Engineering &amp; Research Studio</div>
+    <h1>Disciplined orchestration<br>beats <em>bigger models</em></h1>
+    <p class="hero-sub">We make AI boring, dependable, inspectable, and production-worthy. Murai Labs is an embedded research studio for teams building AI that needs to actually work.</p>
+    <div class="hero-actions">
+      <a href="mailto:ramchand@murailabs.com" class="btn-primary">Start a Conversation</a>
+      <a href="#research" class="btn-secondary">See Our Research</a>
+    </div>
+  </div>
+</section>
+
+<section class="philosophy" id="philosophy">
+  <div class="container">
+    <div class="philosophy-grid reveal">
+      <div class="section-label">Our Philosophy<span class="tamil">முறை — method, order, disciplined process</span></div>
+      <div class="philosophy-statement">
+        Most AI teams chase parameter counts. We chase <strong>reliability</strong>. Our work sits at the intersection of rigorous research and production engineering — we build systems where every decision is inspectable, every output is traceable, and every failure mode is anticipated. <strong>Disciplined orchestration</strong> isn't a constraint. It's the architecture.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header reveal">
+      <div class="section-label">What We Do<span class="tamil">கலவை — fusion, blend</span></div>
+      <div class="services-intro">We work as an embedded AI research team — from architecture design through validated deployment. Three ways to work with us.</div>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-number">01</div>
+        <h3>Model Fusion &amp; Unification</h3>
+        <p>Your team has fine-tuned multiple specialist models that sit in silos. We fuse them into a single, routable endpoint — validated across domains, with deterministic dispatch and measurable per-domain performance. No retraining required.</p>
+        <span class="service-tag">KALAVAI Protocol</span>
+      </div>
+      <div class="service-card">
+        <div class="service-number">02</div>
+        <h3>Embedded AI Research</h3>
+        <p>A senior research engineering partner embedded in your team. Architecture reviews, multi-agent system design, training strategy, evaluation rigor. We bring the discipline of published research to your production timeline.</p>
+        <span class="service-tag">Retainer</span>
+      </div>
+      <div class="service-card">
+        <div class="service-number">03</div>
+        <h3>On-Device &amp; Edge AI</h3>
+        <p>Inference on Apple Neural Engine, local-first architectures, cloud-fallback routing. We've published the first open system for programming Apple's ANE directly — and we bring that depth to your edge deployment challenges.</p>
+        <span class="service-tag">Orion Framework</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proof" id="proof">
+  <div class="container">
+    <div class="proof-grid reveal">
+      <div class="section-label">Results<span class="tamil">விளைவு — outcome</span></div>
+      <div class="proof-items">
+        <div class="proof-item">
+          <div class="proof-metric">+21.76%</div>
+          <div class="proof-desc"><h4>Cross-Lingual Fusion Gain</h4><p>Tamil, Yoruba, Welsh, and Code specialists fused into a single model with validated held-out improvement across all domains.</p></div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-metric">+10.17%</div>
+          <div class="proof-desc"><h4>Private Domain Fusion</h4><p>Medical, legal, and patent specialists unified with 3-seed validation. Conversion rate of 0.55× divergence — consistent and reproducible.</p></div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-metric">8.5×</div>
+          <div class="proof-desc"><h4>ANE Compilation Speedup</h4><p>Delta compilation for Apple Neural Engine inference — first open system bypassing CoreML for direct ANE access.</p></div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-metric">99.8%</div>
+          <div class="proof-desc"><h4>Router Determinism</h4><p>MoE dispatch routing across all KALAVAI configurations. Each specialist matched on its domain with near-perfect routing accuracy.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="research" id="research">
+  <div class="container">
+    <div class="research-grid reveal">
+      <div class="section-label">Research<span class="tamil">ஆய்வு — inquiry</span></div>
+      <div class="research-list">
+        <div class="research-item">
+          <div><h4>KALAVAI — Cooperative LLM Fusion Protocol</h4><span>Divergence-proportional gain law for distributed specialist fusion via frozen-layer MoE routing</span></div>
+          <span class="research-status status-progress">NeurIPS 2026</span>
+        </div>
+        <div class="research-item">
+          <div><h4>Orion — Programming Apple's Neural Engine</h4><span>First open end-to-end system for direct ANE inference and training. arXiv 2603.06728</span></div>
+          <span class="research-status status-published">Published</span>
+        </div>
+        <div class="research-item">
+          <div><h4>The Coherence Trap</h4><span>How multi-agent orchestration systems collapse into self-reinforcing consensus. Four metrics, three theorems.</span></div>
+          <span class="research-status status-progress">NeurIPS 2026</span>
+        </div>
+        <div class="research-item">
+          <div><h4>ĀTAVI — Multi-Agent Research Protocol</h4><span>Host-agnostic refinement protocol with adaptive agent count and anti-coherence-trap mechanisms</span></div>
+          <span class="research-status status-progress">Shipping Soon</span>
+        </div>
+        <div class="research-item">
+          <div><h4>Vithai — Living Reflection Engine</h4><span>Intergenerational memory preservation for diaspora families via voice-first bilingual capture</span></div>
+          <span class="research-status status-live">In Development</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="founder" id="founder">
+  <div class="container">
+    <div class="founder-grid reveal">
+      <div class="section-label">Founder<span class="tamil">நிறுவனர்</span></div>
+      <div class="founder-content">
+        <div class="founder-photo">
+          <img src="https://media.licdn.com/dms/image/v2/D5603AQHHeUmlRXTd1Q/profile-displayphoto-crop_800_800/B56ZsTNpXAJEAI-/0/1765553903811?e=1775692800&v=beta&t=z9QKkTlLR6sr8RT8RhVySZFNze4WU3IorG4dRX3ET8g" alt="Ramchand Kumaresan" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="founder-photo-placeholder" style="display:none;">RK</div>
+        </div>
+        <div class="founder-bio">
+          <h3>Ramchand Kumaresan</h3>
+          <div class="founder-title">Founder &amp; CEO, Murai Labs</div>
+          <p>AI research engineer with a program management background (PgMP) and deep experience shipping production software at Procore Technologies, where he worked on construction SaaS at scale — field operations, data platforms, and marketplace integrations.</p>
+          <p>Now building at the intersection of rigorous ML research and production engineering. Author of Orion (arXiv 2603.06728), the first open system for programming Apple's Neural Engine directly. Leading KALAVAI, a cooperative LLM fusion protocol targeting NeurIPS 2026. Research interests span multi-agent orchestration, on-device inference, and the governance of AI systems — grounded in classical frameworks from Tamil Sangam literature and the Arthashastra.</p>
+          <p>Based in Texas. Ships code, writes papers, builds systems that work.</p>
+          <div class="founder-credentials">
+            <span class="credential-tag">PgMP</span>
+            <span class="credential-tag">arXiv Published</span>
+            <span class="credential-tag">NeurIPS 2026</span>
+            <span class="credential-tag">Ex-Procore</span>
+            <span class="credential-tag">Apple ANE</span>
+            <span class="credential-tag">Multi-Agent Systems</span>
+          </div>
+          <div class="founder-links">
+            <a href="https://linkedin.com/in/ramchandeaswar">LinkedIn</a>
+            <a href="https://github.com/mechramc">GitHub</a>
+            <a href="https://arxiv.org/abs/2603.06728">arXiv</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="contact">
+  <div class="container reveal">
+    <h2>Let's make your AI<br>production-worthy</h2>
+    <p>Whether you need specialists fused, agents orchestrated, or a research partner embedded in your team — start with a conversation.</p>
+    <a href="mailto:ramchand@murailabs.com" class="btn-primary" style="display:inline-block;margin-bottom:24px;">Work With Us</a><br>
+    <a href="mailto:ramchand@murailabs.com" class="cta-email">ramchand@murailabs.com</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-left">&copy; 2026 Murai Labs. Austin, Texas.</div>
+    <div class="footer-links">
+      <a href="https://github.com/mechramc">GitHub</a>
+      <a href="https://arxiv.org/abs/2603.06728">arXiv</a>
+      <a href="https://linkedin.com/in/ramchandeaswar">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); const t = document.querySelector(a.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  });
+</script>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+const canvas  = document.getElementById('hero-canvas');
+const wrapper = canvas.parentElement;
+const mobile  = window.innerWidth < 768;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
+renderer.setSize(wrapper.offsetWidth, wrapper.offsetHeight);
+renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace    = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02020c);
+
+// Atmospheric haze toward horizon
+scene.fog = new THREE.FogExp2(0x02020c, 0.014);
+
+// Camera: low to the ground, wide FOV, looking up at the galaxy
+// You ARE on the mountain — not observing it from outside
+const camera = new THREE.PerspectiveCamera(65, wrapper.offsetWidth / wrapper.offsetHeight, 0.1, 1200);
+camera.position.set(0, 1.8, 6);
+camera.lookAt(0, 8, -22);
+
+// ─── POST-PROCESSING ─────────────────────────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+// Conservative bloom: only fire core + galaxy core glow — nothing else
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(wrapper.offsetWidth, wrapper.offsetHeight),
+  0.60,   // strength
+  0.45,   // radius
+  0.76    // threshold — high, so only genuinely bright hotspots bloom
+);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+window.addEventListener('resize', () => {
+  const w = wrapper.offsetWidth, h = wrapper.offsetHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+});
+
+// ─── MATH ────────────────────────────────────────────────────────────────────
+const lerp  = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+function hash2(x, y) {
+  const h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return h - Math.floor(h);
+}
+function vnoise(x, y) {
+  const ix = Math.floor(x), iy = Math.floor(y);
+  const fx = x - ix, fy = y - iy;
+  const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+  return lerp(lerp(hash2(ix,iy), hash2(ix+1,iy), ux), lerp(hash2(ix,iy+1), hash2(ix+1,iy+1), ux), uy);
+}
+function fbm(x, y, oct = 6) {
+  let v = 0, a = 0.5, f = 1;
+  for (let i = 0; i < oct; i++) { v += a * vnoise(x*f, y*f); a *= 0.5; f *= 2.05; }
+  return v;
+}
+
+// ─── TEXTURES ────────────────────────────────────────────────────────────────
+function radTex(sz, stops) {
+  const c = document.createElement('canvas'); c.width = c.height = sz;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(sz/2,sz/2,0,sz/2,sz/2,sz/2);
+  stops.forEach(([p,col]) => g.addColorStop(p,col));
+  x.fillStyle = g; x.fillRect(0,0,sz,sz);
+  return new THREE.CanvasTexture(c);
+}
+
+const tFlame = radTex(64,  [[0,'rgba(255,255,255,1)'],[0.2,'rgba(255,210,50,0.9)'],[0.55,'rgba(255,65,5,0.45)'],[1,'rgba(0,0,0,0)']]);
+const tSpark = radTex(16,  [[0,'rgba(255,250,150,1)'],[0.4,'rgba(255,115,10,0.55)'],[1,'rgba(0,0,0,0)']]);
+const tStar  = radTex(16,  [[0,'rgba(255,255,255,1)'],[0.3,'rgba(210,220,255,0.4)'],[1,'rgba(0,0,0,0)']]);
+const tGlow  = radTex(128, [[0,'rgba(255,195,80,1)'],[0.25,'rgba(255,80,5,0.5)'],[0.6,'rgba(140,20,0,0.1)'],[1,'rgba(0,0,0,0)']]);
+
+// ─── LIGHTING ─────────────────────────────────────────────────────────────────
+// Night: deep blue starlight ambient — bright enough to see rocky ground
+scene.add(new THREE.AmbientLight(0x0d1428, 2.2));
+
+// Cool moonlight/starlight from upper-left — illuminates mountain ridge
+const moon = new THREE.DirectionalLight(0x99aadd, 1.1);
+moon.position.set(-20, 40, 10);
+scene.add(moon);
+
+// Fire — animated in loop
+const fireLight = new THREE.PointLight(0xff7020, 5.0, 28, 2);
+fireLight.position.set(0, 2.0, -3);
+scene.add(fireLight);
+
+// ─── STARS ───────────────────────────────────────────────────────────────────
+{
+  const N   = mobile ? 4000 : 8000;
+  const pos = new Float32Array(N * 3);
+  const spd = new Float32Array(N);
+  const ph  = new Float32Array(N);
+
+  for (let i = 0; i < N; i++) {
+    // Distribute mostly overhead (upper hemisphere weighted)
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(Math.random()); // 0..π/2 biased toward zenith
+    const r     = 200 + Math.random() * 100;
+    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.cos(phi) + 60;   // raised so they're above horizon
+    pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta) - 30;
+    spd[i] = 0.3 + Math.random() * 1.8;
+    ph[i]  = Math.random() * Math.PI * 2;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position',     new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('twinkleSpeed', new THREE.BufferAttribute(spd, 1));
+  geo.setAttribute('twinklePhase', new THREE.BufferAttribute(ph,  1));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      attribute float twinkleSpeed; attribute float twinklePhase; uniform float uTime; varying float vA;
+      void main() {
+        vA = 0.25 + 0.75 * abs(sin(uTime * twinkleSpeed + twinklePhase));
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = 1.0 + vA * 1.6;
+        gl_Position  = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      varying float vA;
+      void main() {
+        float d = length(gl_PointCoord - 0.5) * 2.0;
+        gl_FragColor = vec4(0.92, 0.95, 1.0, (1.0 - smoothstep(0.1,1.0,d)) * vA);
+      }`,
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  scene.add(new THREE.Points(geo, mat));
+  window._starMat = mat;
+}
+
+// ─── MILKY WAY — REALISTIC ───────────────────────────────────────────────────
+// Modelled on real dark-sky photos: wide irregular band, prominent warm galactic
+// core bulge offset to one side, dust lane, blue-white spiral arms.
+let milkyWayMat = null;
+const milkyWay = new THREE.Group();
+scene.add(milkyWay);
+
+{
+  const pts = [], cls = [], szs = [];
+
+  // ── 1. Main stellar band ──────────────────────────────────────────────────
+  // Wide flat slab (XZ plane locally). Gaussian density with a dust-lane gap
+  // and arm brightness variations along the band length.
+  const BAND_TARGET = mobile ? 24000 : 48000;
+  const HALF_W = 98, HALF_H = 10, HALF_D = 15;
+
+  while (pts.length / 3 < BAND_TARGET) {
+    const u = Math.random() * 2 - 1;   // -1..1 along band length
+    const v = Math.random() * 2 - 1;   // -1..1 across band height
+    const w = Math.random() * 2 - 1;   // -1..1 depth
+
+    // Band density: Gaussian falloff toward edges
+    const bandDensity = Math.exp(-(u * u * 1.1 + v * v * 4.8));
+
+    // Dust lane: a dark rift through the equatorial midplane of the band
+    // (most visible in the brighter core half of the band)
+    const dustLaneFactor = (Math.abs(v) < 0.22 && u > -0.3 && u < 0.6)
+      ? 0.18   // dark — very few particles in the dust lane
+      : 1.0;
+
+    // Arm brightness clumping along length (2 bright arm peaks)
+    const armClump = 1.0 + 0.45 * (Math.cos(u * Math.PI * 1.6 + 0.8) * 0.5 + 0.5);
+
+    const p = Math.min(bandDensity * dustLaneFactor * armClump, 0.60);
+    if (Math.random() > p) continue;
+
+    const x = u * HALF_W;
+    const y = v * HALF_H;
+    const z = w * HALF_D;
+    pts.push(x, y, z);
+    szs.push(0.3 + Math.random() * 1.6);
+
+    // Colour by distance from the galactic centre (bulge offset to +x side)
+    const dx = (x - 18) / 30, dy = y / 8;
+    const gcDist = Math.sqrt(dx * dx + dy * dy);
+
+    let r, g, b;
+    if      (gcDist < 0.35) { r = 1.0;  g = 0.90; b = 0.65; }  // warm amber
+    else if (gcDist < 0.70) { r = 0.92; g = 0.92; b = 0.84; }  // creamy white
+    else if (gcDist < 1.10) { r = 0.75; g = 0.85; b = 1.0;  }  // blue-white
+    else if (gcDist < 1.60) { r = 0.45; g = 0.55; b = 1.0;  }  // blue
+    else                    { r = 0.22; g = 0.16; b = 0.72; }  // violet fringe
+
+    const br = (0.16 + Math.random() * 0.84) * Math.min(bandDensity + 0.22, 0.72);
+    cls.push(r * br, g * br, b * br);
+  }
+
+  // ── 2. Galactic core bulge ────────────────────────────────────────────────
+  // Dense oval of old warm stars — the most distinctive feature of real Milky
+  // Way photos. Offset toward +x end of band.
+  const gn = () => (Math.random()+Math.random()+Math.random()+Math.random()-2) * 0.75;
+  const BULGE_TARGET = (mobile ? 7000 : 14000) + pts.length / 3;
+  while (pts.length / 3 < BULGE_TARGET) {
+    const bx = gn() * 11 + 18;   // each axis sampled independently
+    const by = gn() * 3.5;
+    const bz = gn() * 9;
+
+    const bDist = Math.sqrt(((bx - 18) / 14) ** 2 + (by / 4) ** 2 + (bz / 10) ** 2);
+    if (bDist > 1.1) continue;
+
+    pts.push(bx, by, bz);
+    szs.push(0.4 + Math.random() * 1.8);
+
+    // Very warm: deep orange → amber → pale gold toward edges
+    const warm = clamp(bDist, 0, 1);
+    const br2  = (0.28 + Math.random() * 0.72) * (1.0 - warm * 0.52);
+    cls.push(
+      br2 * 1.0,
+      br2 * lerp(0.55, 0.88, warm),
+      br2 * lerp(0.08, 0.62, warm)
+    );
+  }
+
+  // ── 3. Bright foreground stars scattered across the full band ─────────────
+  const STAR_TARGET = (mobile ? 1200 : 2400) + pts.length / 3;
+  while (pts.length / 3 < STAR_TARGET) {
+    pts.push(
+      (Math.random() * 2 - 1) * HALF_W,
+      (Math.random() * 2 - 1) * HALF_H * 1.4,
+      (Math.random() * 2 - 1) * HALF_D
+    );
+    szs.push(1.8 + Math.random() * 3.0);   // noticeably larger than band stars
+    const brt = 0.55 + Math.random() * 0.45;
+    // White to faint blue-white
+    cls.push(brt * 0.92, brt * 0.95, brt * 1.0);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pts), 3));
+  geo.setAttribute('gC',       new THREE.BufferAttribute(new Float32Array(cls), 3));
+  geo.setAttribute('gS',       new THREE.BufferAttribute(new Float32Array(szs), 1));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uT: { value: tStar }, uTime: { value: 0 } },
+    vertexShader: `
+      attribute vec3 gC; attribute float gS; varying vec3 vC;
+      uniform float uTime;
+      void main() {
+        vC = gC;
+        vec3 pos = position;
+        // Differential rotation in galactic plane (local XZ).
+        // Fast near galactic centre (x≈18), negligible at outer arms.
+        vec2 toC = vec2(pos.x - 18.0, pos.z);
+        float r   = length(toC);
+        float ang = uTime * 0.038 * exp(-r * 0.016);
+        float c = cos(ang), s = sin(ang);
+        pos.x = 18.0 + toC.x * c - toC.y * s;
+        pos.z =        toC.x * s + toC.y * c;
+        vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = gS * (260.0 / -mv.z);
+        gl_Position  = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform sampler2D uT; varying vec3 vC;
+      void main() {
+        vec4 t = texture2D(uT, gl_PointCoord);
+        gl_FragColor = vec4(vC, t.a);
+        if (gl_FragColor.a < 0.006) discard;
+      }`,
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  milkyWayMat = mat;
+  milkyWay.add(new THREE.Points(geo, mat));
+
+  // Position: high overhead, far back. Rotations mimic real Milky Way orientation:
+  // z-tilt = diagonal sweep across sky; x-tilt = tips toward viewer
+  milkyWay.position.set(-4, 36, -58);
+  milkyWay.rotation.z =  0.52;
+  milkyWay.rotation.x = -0.28;
+}
+
+// ─── ROCKY MOUNTAIN TERRAIN  (you are on top — this is the ground around you) ─
+// Wide plane, gently rolling, viewed from very low angle so horizon is visible
+let terrainMat = null;
+{
+  const SEG  = mobile ? 100 : 180;
+  const SIZE = 130;
+
+  const geo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
+  geo.rotateX(-Math.PI / 2);
+
+  const pos  = geo.attributes.position;
+  const cols = new Float32Array(pos.count * 3);
+
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+
+    // Landscape undulations — big dramatic ridges far out, flatter near camp
+    const distFromCenter = Math.sqrt(x*x + z*z);
+    const nearFactor     = clamp(distFromCenter / 22, 0, 1);
+
+    const nf = 0.06;
+    const n1 = fbm(x*nf + 2.4, z*nf + 8.1, 6);      // broad rolling hills
+    const n2 = fbm(x*nf*4 + 15, z*nf*4 + 3.7, 4);   // surface rock detail
+    const n3 = fbm(x*nf*12, z*nf*12, 3);             // fine grit/pebble noise
+
+    // Taller ridges so peaks reach the red line — ~2× the old scale
+    const ridgeHeight = nearFactor * 20.0;
+    const y = (n1 - 0.38) * 14.0 * (0.12 + nearFactor * 0.88)
+            + (n2 - 0.5)  * 2.5  * nearFactor
+            + n3 * 0.5
+            + ridgeHeight * Math.max(0, n1 - 0.35);
+
+    pos.setY(i, y);
+
+    // Colors — dark slate base + galaxy pink-purple glow on upper ridges
+    const height = clamp(y / 18, 0, 1);
+    const nx = n2;
+
+    // Base: midnight slate
+    let r = lerp(0.08, 0.24, height) + (nx - 0.5) * 0.07;
+    let g = lerp(0.06, 0.16, height) + (nx - 0.5) * 0.05;
+    let b = lerp(0.14, 0.36, height) + (nx - 0.5) * 0.05;
+
+    // Moonlit ridge highlights — silvery
+    if (height > 0.5) {
+      const s = (height - 0.5) / 0.5;
+      r = lerp(r, 0.46, s * 0.55);
+      g = lerp(g, 0.42, s * 0.55);
+      b = lerp(b, 0.60, s * 0.55);
+    }
+
+    // Galaxy light: pink-purple glow on upper peaks from the Milky Way overhead
+    if (height > 0.65) {
+      const s = (height - 0.65) / 0.35;
+      r = lerp(r, 0.72, s * 0.70);
+      g = lerp(g, 0.30, s * 0.45);
+      b = lerp(b, 0.80, s * 0.60);
+    }
+
+    cols[i*3] = r; cols[i*3+1] = g; cols[i*3+2] = b;
+  }
+
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  geo.computeVertexNormals();
+
+  terrainMat = new THREE.MeshStandardMaterial({
+    vertexColors:     true,
+    flatShading:      false,
+    roughness:        0.95,
+    metalness:        0.0,
+    emissive:         new THREE.Color(0x04081a),
+    emissiveIntensity: 1.0,
+  });
+  const terrainMesh = new THREE.Mesh(geo, terrainMat);
+
+  // Position: floor at y ≈ -1.5, so camera at y=1.8 is hovering just above ground
+  terrainMesh.position.set(0, -3, -4);
+  scene.add(terrainMesh);
+}
+
+// Galaxy light — soft pink-purple emanating from above, like the Milky Way glow
+const galaxyLight = new THREE.PointLight(0xbb44ee, 2.4, 120, 1.4);
+galaxyLight.position.set(4, 45, -40);
+scene.add(galaxyLight);
+
+// (fire pit circle removed — terrain surface carries the glow)
+
+// ─── PARTICLE SYSTEM ─────────────────────────────────────────────────────────
+class PSys {
+  constructor(n, tex) {
+    this.n = n; this.pos = new Float32Array(n*3); this.col = new Float32Array(n*3);
+    this.sz = new Float32Array(n); this.al = new Float32Array(n); this.d = [];
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(this.pos,3));
+    geo.setAttribute('pC',       new THREE.BufferAttribute(this.col,3));
+    geo.setAttribute('pS',       new THREE.BufferAttribute(this.sz, 1));
+    geo.setAttribute('pA',       new THREE.BufferAttribute(this.al, 1));
+    this.mat = new THREE.ShaderMaterial({
+      uniforms: { uT: { value: tex } },
+      vertexShader: `
+        attribute float pS; attribute float pA; attribute vec3 pC; varying vec3 vC; varying float vA;
+        void main() {
+          vC=pC; vA=pA;
+          vec4 mv = modelViewMatrix * vec4(position,1.0);
+          gl_PointSize = pS*(320.0/-mv.z); gl_Position=projectionMatrix*mv;
+        }`,
+      fragmentShader: `
+        uniform sampler2D uT; varying vec3 vC; varying float vA;
+        void main() {
+          vec4 t=texture2D(uT,gl_PointCoord); gl_FragColor=vec4(vC,t.a*vA);
+          if(gl_FragColor.a<0.005)discard;
+        }`,
+      transparent:true, blending:THREE.AdditiveBlending, depthWrite:false,
+    });
+    this.pts = new THREE.Points(geo, this.mat); this.geo = geo;
+  }
+  flush() {
+    ['position','pC','pS','pA'].forEach(k => this.geo.attributes[k].needsUpdate=true);
+  }
+}
+
+// Fire origin — on the ground, in front of camera
+const FX = 0, FY = 0.8, FZ = -3;
+
+// FLAMES
+const FLAME_N = mobile ? 120 : 240;
+const flames  = new PSys(FLAME_N, tFlame);
+scene.add(flames.pts);
+
+function mkFlame() {
+  const a=Math.random()*Math.PI*2, r=Math.random()*0.50;
+  return { x:Math.cos(a)*r+FX, y:FY, z:Math.sin(a)*r+FZ,
+    vx:(Math.random()-0.5)*0.18, vy:1.2+Math.random()*1.8, vz:(Math.random()-0.5)*0.18,
+    life:Math.random()*0.6, max:0.55+Math.random()*0.70,
+    sz:1.2+Math.random()*1.8, ph:Math.random()*Math.PI*2 };
+}
+for (let i=0;i<FLAME_N;i++) flames.d.push(mkFlame());
+
+function tickFlames(dt) {
+  for (let i=0;i<FLAME_N;i++) {
+    const f=flames.d[i]; f.life+=dt;
+    if (f.life>=f.max) { Object.assign(flames.d[i],mkFlame()); f.life=0; continue; }
+    const t=f.life/f.max;
+    f.x+=(f.vx+Math.sin(f.life*4.5+f.ph)*0.14)*dt;
+    f.y+=f.vy*dt*(1-t*0.4);
+    f.z+=(f.vz+Math.cos(f.life*3.9+f.ph)*0.14)*dt;
+    flames.pos[i*3]=f.x; flames.pos[i*3+1]=f.y; flames.pos[i*3+2]=f.z;
+    let r,g,b;
+    if      (t<0.18) { r=1.0; g=0.95; b=0.70; }
+    else if (t<0.50) { r=1.0; g=lerp(0.95,0.35,(t-0.18)/0.32); b=0.03; }
+    else             { r=lerp(1.0,0.25,(t-0.5)/0.5); g=lerp(0.35,0.03,(t-0.5)/0.5); b=0; }
+    flames.col[i*3]=r; flames.col[i*3+1]=g; flames.col[i*3+2]=b;
+    flames.sz[i]=f.sz*(1-t*0.80); flames.al[i]=t<0.12?t/0.12:(1-t);
+  }
+  flames.flush();
+}
+
+// CONSTELLATION EMBERS — rise from the fire, shift from orange → gold → white → star-blue
+// and dissolve into the Milky Way above, connecting fire to cosmos.
+const SPARK_N = mobile ? 55 : 110;
+const sparks  = new PSys(SPARK_N, tSpark);
+scene.add(sparks.pts);
+
+function mkSpark() {
+  const a = Math.random() * Math.PI * 2, r = Math.random() * 0.32;
+  return {
+    x: Math.cos(a)*r + FX, y: FY + 0.1, z: Math.sin(a)*r + FZ,
+    vx: (Math.random()-0.5) * 0.30,
+    vy: 0.55 + Math.random() * 1.10,   // strong initial lift
+    vz: (Math.random()-0.5) * 0.30 - 0.12, // slight lean toward galaxy
+    life: Math.random() * 7,            // stagger so they're spread across altitudes
+    max:  7 + Math.random() * 7,        // 7-14 s — long journey to become stars
+    ph:   Math.random() * Math.PI * 2,
+    drift: (Math.random()-0.5) * 0.22, // per-ember horizontal drift character
+  };
+}
+for (let i=0;i<SPARK_N;i++) sparks.d.push(mkSpark());
+
+function tickSparks(dt) {
+  for (let i=0;i<SPARK_N;i++) {
+    const s=sparks.d[i]; s.life+=dt;
+    if (s.life>=s.max) { Object.assign(sparks.d[i],mkSpark()); s.life=0; continue; }
+    const t = s.life/s.max;
+    // Vertical speed decays — ember decelerates as it rises
+    const vyNow = s.vy * Math.max(0.04, 1 - t * 0.88);
+    s.x += (s.vx + Math.sin(s.life*0.9+s.ph)*s.drift) * dt;
+    s.y += vyNow * dt;
+    s.z += (s.vz + Math.cos(s.life*0.7+s.ph)*s.drift*0.5) * dt;
+    sparks.pos[i*3]=s.x; sparks.pos[i*3+1]=s.y; sparks.pos[i*3+2]=s.z;
+
+    // Color journey: orange → amber → warm white → ice blue-white (star)
+    let r, g, b;
+    if      (t < 0.22) { r=1.0; g=lerp(0.45,0.78,t/0.22);         b=lerp(0.00,0.12,t/0.22); }
+    else if (t < 0.50) { r=1.0; g=lerp(0.78,0.92,(t-0.22)/0.28);  b=lerp(0.12,0.55,(t-0.22)/0.28); }
+    else if (t < 0.78) { r=lerp(1.0,0.68,(t-0.50)/0.28); g=lerp(0.92,0.82,(t-0.50)/0.28); b=lerp(0.55,1.0,(t-0.50)/0.28); }
+    else               { r=lerp(0.68,0.50,(t-0.78)/0.22); g=lerp(0.82,0.78,(t-0.78)/0.22); b=1.0; }
+    sparks.col[i*3]=r; sparks.col[i*3+1]=g; sparks.col[i*3+2]=b;
+
+    // Size: born tiny, peaks at t≈0.15, shrinks to a star-point near the end
+    const szEnv = t < 0.15 ? t/0.15 : 1 - (t-0.15)/0.85;
+    sparks.sz[i] = lerp(0.20, 2.0, szEnv * szEnv);
+    // Opacity: snap in, hold bright, fade only in final 12%
+    sparks.al[i] = t < 0.06 ? t/0.06 : t > 0.88 ? Math.max(0,(1-t)/0.12) : 1.0;
+  }
+  sparks.flush();
+}
+
+// FIRE CORE GLOW — tight, not nuclear
+const glowMat = new THREE.SpriteMaterial({ map:tGlow, blending:THREE.AdditiveBlending, transparent:true, opacity:0.65, depthWrite:false });
+const glow = new THREE.Sprite(glowMat);
+glow.position.set(FX, FY+0.1, FZ);
+glow.scale.set(0.75, 0.75, 1);
+scene.add(glow);
+
+// ─── MOUSE PARALLAX ───────────────────────────────────────────────────────────
+const _worldY = new THREE.Vector3(0, 1, 0);  // pre-created to avoid GC pressure
+let tCX = 0, tCY = 1.8;
+window.addEventListener('mousemove', e => {
+  tCX = (e.clientX / window.innerWidth  - 0.5) * 2.5;
+  tCY = 1.8 + (e.clientY / window.innerHeight - 0.5) * -1.2;
+});
+
+// ─── VISIBILITY ───────────────────────────────────────────────────────────────
+let visible = true;
+new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.05 }).observe(wrapper);
+
+// ─── LOOP ─────────────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (!visible) return;
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t  = clock.getElapsedTime();
+
+  if (window._starMat) window._starMat.uniforms.uTime.value = t;
+
+  // Galaxy: spins around its own galactic axis (local Y = normal to band plane)
+  // Galaxy: differential rotation via shader (arms spin, band stays fixed)
+  if (milkyWayMat) milkyWayMat.uniforms.uTime.value = t;
+
+  // Fire flicker — layered frequencies, never periodic
+  const f1 = Math.sin(t * 11.7);
+  const f2 = Math.sin(t * 7.2);
+  const f3 = Math.sin(t * 19.3);
+  const fl = (0.5 + 0.5*f1) * (0.6 + 0.4*f2) * (0.8 + 0.2*f3);
+
+  fireLight.intensity   = 2.8 + 2.2 * fl;
+  fireLight.color.setHSL(0.07 + 0.02 * f1, 0.88, 0.52 + 0.08 * fl);
+
+  // Terrain surface breathes with the fire — warm orange-amber emissive in sync
+  if (terrainMat) {
+    terrainMat.emissive.setRGB(
+      0.016 + 0.028 * fl,   // warm orange channel
+      0.006 + 0.008 * fl,   // slight amber
+      0.020 + 0.006 * fl    // keep base cool blue tint
+    );
+  }
+
+  const gs = 0.65 + 0.30 * fl;
+  glow.scale.set(gs, gs, 1);
+  glowMat.opacity = 0.55 + 0.22 * fl;
+
+  tickFlames(dt);
+  tickSparks(dt);
+
+  // Gentle camera drift — like breathing while you sit by the fire
+  camera.position.x += (tCX - camera.position.x) * 0.022;
+  camera.position.y += (tCY - camera.position.y) * 0.022;
+  camera.lookAt(0, 8, -22);
+
+  composer.render();
+}
+
+animate();
+
+// ─── HAMBURGER MENU ───────────────────────────────────────────────────────────
+(function() {
+  const btn = document.getElementById('hamburger');
+  const drawer = document.getElementById('nav-mobile');
+  if (!btn || !drawer) return;
+  btn.addEventListener('click', () => {
+    const open = btn.classList.toggle('open');
+    drawer.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+    drawer.setAttribute('aria-hidden', !open);
+  });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    btn.classList.remove('open');
+    drawer.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+  }));
+})();
+
+// ─── TOUCH PARALLAX ───────────────────────────────────────────────────────────
+window.addEventListener('touchmove', e => {
+  const touch = e.touches[0];
+  tCX = (touch.clientX / window.innerWidth  - 0.5) * 1.5;
+  tCY = 1.8 + (touch.clientY / window.innerHeight - 0.5) * -0.8;
+}, { passive: true });
+</script>
 </body>
 </html>
