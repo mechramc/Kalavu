@@ -193,7 +193,8 @@ def main():
         print(f"Step count: {steps}  ({step_idx+1}/{len(STEP_COUNTS)})")
         print(f"{'='*60}")
 
-        spec_losses = {}  # domain -> ew_loss
+        spec_ew_losses = {}  # domain -> ew_avg_loss_of_that_specialist
+        per_domain_div = {}  # domain -> divergence pct (own-domain)
 
         for domain in DOMAINS:
             print(f"  Evaluating {domain} specialist at steps={steps}...")
@@ -201,14 +202,17 @@ def main():
             model = model.to(device)
             model.eval()
 
-            # Evaluate only on this domain's held-out set
-            domain_held_out = {domain: held_out[domain]}
+            # Evaluate on ALL 3 domains, compute EW average
             results = eval_all_domains(
-                model, domain_held_out, device, bs=BS,
+                model, held_out, device, bs=BS,
                 eval_batches=EVAL_BATCHES, is_fused=False
             )
-            spec_losses[domain] = results[domain]
-            print(f"    {domain} specialist loss: {spec_losses[domain]:.6f}")
+            spec_ew_losses[domain] = results["equal_weight_avg"]
+
+            # Also store per-domain own loss for divergence calculation
+            per_domain_div[domain] = (BASE_LOSSES[domain] - results[domain]) / BASE_LOSSES[domain] * 100.0
+
+            print(f"    {domain} specialist: EW={results['equal_weight_avg']:.6f}, own_loss={results[domain]:.6f}")
 
             # Free GPU memory
             model.cpu()
@@ -216,18 +220,10 @@ def main():
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
-        # Per-domain divergence
-        per_domain_div = {}
-        for domain in DOMAINS:
-            base_loss_d = BASE_LOSSES[domain]
-            spec_loss_d = spec_losses[domain]
-            div = (base_loss_d - spec_loss_d) / base_loss_d * 100.0
-            per_domain_div[domain] = round(div, 6)
-
         mean_divergence = round(sum(per_domain_div.values()) / len(DOMAINS), 6)
 
         # Best specialist EW (min loss = best performance)
-        best_spec_ew_loss = round(min(spec_losses.values()), 6)
+        best_spec_ew_loss = round(min(spec_ew_losses.values()), 6)
 
         # MoE EW loss from JSON
         moe_ew_loss = step_to_moe_loss[steps]
