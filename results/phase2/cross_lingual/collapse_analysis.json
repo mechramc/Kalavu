@@ -1,0 +1,342 @@
+{
+  "42": {
+    "seed": 42,
+    "gain_vs_spec_pct": 6.14,
+    "gain_vs_base_pct": 16.0917,
+    "routing_analysis": {
+      "per_domain": {
+        "tamil": {
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "entropy": 0.0,
+          "dominant_expert": 0,
+          "dominant_weight": 1.0,
+          "expected_expert": 0,
+          "correct_routing": true
+        },
+        "yoruba": {
+          "weights": [
+            0.9984,
+            0.0,
+            0.0015,
+            0.0001
+          ],
+          "entropy": 0.012273,
+          "dominant_expert": 0,
+          "dominant_weight": 0.9984,
+          "expected_expert": 1,
+          "correct_routing": false
+        },
+        "welsh": {
+          "weights": [
+            0.0,
+            0.0,
+            0.9999,
+            0.0001
+          ],
+          "entropy": 0.001021,
+          "dominant_expert": 2,
+          "dominant_weight": 0.9999,
+          "expected_expert": 2,
+          "correct_routing": true
+        },
+        "code": {
+          "weights": [
+            0.0104,
+            0.0007,
+            0.0026,
+            0.9863
+          ],
+          "entropy": 0.081653,
+          "dominant_expert": 3,
+          "dominant_weight": 0.9863,
+          "expected_expert": 3,
+          "correct_routing": true
+        }
+      },
+      "n_correctly_routed": 3,
+      "n_total_domains": 4,
+      "misrouted_domains": [
+        "yoruba"
+      ],
+      "routing_correct_fraction": 0.75
+    },
+    "moe_vs_specialist_delta": {
+      "tamil": {
+        "base_loss": 1.430747,
+        "specialist_loss": 1.0976,
+        "moe_loss": 1.097602,
+        "specialist_gain_vs_base": 0.333147,
+        "moe_gain_vs_base": 0.333145,
+        "capture_ratio": 1.0
+      },
+      "yoruba": {
+        "base_loss": 3.736443,
+        "specialist_loss": 2.034847,
+        "moe_loss": 3.725906,
+        "specialist_gain_vs_base": 1.701596,
+        "moe_gain_vs_base": 0.010537,
+        "capture_ratio": 0.0062
+      },
+      "welsh": {
+        "base_loss": 4.631496,
+        "specialist_loss": 3.071064,
+        "moe_loss": 3.071069,
+        "specialist_gain_vs_base": 1.560432,
+        "moe_gain_vs_base": 1.560427,
+        "capture_ratio": 1.0
+      },
+      "code": {
+        "base_loss": 2.098477,
+        "specialist_loss": 2.089501,
+        "moe_loss": 2.088131,
+        "specialist_gain_vs_base": 0.008976,
+        "moe_gain_vs_base": 0.010346,
+        "capture_ratio": 1.1526
+      }
+    },
+    "diagnosis": {
+      "seed": 42,
+      "improvement_vs_spec_pct": 6.14,
+      "improvement_vs_base_pct": 16.0917,
+      "routing_correct_fraction": 0.75,
+      "misrouted_domains": [
+        "yoruba"
+      ],
+      "mean_capture_ratio": 0.7897,
+      "diagnosis": [
+        "Domain 'yoruba' misrouted: expected expert 1, got expert 0 (weight=3.7259 vs specialist=2.0348). Capture ratio: 0.62%.",
+        "Mean specialist gain capture ratio across domains: 78.97%.",
+        "Stop/Go verdict: PIVOT \u2014 diverge>15% but gain<7% \u2014 check router"
+      ]
+    }
+  },
+  "137": {
+    "seed": 137,
+    "gain_vs_spec_pct": 21.7588,
+    "gain_vs_base_pct": 30.0965,
+    "routing_analysis": {
+      "per_domain": {
+        "tamil": {
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "entropy": 0.0,
+          "dominant_expert": 0,
+          "dominant_weight": 1.0,
+          "expected_expert": 0,
+          "correct_routing": true
+        },
+        "yoruba": {
+          "weights": [
+            0.0001,
+            0.9999,
+            0.0,
+            0.0001
+          ],
+          "entropy": 0.001942,
+          "dominant_expert": 1,
+          "dominant_weight": 0.9999,
+          "expected_expert": 1,
+          "correct_routing": true
+        },
+        "welsh": {
+          "weights": [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          "entropy": 0.0,
+          "dominant_expert": 2,
+          "dominant_weight": 1.0,
+          "expected_expert": 2,
+          "correct_routing": true
+        },
+        "code": {
+          "weights": [
+            0.0115,
+            0.001,
+            0.0012,
+            0.9863
+          ],
+          "entropy": 0.079936,
+          "dominant_expert": 3,
+          "dominant_weight": 0.9863,
+          "expected_expert": 3,
+          "correct_routing": true
+        }
+      },
+      "n_correctly_routed": 4,
+      "n_total_domains": 4,
+      "misrouted_domains": [],
+      "routing_correct_fraction": 1.0
+    },
+    "moe_vs_specialist_delta": {
+      "tamil": {
+        "base_loss": 1.430747,
+        "specialist_loss": 1.097982,
+        "moe_loss": 1.097987,
+        "specialist_gain_vs_base": 0.332765,
+        "moe_gain_vs_base": 0.33276,
+        "capture_ratio": 1.0
+      },
+      "yoruba": {
+        "base_loss": 3.736443,
+        "specialist_loss": 2.0355,
+        "moe_loss": 2.035656,
+        "specialist_gain_vs_base": 1.700943,
+        "moe_gain_vs_base": 1.700787,
+        "capture_ratio": 0.9999
+      },
+      "welsh": {
+        "base_loss": 4.631496,
+        "specialist_loss": 3.094251,
+        "moe_loss": 3.094252,
+        "specialist_gain_vs_base": 1.537245,
+        "moe_gain_vs_base": 1.537244,
+        "capture_ratio": 1.0
+      },
+      "code": {
+        "base_loss": 2.098477,
+        "specialist_loss": 2.089172,
+        "moe_loss": 2.088643,
+        "specialist_gain_vs_base": 0.009305,
+        "moe_gain_vs_base": 0.009834,
+        "capture_ratio": 1.0569
+      }
+    },
+    "diagnosis": {
+      "seed": 137,
+      "improvement_vs_spec_pct": 21.7588,
+      "improvement_vs_base_pct": 30.0965,
+      "routing_correct_fraction": 1.0,
+      "misrouted_domains": [],
+      "mean_capture_ratio": 1.0142,
+      "diagnosis": [
+        "All domains correctly routed to their specialists.",
+        "Mean specialist gain capture ratio across domains: 101.42%.",
+        "Stop/Go verdict: GO \u2014 diverge>15% AND gain>7%"
+      ]
+    }
+  },
+  "2026": {
+    "seed": 2026,
+    "gain_vs_spec_pct": 21.7532,
+    "gain_vs_base_pct": 30.1075,
+    "routing_analysis": {
+      "per_domain": {
+        "tamil": {
+          "weights": [
+            0.9999,
+            0.0001,
+            0.0,
+            0.0
+          ],
+          "entropy": 0.001021,
+          "dominant_expert": 0,
+          "dominant_weight": 0.9999,
+          "expected_expert": 0,
+          "correct_routing": true
+        },
+        "yoruba": {
+          "weights": [
+            0.0001,
+            0.9998,
+            0.0001,
+            0.0
+          ],
+          "entropy": 0.002042,
+          "dominant_expert": 1,
+          "dominant_weight": 0.9998,
+          "expected_expert": 1,
+          "correct_routing": true
+        },
+        "welsh": {
+          "weights": [
+            0.0,
+            0.0001,
+            0.9999,
+            0.0
+          ],
+          "entropy": 0.001021,
+          "dominant_expert": 2,
+          "dominant_weight": 0.9999,
+          "expected_expert": 2,
+          "correct_routing": true
+        },
+        "code": {
+          "weights": [
+            0.0164,
+            0.0061,
+            0.0131,
+            0.9645
+          ],
+          "entropy": 0.190171,
+          "dominant_expert": 3,
+          "dominant_weight": 0.9645,
+          "expected_expert": 3,
+          "correct_routing": true
+        }
+      },
+      "n_correctly_routed": 4,
+      "n_total_domains": 4,
+      "misrouted_domains": [],
+      "routing_correct_fraction": 1.0
+    },
+    "moe_vs_specialist_delta": {
+      "tamil": {
+        "base_loss": 1.430747,
+        "specialist_loss": 1.096706,
+        "moe_loss": 1.096743,
+        "specialist_gain_vs_base": 0.334041,
+        "moe_gain_vs_base": 0.334004,
+        "capture_ratio": 0.9999
+      },
+      "yoruba": {
+        "base_loss": 3.736443,
+        "specialist_loss": 2.036312,
+        "moe_loss": 2.036301,
+        "specialist_gain_vs_base": 1.700131,
+        "moe_gain_vs_base": 1.700142,
+        "capture_ratio": 1.0
+      },
+      "welsh": {
+        "base_loss": 4.631496,
+        "specialist_loss": 3.093556,
+        "moe_loss": 3.093569,
+        "specialist_gain_vs_base": 1.53794,
+        "moe_gain_vs_base": 1.537927,
+        "capture_ratio": 1.0
+      },
+      "code": {
+        "base_loss": 2.098477,
+        "specialist_loss": 2.089417,
+        "moe_loss": 2.08861,
+        "specialist_gain_vs_base": 0.00906,
+        "moe_gain_vs_base": 0.009867,
+        "capture_ratio": 1.0891
+      }
+    },
+    "diagnosis": {
+      "seed": 2026,
+      "improvement_vs_spec_pct": 21.7532,
+      "improvement_vs_base_pct": 30.1075,
+      "routing_correct_fraction": 1.0,
+      "misrouted_domains": [],
+      "mean_capture_ratio": 1.0223,
+      "diagnosis": [
+        "All domains correctly routed to their specialists.",
+        "Mean specialist gain capture ratio across domains: 102.23%.",
+        "Stop/Go verdict: GO \u2014 diverge>15% AND gain>7%"
+      ]
+    }
+  }
+}
