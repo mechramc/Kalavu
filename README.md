@@ -234,7 +234,9 @@ Kalavai/
 │       └── twenty_contributor/
 ├── figures/
 ├── paper/
-│   └── kalavai_neurips2026.pdf
+│   ├── kalavai_neurips2026_submit.tex     # NeurIPS submission (anonymous)
+│   ├── kalavai_neurips2026_submit_v2.tex  # arXiv preprint (authored)
+│   └── kalavai_arxiv_v2.zip               # arXiv submission package
 └── README.md
 ```
 
@@ -248,7 +250,7 @@ Initial experiments produced +14.2% at 410M. Code review identified two evaluati
 
 | Experiment | Purpose | Status |
 |---|---|---|
-| LoRA ablation (r=8, r=64) at 410M | Does LoRA produce sufficient divergence? | Done — LoRA r=64 produces *negative* divergence (−20% div, −13.9% gain); full FT is necessary |
+| LoRA ablation (r=8, r=16, r=32, r=64) at 410M | Does LoRA produce sufficient divergence? | Done — all ranks produce insufficient or negative divergence. r=8: +0.32%, r=16: −2.65%, r=32: −7.73%, r=64: −13.85%. Full FT promoted to §Method. |
 | Base-PPL as conversion rate predictor | Explain why cross-lingual exceeds the linear prediction | Done — r=+0.560 (n=6, suggestive); integrated into §4.10 |
 | Low-divergence ablation (50-100 training steps) | Find the divergence floor where gains go to zero | Planned |
 | 20-contributor with robust data (replace thin domains) | Clean Exp3 without data-insufficient specialists | Planned |
@@ -281,7 +283,7 @@ The code is here. The results are reproducible. The predictive model tells you w
   title     = {{KALAVAI}: Predicting When Independent Specialist Fusion Works
                --- A Quantitative Model for Post-Hoc Cooperative {LLM} Training},
   author    = {Kumaresan, Ramchand},
-  journal   = {arXiv preprint},
+  journal   = {arXiv preprint arXiv:2603.22755},
   year      = {2026},
   url       = {https://arxiv.org/abs/2603.22755}
 }

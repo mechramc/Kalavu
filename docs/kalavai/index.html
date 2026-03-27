@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KALAVAI — When Does Independent Specialist Fusion Work?</title>
-  <meta name="description" content="20 people. 20 GPUs. 1 model none of them could build alone. A companion to the KALAVAI paper on cooperative LLM training.">
+  <meta name="description" content="20 people. 20 GPUs. 1 model none of them could build alone. KALAVAI cooperative LLM training — NeurIPS 2026. arXiv:2603.22755">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -350,6 +350,8 @@
     <a href="#ablations">Ablations</a>
     <a href="#routing">Routing</a>
     <a href="#impact">Impact</a>
+    <a href="https://arxiv.org/abs/2603.22755">arXiv</a>
+    <a href="https://huggingface.co/papers/2603.22755">HF Paper</a>
     <a href="https://github.com/mechramc/Kalavai">GitHub</a>
     <a href="https://huggingface.co/collections/mechramc/kalavai-cooperative-decentralized-llm-training-69c4202dbabacb9018e39ef7">Models</a>
   </div>
@@ -368,8 +370,9 @@
   </div>
 
   <div class="hero__actions">
-    <a class="btn btn--primary" href="kalavai_neurips2026.pdf">Read the Paper</a>
+    <a class="btn btn--primary" href="https://arxiv.org/abs/2603.22755">Read the Paper</a>
     <a class="btn btn--ghost" href="https://github.com/mechramc/Kalavai">View Code</a>
+    <a class="btn btn--ghost" href="https://huggingface.co/papers/2603.22755">HF Paper</a>
     <a class="btn btn--ghost" href="https://huggingface.co/collections/mechramc/kalavai-cooperative-decentralized-llm-training-69c4202dbabacb9018e39ef7">Models on HF</a>
     <a class="btn btn--ghost" href="#reproduce">Reproduce in 30 min</a>
   </div>
@@ -880,14 +883,14 @@ train_router(fused, mixed_data, steps=500)
   <span class="section-label">Camera-Ready Roadmap</span>
   <h2>What's next if NeurIPS 2026 accepts.</h2>
 
-  <p>The paper is complete for submission. These experiments are planned for the camera-ready version to preempt likely reviewer objections and extend the predictive model.</p>
+  <p>The paper has been submitted to NeurIPS 2026. These experiments are planned for the camera-ready version to preempt likely reviewer objections and extend the predictive model.</p>
 
   <div class="experiment-card">
     <span class="experiment-card__status status--done">Done</span>
     <div class="experiment-card__body">
-      <div class="experiment-card__title">LoRA ablation (r=8, r=64) at 410M</div>
+      <div class="experiment-card__title">LoRA ablation (r=8, r=16, r=32, r=64) at 410M</div>
       <div class="experiment-card__desc">Does LoRA produce sufficient divergence to drive cooperative gain? LoRA's low-rank constraint may limit domain specialisation — if so, the predictive formula predicts the exact magnitude of the reduction. Tests whether full fine-tuning is necessary or a convenience.</div>
-      <div class="experiment-card__result">LoRA r=64 produces <em>negative</em> divergence (specialists worse than base on own domain: code −37%, science −29%), yielding fusion loss of −13.9% to −15.2%. Full fine-tuning is necessary. Integrated into §Design Decisions.</div>
+      <div class="experiment-card__result">LoRA produces insufficient divergence at every rank tested. r=8: div −1.48%, gain +0.32% (below divergence floor). r=16: div −5.57%, gain −2.65%. r=32: div −12.05%, gain −7.73%. r=64: div −20.31%, gain −13.85%. Full fine-tuning is necessary. Promoted to §Method in paper with figure.</div>
     </div>
   </div>
 
@@ -1023,7 +1026,7 @@ python experiments/kalavai_pythia_experiment.py</code></pre>
 <footer class="site-footer">
   <p><strong>KALAVAI</strong> &mdash; கலவை &mdash; fusion, mixing, blending</p>
   <p>Ramchand Kumaresan &middot; Murai Labs &middot; முறை &middot; method, order, disciplined process</p>
-  <p style="margin-top: 1rem;"><a href="https://github.com/mechramc/Kalavai">GitHub</a> &middot; <a href="kalavai_neurips2026.pdf">paper PDF</a></p>
+  <p style="margin-top: 1rem;"><a href="https://github.com/mechramc/Kalavai">GitHub</a> &middot; <a href="https://arxiv.org/abs/2603.22755">paper PDF</a></p>
   <p style="margin-top: 0.75rem; color: var(--cream-faint); font-size: 0.8rem;">Last updated: March 2026 &mdash; synced with NeurIPS 2026 submission draft.</p>
 </footer>
 
