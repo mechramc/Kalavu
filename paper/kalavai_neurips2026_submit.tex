@@ -458,9 +458,10 @@ Three highly specialised domains are selected: \emph{medical} (PubMed article ab
 \centering
 \caption{Phase 2 Experiment 2: Private-domain fusion results (Pythia-410M, per-domain equal-weight evaluation). Per-seed mean divergence: 18.52\%, 18.51\%, 18.51\%. Routing: medical 99.98\%, legal 99.77\%--100\%, patent 91.65\%--98.75\%. Monolithic baseline: 6,000 steps on shuffled medical+legal+patent mix.}
 \label{tab:phase2_private}
+\small
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Scale} & \textbf{Method} & \textbf{EW Loss} & \textbf{vs.\ Best Spec.} & \textbf{vs.\ Monolithic} & \textbf{Seeds} & \textbf{Std} \\
+\textbf{Scale} & \textbf{Method} & \textbf{EW Loss} & \textbf{vs.\ Best Spec.} & \textbf{vs.\ Mono.} & \textbf{Seeds} & \textbf{Std} \\
 \midrule
 \multirow{5}{*}{Pythia-410M}
  & Base model       & 2.954 & ---     & ---     & ---  & ---   \\
@@ -499,7 +500,7 @@ Code   & 0.4\%  & 8.2  & 8.1  & 8.1  \\
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{fig_crosslingual_perplexity}
+  \includegraphics[width=0.82\textwidth,height=0.75\textheight,keepaspectratio]{fig_crosslingual_perplexity}
   \caption{Cross-lingual fusion results: base model perplexity vs.\ specialist vs.\ \kalavai MoE (Pythia-410M, seeds 137/2026). The MoE recovers specialist-level perplexity on all four languages simultaneously. Yoruba improvement 5.4$\times$ (PPL 41.9$\to$7.7); Welsh 4.6$\times$ (102.7$\to$22.1). Improvement annotations show the base$\to$MoE ratio. Seeds 137 and 2026 achieved perfect routing; seed 42 had router collapse (see text).}
   \label{fig:crosslingual_ppl}
 \end{figure}
@@ -999,14 +1000,15 @@ The 410M maturity sweep shows consistent improvement from +7.03\% to +8.81\% acr
 \centering
 \caption{Specialist count scaling at Pythia-410M, five-domain equal-weight evaluation (code, science, fiction, math, multilingual). Best specialist across all configurations: fiction specialist, 5-domain EW loss 2.583. Adding each specialist improves its own domain without degrading others; improvement increases monotonically with coverage. All results: 3 seeds.}
 \label{tab:scaling}
+\small
 \begin{tabular}{rcccl}
 \toprule
 \textbf{Specialists} & \textbf{Domains} & \textbf{Improvement} & \textbf{Std} & \textbf{Note} \\
 \midrule
-2 & Code, Fiction                              & $+1.76\%$  & $\pm$0.007\% & 3/5 domains uncovered \\
-3 & Code, Science, Fiction                     & $+4.39\%$  & $\pm$0.024\% & 2/5 domains uncovered \\
-4 & Code, Science, Fiction, Math (GSM8K)        & $+11.39\%$ & $\pm$0.022\% & 1/5 domain uncovered \\
-5 & + Multilingual (Spanish Wikipedia)          & $+12.95\%$ & $\pm$0.022\% & All 5 domains covered \\
+2 & Code, Fiction                              & $+1.76\%$  & $\pm$0.007\% & 3/5 uncovered \\
+3 & Code, Science, Fiction                     & $+4.39\%$  & $\pm$0.024\% & 2/5 uncovered \\
+4 & Code, Science, Fiction, Math (GSM8K)        & $+11.39\%$ & $\pm$0.022\% & 1/5 uncovered \\
+5 & + Multilingual (Spanish Wikipedia)          & $+12.95\%$ & $\pm$0.022\% & All 5 covered \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1157,7 +1159,7 @@ We measured end-to-end inference latency, peak VRAM, and throughput for all \kal
 \small
 \begin{tabular}{llrrrrr}
 \toprule
-\textbf{Scale} & \textbf{Config} & \textbf{Params (M)} & \textbf{VRAM (GB)} & \textbf{Latency (ms)} & \textbf{Rel.\ Lat.} & \textbf{Routing Agr.} \\
+\textbf{Scale} & \textbf{Config} & \textbf{Params (M)} & \textbf{VRAM (GB)} & \textbf{Lat.\ (ms)} & \textbf{Rel.\ Lat.} & \textbf{Rout.\ Agr.} \\
 \midrule
 \multirow{5}{*}{410M}
  & Base model          & 405  & 1.15 & 17.9 & 1.00$\times$ & --- \\
@@ -1219,11 +1221,12 @@ Routing distributions (seed 42): medical 99.98\% to medical specialist; legal 99
 \centering
 \caption{Experiment 1 per-seed results. Pythia-410M step10000, freeze=0, 2,000 specialist steps. Wikipedia fallback used for Tamil/Yoruba/Welsh (cc100 uses legacy loading scripts blocked at datasets$\geq$3.0; Wikipedia provides equivalent or better content).}
 \label{tab:app_phase2_crosslingual}
+\small
 \begin{tabular}{lcccccc}
 \toprule
 \textbf{Seed} & \textbf{Tamil div.} & \textbf{Yoruba div.} & \textbf{Welsh div.} & \textbf{Mean div.} & \textbf{Gain vs spec} & \textbf{Verdict} \\
 \midrule
-42   & 23.28\% & 45.54\% & 33.69\% & 25.74\% & +6.14\%  & PIVOT (router collapse) \\
+42   & 23.28\% & 45.54\% & 33.69\% & 25.74\% & +6.14\%  & PIVOT (collapse$^*$) \\
 137  & 23.26\% & 45.52\% & 33.19\% & 25.60\% & +21.76\% & GO \\
 2026 & 23.35\% & 45.50\% & 33.21\% & 25.62\% & +21.75\% & GO \\
 \midrule
