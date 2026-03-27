@@ -67,7 +67,7 @@ Below $\approx$3.3\% divergence the formula predicts near-zero gain; practitione
 
 In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
 The key property is privacy-preserving distributed training: each contributor's data never leaves their environment, yet the fused model achieves simultaneous specialist-level quality on every domain ($+7.72\%$ vs.\ best specialist) that centralised training cannot replicate without pooling all data.
-Fusion gains are consistent across scales: $+7.72\%$ at 410M ($\pm$0.02\%, 3 seeds), $+7.49\%$ at 1B ($\pm$0.01\%, 3 seeds), $+6.53\%$ at 6.9B.
+Fusion gains are consistent across scales: $+7.70\%$ at 410M (3-seed mean; seed 42: $+7.72\%$, $\pm$0.02pp), $+7.49\%$ at 1B ($\pm$0.01\%, 3 seeds), $+6.53\%$ at 6.9B.
 The fused model achieves oracle-optimal routing: the learned router matches the domain oracle with gap $<10^{-5}$ nats.
 Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.76\%$, with Yoruba perplexity falling $41.9\to7.7$.
 A 20-contributor federation (10 languages + 10 domains) achieves $+16.71\%$ ($\pm$0.07pp, 3 seeds) vs.\ best specialist.
@@ -224,7 +224,7 @@ where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain e
  & Best specialist     & 2.404 & ---     & +9.3\%  & 3    & $\pm$0.02\% \\
  & Weight averaging    & 2.486 & $-$3.4\% & +6.2\% & 3    & $\pm$0.00\% \\
  & Monolithic baseline & 2.229 & ---     & +16.0\% & 3    & $\pm$0.00\% \\
- & \kalavai (MoE)      & \textbf{2.218} & \textbf{+7.72\%} & +16.3\% & 3 & $\pm$0.02\% \\
+ & \kalavai (MoE)      & \textbf{2.218} & \textbf{+7.70\%} & +16.3\% & 3 & $\pm$0.02\% \\
 \midrule
 \multirow{3}{*}{Pythia-1B}
  & Base model          & 2.474 & ---     & ---     & ---  & ---        \\
@@ -240,7 +240,7 @@ where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain e
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:main} presents the main results under per-domain equal-weight evaluation (separate per-domain eval at bs=4, equal-weight average). \kalavai consistently outperforms the best individual specialist at all tested scales. The 410M improvement of +7.72\% is robust: variance across three random seeds is near-zero ($\pm$0.02\%), and results are stable across Pythia training maturities (see Appendix~\ref{app:maturity}).
+Table~\ref{tab:main} presents the main results under per-domain equal-weight evaluation (separate per-domain eval at bs=4, equal-weight average). \kalavai consistently outperforms the best individual specialist at all tested scales. The 410M improvement is robust: +7.72\% at seed 42, 3-seed mean +7.70\% ($\pm$0.02pp), and results are stable across Pythia training maturities (see Appendix~\ref{app:maturity}).
 
 The 6.9B improvement of +6.53\% ($\pm$0.024\%, 3 seeds) is smaller than at 410M/1B, but the mechanism is the same. As Table~\ref{tab:divergence} shows, fusion gain scales directly with specialist divergence from base. At 410M and 1B, specialists diverge 10--25\% from base per domain (mean $\sim$15.5\%), producing $\sim$+7.5\% fusion gain. At 6.9B, specialists diverge 7--10\% per domain (mean 8.73\%, Table~\ref{tab:divergence})---approximately half the divergence at smaller scales---and the fusion gain is proportionally smaller (+6.53\%). Importantly, the \emph{conversion efficiency} (gain per unit divergence) is 0.75$\times$ at 6.9B versus 0.49$\times$ at 410M/1B: larger models convert divergence into fusion gain \emph{more} efficiently, not less. The reduced gain is entirely explained by reduced divergence, not by scale-dependent degradation of the protocol. Routing is near-deterministic at all scales ($>$99.9\% per-domain gate weight).
 
@@ -747,7 +747,7 @@ Table~\ref{tab:inventory} lists all experiments conducted for this paper with th
 \textbf{Experiment} & \textbf{Model} & \textbf{Result} & \textbf{Seeds} & \textbf{Status} \\
 \midrule
 Synthetic 25M (held-out) & Custom MiniGPT & +60.7\% $\pm$ 0.7\% & 3 & Done \\
-Pythia-410M 3-domain & Pythia-410M & +7.72\% $\pm$ 0.02\% & 3 & Done \\
+Pythia-410M 3-domain & Pythia-410M & +7.70\% $\pm$ 0.02pp (seed 42: +7.72\%) & 3 & Done \\
 Pythia-1B 3-domain & Pythia-1B & +7.49\% $\pm$ 0.01\% & 3 & Done \\
 Pythia-6.9B 3-domain & Pythia-6.9B & +6.53\% $\pm$ 0.024\% & 3 & Done \\
 Qwen-1.5B code+fiction & Qwen-1.5B & +1.06\% $\pm$ 0.01\% & 3 & Done \\
@@ -1237,6 +1237,18 @@ Routing distributions (seed 42): medical 99.98\% to medical specialist; legal 99
 Code domain divergence is negligible (0.43--0.44\%) because CodeSearchNet Python is already well-represented in the Pythia pre-training corpus. Code routing remains correct (96.45--98.63\% to code specialist) despite the low divergence.
 
 % ============================================================
+\section{Expanded Divergence--Gain Scatter}
+\label{app:scatter_v2}
+% ============================================================
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/fig_divergence_gain_scatter_v2}
+  \caption{Expanded divergence--gain scatter ($n=17$). The six in-sample conditions (circles) are supplemented with eight training-duration crossover conditions (triangles, 50--20{,}000 steps) and three 20-contributor seeds (squares). The linear law ($R^2=0.856$, $n=6$) holds within a fixed training protocol; across training-duration regimes the relationship is non-monotonic (gain rises then falls as specialists over-train). The 20-contributor points (15.7\% divergence, +16.7\% gain) lie above the in-sample regression line, consistent with cooperative size amplifying fusion benefit.}
+  \label{fig:scatter_v2}
+\end{figure}
+
+% ============================================================
 \section{Evaluation Correction Methodology}
 \label{app:evalcorrection}
 % ============================================================
@@ -1249,6 +1261,6 @@ During development, an initial evaluation protocol produced +14.2\% at Pythia-41
 
 \paragraph{Additional 6.9B fix.} The 6.9B result was stabilised by seeded shuffling of the evaluation dataset (original: mean +2.72\%, std $\pm$8.17\% across seeds; corrected: +6.53\% $\pm$0.024\% over 3 seeds, computed from stored per-domain losses without re-running specialists). The high variance in the original 6.9B result was caused by non-deterministic chunk ordering producing different effective evaluation sets per seed.
 
-\paragraph{Corrected infrastructure.} The corrected evaluation protocol is implemented in \texttt{experiments/kalavai\_eval\_utils.py} (\texttt{eval\_all\_domains}, \texttt{eval\_loss\_domain}). All Phase 2 experiments import this module rather than implementing inline evaluation, preventing recurrence. The corrected evaluation was run on all committed result files; original result files are preserved in \texttt{experiments/results/} with suffixes indicating evaluation method.
+\paragraph{Corrected infrastructure.} The corrected evaluation protocol is implemented in \texttt{experiments/kalavai\_eval\_utils.py} (\texttt{eval\_all\_domains}, \texttt{eval\_loss\_domain}). All experiments import this module rather than implementing inline evaluation, preventing recurrence. Original result files were re-evaluated under the corrected protocol.
 
 \end{document}
