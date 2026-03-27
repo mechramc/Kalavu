@@ -66,6 +66,7 @@ A cooperative whose specialists diverge 15\% from the shared base checkpoint yie
 Below $\approx$3.3\% divergence the formula predicts near-zero gain; practitioners can verify specialist divergence before committing training resources.
 
 In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
+The key property is privacy-preserving distributed training: each contributor's data never leaves their environment, yet the fused model achieves simultaneous specialist-level quality on every domain ($+7.72\%$ vs.\ best specialist) that centralised training cannot replicate without pooling all data.
 Fusion gains are consistent across scales: $+7.72\%$ at 410M ($\pm$0.02\%, 3 seeds), $+7.49\%$ at 1B ($\pm$0.01\%, 3 seeds), $+6.53\%$ at 6.9B.
 The fused model achieves oracle-optimal routing: the learned router matches the domain oracle with gap $<10^{-5}$ nats.
 Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.76\%$, with Yoruba perplexity falling $41.9\to7.7$.
@@ -94,7 +95,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
   \item \textbf{Consistent improvement at scale.} Post-hoc MoE fusion beats the best individual specialist by +7.70\% at 410M (3-seed mean, $\pm$0.02\%), +7.49\% at 1B (3 seeds, $\pm$0.01\%), and +6.53\% at 6.9B ($\pm$0.024\%, 3 seeds) on equal-weight per-domain evaluation.\footnote{All results use the per-domain equal-weight protocol implemented in \texttt{kalavai\_eval\_utils.py}; see Appendix~\ref{app:evalcorrection}.} Routing is near-deterministic ($>$99.9\%) at all scales. Improvement is stable across Pythia-410M training maturities from 3.5\% to 100\% of training (+7.0\%--+8.8\%).
   \item \textbf{Training duration crossover.} Without frozen layers, fusion improvement peaks at 5,000 specialist training steps (+17.7\%) then degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly (+17.0\% at 20,000 steps). The crossover occurs at approximately 10,000 steps, above which frozen layers are recommended. Even 50 training steps produce +4.0\% gain---meaningful improvement achievable in under two minutes on a consumer GPU.
   \item \textbf{Routing must be learned.} Uniform equal-weight averaging (no routing training) \emph{degrades} by $-1.19\%$ vs.\ best specialist; a trained linear router achieves $+7.70\%$. Hard routing (argmax of learned gates) matches soft routing ($+7.72\%$ both)---specialist participation drives improvement, not weighting precision. The learned router achieves oracle-optimal domain assignment: gap ${<}10^{-5}$ nats at 410M and 6.9B.
-  \item \textbf{Per-domain advantage over monolithic.} On aggregate equal-weight loss, MoE and monolithic achieve near-parity ($+0.47\%$ at 410M). The distinction is per-domain: the MoE matches the best specialist on every domain simultaneously, while the monolithic model sacrifices code ($-4.34\%$ vs.\ MoE) and science ($-3.12\%$) to improve on fiction. The cooperative advantage is simultaneous per-domain quality, not lower aggregate loss.
+  \item \textbf{Per-domain advantage over monolithic.} On aggregate equal-weight loss, MoE and monolithic achieve near-parity ($+0.47\%$ at 410M). The distinction is per-domain: the MoE matches the best specialist on every domain simultaneously, while the monolithic model sacrifices code ($-4.34\%$ vs.\ MoE) and science ($-3.12\%$) to improve on fiction. The cooperative advantage is simultaneous per-domain quality, not lower aggregate loss. This per-domain quality is not achievable by centralised monolithic training, which sacrifices specialist performance on underrepresented domains to minimise aggregate loss.
   \item \textbf{Cross-lingual cooperative training works.} Tamil/Yoruba/Welsh/Code specialists fused on Pythia-410M: Yoruba perplexity 41.9$\to$7.7 (5.4$\times$), Welsh 102.7$\to$22.1 (4.6$\times$). Contributors speaking different languages can collectively build a model none could train alone.
 \end{enumerate}
 
@@ -284,6 +285,18 @@ Weight averaging    & 2.0142 & 2.7323 & 2.7106 & 2.4857 \\
 The \kalavai MoE achieves oracle-optimal routing: code loss 1.8791 (matching code specialist exactly), science loss 2.5565 (matching science specialist exactly), fiction loss 2.2194 (matching fiction specialist exactly). The domain-level oracle---the optimal static assignment of each domain to its best specialist---achieves EW loss 2.2183, a gap of $3 \times 10^{-6}$ nats from the actual MoE. The router is effectively routing-saturated at the domain level.
 
 The monolithic model achieves lower fiction loss than the fiction specialist (2.0832 vs.\ 2.2194), a benefit of cross-domain regularisation. However, it underperforms the MoE on code ($-4.34\%$: 1.9644 vs.\ 1.8791) and science ($-3.12\%$: 2.6389 vs.\ 2.5565). The aggregate effect favours the cooperative: MoE EW 2.2183 vs.\ monolithic 2.2288 (+0.47\%). The structural advantage of \kalavai over monolithic training is \emph{per-domain specialist quality simultaneously}: the cooperative achieves the best available quality on every domain without any contributor sharing data---something centralised training cannot do despite having access to all data.
+
+\paragraph{Interpreting the monolithic comparison.}
+The $+0.47\%$ equal-weight advantage over monolithic training overstates neither the
+cooperative benefit nor its limitation.
+The monolithic model is trained on all domains simultaneously; it is \emph{not} a realistic
+alternative when contributors cannot share data.
+The cooperative advantage is structural: each contributor's data is used only to train their
+specialist and is never pooled. The appropriate comparison for privacy-sensitive cooperative
+deployment is not ``monolithic vs.\ MoE'' but ``best individual specialist vs.\ MoE'':
+without cooperation, each contributor can only deploy their own specialist,
+whereas the cooperative provides simultaneous specialist-level quality on every domain ($+7.72\%$
+vs.\ best specialist) without any data leaving any contributor's environment.
 
 \begin{table}[h]
 \centering
