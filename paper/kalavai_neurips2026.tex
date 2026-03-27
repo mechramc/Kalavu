@@ -145,6 +145,26 @@ The \kalavai protocol consists of four phases.
 
 \paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); LoRA specialists exhibit negative divergence from base (specialists become worse than the base model even on their target domain at $r=64$, or near-zero divergence at $r=8$), placing all LoRA conditions below the divergence floor ($\approx$3.3\%) where the empirical gain formula predicts near-zero or negative returns (Appendix~\ref{app:design}, Table~\ref{tab:lora}).
 
+\paragraph{Why full fine-tuning, not LoRA.}
+Low-rank adaptation (LoRA) produces insufficient representational divergence for cooperative fusion
+(Figure~\ref{fig:lora}).
+At rank $r=8$, specialists diverge $-1.48\%$ from base (net regression on their target domain),
+yielding only $+0.32\%$ fusion gain --- below the divergence floor.
+At rank $r=16$, mean divergence is $-5.57\%$, yielding $-2.65\%$ fusion gain.
+At rank $r=32$, mean divergence is $-12.05\%$, yielding $-7.73\%$ fusion gain.
+At rank $r=64$, specialists diverge $-20.3\%$, yielding $-13.85\%$ fusion gain.
+No LoRA rank tested reaches the \kalavai\ divergence floor ($\approx$3.3\%).
+Full fine-tuning produces mean divergence $15.65\%$ and $+7.72\%$ fusion gain.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig_lora_ablation}
+\caption{LoRA rank ablation: fusion gain vs.\ best specialist (\%) and mean specialist divergence from base (\%) across fine-tuning methods (Pythia-410M, seed 42, 2{,}000 training steps).
+No LoRA rank produces sufficient divergence ($\geq$3.3\%) for positive fusion gain.
+Full fine-tuning achieves $+15.65\%$ divergence and $+7.72\%$ fusion gain.}
+\label{fig:lora}
+\end{figure}
+
 Formally, contributor $i$ trains specialist $\theta_i$ by minimising:
 \[
 \mathcal{L}_i = -\mathbb{E}_{x \sim \mathcal{D}_i} \left[\sum_t \log p_{\theta_i}(x_t \mid x_{<t})\right]
@@ -781,6 +801,8 @@ To validate the mechanism on a fully controlled setting, we ran the cooperative 
 \textbf{Method} & \textbf{LR} & \textbf{Mean div.} & \textbf{MoE vs.\ spec} & \textbf{MoE vs.\ base} \\
 \midrule
 LoRA $r=8$              & 2e-4 & $-$1.48\%  & $+$0.32\%  & $+$0.65\% \\
+LoRA $r=16$             & 2e-4 & $-$5.57\%  & $-$2.65\%  & $-$2.62\% \\
+LoRA $r=32$             & 2e-4 & $-$12.05\% & $-$7.73\%  & $-$8.11\% \\
 LoRA $r=64$             & 2e-4 & $-$20.31\% & $-$13.85\% & $-$14.92\% \\
 LoRA $r=64$             & 5e-4 & $-$29.25\% & $-$15.22\% & $-$19.97\% \\
 \midrule
@@ -789,7 +811,7 @@ Full FT (freeze=4) & 2e-4 & $+$15.65\% & $+$7.72\%  & $+$16.3\% \\
 \end{tabular}
 \end{table}
 
-At $r=8$, LoRA adapters produce near-zero divergence ($-$1.48\% mean, below the divergence floor of $\approx$3.3\% at which the empirical formula predicts zero gain), yielding +0.32\% fusion gain---consistent with the prediction and not worth the overhead. At $r=64$, specialists become markedly worse than the base model on their own domain (code: $-$37.3\%; science: $-$29.0\%), pushing mean divergence to $-$20.3\% and causing the fused model to underperform base by 14--20\%. Higher learning rate ($5\times10^{-4}$) worsens this: mean divergence falls to $-$29.3\%, gain $-$15.2\%. The mechanism is over-fitting: LoRA at this rank modifies enough capacity to harm generalisation without producing the stable representational divergence that full fine-tuning achieves. Both failure modes are correctly predicted by the divergence-gain framework: insufficient divergence produces insufficient gain; negative divergence produces negative gain. Full fine-tuning of unfrozen layers is required for \kalavai to work.
+At $r=8$, LoRA adapters produce near-zero divergence ($-$1.48\% mean, below the divergence floor of $\approx$3.3\% at which the empirical formula predicts zero gain), yielding +0.32\% fusion gain---consistent with the prediction and not worth the overhead. At $r=16$, divergence worsens ($-$5.57\% mean), producing $-$2.65\% fusion gain. At $r=32$, mean divergence falls to $-$12.05\%, with fusion gain $-$7.73\%. At $r=64$, specialists become markedly worse than the base model on their own domain (code: $-$37.3\%; science: $-$29.0\%), pushing mean divergence to $-$20.3\% and causing the fused model to underperform base by 14--20\%. Higher learning rate ($5\times10^{-4}$) worsens this: mean divergence falls to $-$29.3\%, gain $-$15.2\%. The mechanism is over-fitting: LoRA at any tested rank modifies adapter capacity in ways that harm generalisation without producing the stable representational divergence that full fine-tuning achieves. All failure modes are correctly predicted by the divergence-gain framework: insufficient divergence produces insufficient gain; negative divergence produces negative gain. Full fine-tuning of unfrozen layers is required for \kalavai to work.
   \item \textbf{Why softmax over argmax?} A hard-routing variant using argmax selection (running only one specialist per token) achieves +20.27\% over base; soft routing achieves +20.24\%---a 0.03pp difference that is not practically meaningful. We use softmax as the default. Critically, \emph{both} variants run all specialists at inference; routing to a single specialist while suppressing the others causes catastrophic failure (Appendix~\ref{app:dispatch}).
   \item \textbf{Why a linear router?} A 2-layer MLP router achieves $+7.72\%$ versus $+7.70\%$ for a linear router---an immaterial difference. Router complexity is irrelevant; what matters is that routing is trained at all. Uniform routing (no training) achieves $-1.19\%$ vs.\ best specialist.
 \end{itemize}

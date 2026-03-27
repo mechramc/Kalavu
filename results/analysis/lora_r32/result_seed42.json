@@ -1,0 +1,80 @@
+{
+  "lora_rank": 32,
+  "lora_alpha": 64,
+  "seed": 42,
+  "eval_matrix": {
+    "base": {
+      "code": 1.59972,
+      "science": 2.937754,
+      "fiction": 3.177161,
+      "equal_weight_avg": 2.571545,
+      "_chunks_evaluated": {
+        "code": 92,
+        "science": 44,
+        "fiction": 200
+      }
+    },
+    "code_spec": {
+      "code": 2.012492,
+      "science": 3.234536,
+      "fiction": 3.473807,
+      "equal_weight_avg": 2.906945,
+      "_chunks_evaluated": {
+        "code": 92,
+        "science": 44,
+        "fiction": 200
+      }
+    },
+    "science_spec": {
+      "code": 2.057608,
+      "science": 3.401993,
+      "fiction": 4.074622,
+      "equal_weight_avg": 3.178074,
+      "_chunks_evaluated": {
+        "code": 92,
+        "science": 44,
+        "fiction": 200
+      }
+    },
+    "fiction_spec": {
+      "code": 1.732174,
+      "science": 3.006239,
+      "fiction": 3.003678,
+      "equal_weight_avg": 2.580697,
+      "_chunks_evaluated": {
+        "code": 92,
+        "science": 44,
+        "fiction": 200
+      }
+    },
+    "moe": {
+      "code": 1.996294,
+      "science": 3.339531,
+      "fiction": 3.004629,
+      "equal_weight_avg": 2.780151,
+      "_chunks_evaluated": {
+        "code": 92,
+        "science": 44,
+        "fiction": 200
+      }
+    }
+  },
+  "metrics": {
+    "base_ew": 2.571545,
+    "best_spec_ew": 2.580697,
+    "moe_ew": 2.780151,
+    "mean_divergence": -12.048321626531497,
+    "per_domain_divergence": {
+      "code": -25.80276548395969,
+      "science": -15.802514437900522,
+      "fiction": 5.460315042265722
+    },
+    "gain_vs_spec": -7.728687249994875,
+    "predicted_gain_0_49x": -5.903677597000433,
+    "prediction_error": -1.8250096529944422
+  },
+  "full_ft_comparison": {
+    "div": 15.65,
+    "gain": 7.72
+  }
+}
