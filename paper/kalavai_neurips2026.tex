@@ -498,7 +498,7 @@ Code   & 0.4\%  & 8.2  & 8.1  & 8.1  \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.82\textwidth]{fig_crosslingual_perplexity}
   \caption{Cross-lingual fusion results: base model perplexity vs.\ specialist vs.\ \kalavai MoE (Pythia-410M, seeds 137/2026). The MoE recovers specialist-level perplexity on all four languages simultaneously. Yoruba improvement 5.4$\times$ (PPL 41.9$\to$7.7); Welsh 4.6$\times$ (102.7$\to$22.1). Improvement annotations show the base$\to$MoE ratio. Seeds 137 and 2026 achieved perfect routing; seed 42 had router collapse (see text).}
@@ -598,6 +598,8 @@ Thai       & +19.15\% & Instructions & $-$12.54\%$^\dagger$ \\
 Across six experimental conditions---Qwen-1.5B (mean div.\ 3.16\%), Pythia-6.9B (8.73\%), Pythia-1B (15.28\%), Pythia-410M (15.65\%), Exp 2 private-domain (18.52\%), and Exp 1 cross-lingual (25.65\%)---fusion gain scales monotonically with specialist divergence (Figure~\ref{fig:divergence_gain_regression}). Exp 3 (20-contributor, 15.68\%, +16.71\%, 3-seed mean) serves as an out-of-sample validation point (Table~\ref{tab:divergence_gain}).
 
 \paragraph{Linear regression fit.} We fit OLS regression to the six data points. The linear model ($\text{gain} = -2.72 + 0.82 \times \text{divergence}$) achieves $R^2 = 0.856$ (slope 95\% CI [0.35, 1.28], $n=6$, $t$-distribution). A log-linear fit achieves only $R^2 = 0.662$---the relationship is closer to linear than sublinear across the 3--26\% divergence range. The regression line and 95\% prediction band are shown in Figure~\ref{fig:divergence_gain_regression}.
+
+\paragraph{Regime dependence.} A training-duration sweep (8 conditions, 50--20{,}000 steps per specialist) reveals that the linear law is \emph{regime-dependent}: within a fixed training protocol, the formula holds; varying training duration decouples divergence from gain as specialists over-train beyond the optimal checkpoint (divergence returns toward zero while gain first rises then falls). The full expanded scatter ($n=17$, including crossover conditions and 3-seed 20-contributor data) is provided in the supplementary material.
 
 \begin{figure}[h]
   \centering
