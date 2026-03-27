@@ -496,6 +496,44 @@ Mean fusion gain (all 3 seeds): +16.55\% $\pm$9.02pp; mean divergence 25.65\%; f
 
 This is the largest cooperative tested: 20 specialists (10 languages + 10 domains) on Pythia-1B, scaling from the 3--4 specialists of Phase~1. Each specialist trains 2,000 steps on its own data; the linear router then trains 1,000 steps on mixed data (physical bs\,=\,4, gradient accumulation\,=\,5, effective bs\,=\,20, lr\,=\,0.0002).\footnote{The default router uses mean-pooled specialist hidden states as input. A base-model hidden-state router variant---using only the frozen base model's hidden states, with no specialist-specific signal---achieves +16.67\% vs.\ best specialist (MoE EW loss 2.3143), compared to +16.79\% for the specialist-hidden-state router (2.3108). The 0.12pp difference is within noise. Routing distributions are nearly identical across both variants, including the medical--chemistry confusion pattern (Section~\ref{sec:phase2_twenty}). This confirms that routing quality is determined by the representational geometry of the shared initialisation, not by specialist-specific hidden states.} The fused model achieves base EW loss 2.7898, best-specialist EW 2.7771 (Arabic), MoE EW \textbf{2.3130}---a \textbf{+16.71\%} gain vs.\ best specialist and +17.09\% vs.\ base (mean divergence 15.68\%, 3 seeds, $\pm$0.07pp). STOP/GO verdict: \textbf{GO}.
 
+Table~\ref{tab:twenty} reports per-seed metrics for the three random seeds. All seeds pass the GO threshold and exhibit tightly consistent results.
+
+\begin{table}[h]
+\centering
+\caption{20-contributor federation on Pythia-1B (3 seeds). Per-domain equal-weight
+evaluation across all 20 domains (freeze=0, step10000, 2{,}000 steps per specialist,
+1{,}000 router steps). Two specialists (dialogue, instructions) exhibit negative
+divergence due to data scarcity; see text.}
+\label{tab:twenty}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Seed} & \textbf{Base EW} & \textbf{MoE EW} & \textbf{vs.\ Spec.} & \textbf{vs.\ Base} \\
+\midrule
+42   & 2.790 & 2.311 & $+$16.79\% & $+$17.17\% \\
+137  & 2.790 & 2.314 & $+$16.65\% & $+$17.04\% \\
+2026 & 2.790 & 2.314 & $+$16.68\% & $+$17.06\% \\
+\midrule
+\textbf{Mean} & 2.790 & 2.313 & \textbf{$+$16.71\%} & \textbf{$+$17.09\%} \\
+\textbf{Std}  & ---   & ---   & $\pm$0.07pp        & $\pm$0.07pp        \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Negative-divergence specialists.}
+Two of 20 specialists (dialogue, instructions) exhibit negative divergence: fine-tuning on
+these open-domain datasets degrades performance relative to the base model's pre-trained
+general competence (dialogue: $-$23.8\% vs.\ base; instructions: $-$12.5\%).
+Both domains have severely limited training data (dialogue: 184 chunks, instructions: 283
+chunks), which is insufficient to produce positive specialist divergence.
+Routing for both specialists is \emph{correct}---dialogue routes 97.1\% to its own gate,
+instructions 88.9\%---so the degradation is caused by the undertrained specialists
+themselves, not routing failure.
+Excluding these two data-scarce specialists, mean gain across the remaining 18 domains is
+$+$19.8\%. This confirms that the protocol requires minimally sufficient specialist
+training data: the divergence-gain framework predicts near-zero or negative gain when
+specialist divergence does not exceed the base-model competence floor ($\approx$3.3\%).
+
 \begin{table}[h]
 \centering
 \caption{Per-domain MoE gain vs.\ base (\%) for the 20-contributor federation (Pythia-1B, 3-seed mean across seeds 42/137/2026). Gain\,=\,$(L_\text{base}-L_\text{MoE})/L_\text{base}\times100$. $\dagger$~Undertrained domains: fewer than 500 training chunks (dialogue: 184, instructions: 283), flagged as warnings during data loading. All other domains show positive gains; language specialists (mean +23.8\%) outperform domain specialists (mean +14.8\% excluding $\dagger$) due to higher base-model perplexity on non-English text.}
@@ -527,8 +565,6 @@ Thai       & +19.15\% & Instructions & $-$12.54\%$^\dagger$ \\
 \paragraph{Router distribution.} The linear router achieves near-perfect specialisation: 17 of 20 domains assign ${>}$98\% gate weight to the correct specialist, and all 10 language specialists route ${>}$99.4\% correctly. Two patterns merit attention.
 
 \emph{Medical--chemistry routing.} Medical routes 60.2\% to itself and 38.4\% to chemistry; chemistry routes 52.7\% to medical and 46.6\% to itself. These two domains share scientific vocabulary and document structure (abstracts, methods, results), making their hidden-state representations similar. This is a genuine domain-similarity finding, not a protocol failure: the router correctly identifies their overlap, and both domains show positive MoE gains (+14.3\% and +13.1\% respectively).
-
-\emph{Data-scarce degradation.} Dialogue ($-$23.84\% vs.\ base) and instructions ($-$12.54\%) are the only two degraded domains. Crucially, routing is \emph{correct} for both (dialogue: 97.1\% own gate; instructions: 88.9\% own gate)---the specialists themselves are undertrained, not misrouted. With only 184 and 283 training chunks respectively, these specialists could not diverge meaningfully from base, so routing to them incurs overhead without benefit. This is consistent with the divergence-gain framework: insufficient training data produces insufficient divergence, which produces no gain. The protocol requires minimally sufficient specialist training data to function. Excluding these two data-scarce specialists, mean gain across the remaining 18 domains is +19.8\%.
 
 \paragraph{Scale validation.} The +16.71\% gain (3-seed mean) at 15.68\% mean divergence is +6.57pp above the linear regression prediction (+10.11\%) from Section~\ref{sec:divergence_gain}, consistent with the pattern that heterogeneous multi-domain cooperatives---mixing language and domain specialists with widely varying divergence levels---outperform the English-domain regression baseline. The routing saturation result holds at scale: a simple linear router on 20 specialists converges to near-optimal domain assignment, confirming that router architecture does not matter once shared initialisation is in place.
 
