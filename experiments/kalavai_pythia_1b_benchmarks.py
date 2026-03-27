@@ -7,6 +7,7 @@ KALAVAI: Pythia-1B Downstream Benchmarks
 ========================================
 Evaluates 7 model variants from the existing Pythia-1B experiment on 5 downstream
 benchmarks using manual log-likelihood scoring (no external eval framework).
+Uses 2000 evaluation samples per benchmark.
 
 Models evaluated (seed=42):
   1. Base model (pythia-1b step10000)
@@ -74,7 +75,7 @@ MONO_GRAD_ACCUM = 4
 N_SAMPLES_MONO = 3000
 
 # Benchmark config
-N_BENCHMARK_EXAMPLES = 500
+N_BENCHMARK_EXAMPLES = 2000
 ROUTER_STEPS = 500
 ROUTER_LR = 1e-3
 ROUTER_BATCH = 4
@@ -442,14 +443,27 @@ def load_benchmark_data(benchmark_name: str, benchmark_cfg: dict, tokenizer, n: 
     print(f"  Loading {benchmark_name} ({dataset_name})...")
 
     kwargs = {"streaming": True}
-    if config:
-        ds = load_dataset(dataset_name, config, split="validation", **kwargs)
-    else:
-        # Try validation, then test
-        try:
-            ds = load_dataset(dataset_name, split="validation", **kwargs)
-        except Exception:
-            ds = load_dataset(dataset_name, split="test", **kwargs)
+    # trust_remote_code needed for some HF dataset scripts (e.g. piqa)
+    try:
+        if config:
+            ds = load_dataset(dataset_name, config, split="validation",
+                              trust_remote_code=True, **kwargs)
+        else:
+            try:
+                ds = load_dataset(dataset_name, split="validation",
+                                  trust_remote_code=True, **kwargs)
+            except Exception:
+                ds = load_dataset(dataset_name, split="test",
+                                  trust_remote_code=True, **kwargs)
+    except TypeError:
+        # Fallback: some older HF versions don't support trust_remote_code
+        if config:
+            ds = load_dataset(dataset_name, config, split="validation", **kwargs)
+        else:
+            try:
+                ds = load_dataset(dataset_name, split="validation", **kwargs)
+            except Exception:
+                ds = load_dataset(dataset_name, split="test", **kwargs)
 
     examples = []
 
@@ -563,8 +577,14 @@ def evaluate_multiple_choice(model, tokenizer, examples: list, device: str,
             context_len = context_ids.shape[1]
 
             if is_moe:
-                _, fused_logits, _ = model(input_ids)
-                logits = fused_logits[0]
+                output = model(input_ids)
+                if isinstance(output, tuple):
+                    raw_logits = output[1]
+                elif hasattr(output, "logits"):
+                    raw_logits = output.logits
+                else:
+                    raw_logits = output
+                logits = raw_logits[0]
             else:
                 out = model(input_ids)
                 logits = out.logits[0]  # (T, V)
@@ -608,8 +628,14 @@ def evaluate_lambada(model, tokenizer, examples: list, device: str,
         target = tokens[-1]
 
         if is_moe:
-            _, fused_logits, _ = model(input_ids)
-            last_logits = fused_logits[0, -1]
+            output = model(input_ids)
+            if isinstance(output, tuple):
+                raw_logits = output[1]
+            elif hasattr(output, "logits"):
+                raw_logits = output.logits
+            else:
+                raw_logits = output
+            last_logits = raw_logits[0, -1]
         else:
             out = model(input_ids)
             last_logits = out.logits[0, -1]
@@ -711,12 +737,20 @@ def save_benchmark_figure(all_results: dict):
 # ============================================================================
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="KALAVAI: Pythia-1B Downstream Benchmarks")
+    parser.add_argument(
+        "--output", type=str, default=None,
+        help="Output JSON path (default: results/pythia/pythia_1b/benchmarks_seed42.json)"
+    )
+    args = parser.parse_args()
+
     print("=" * 70)
     print("KALAVAI: Pythia-1B Downstream Benchmarks")
     print("=" * 70)
 
     # Check output file
-    out_path = RESULTS_DIR / "benchmarks_seed42.json"
+    out_path = Path(args.output) if args.output else RESULTS_DIR / "benchmarks_seed42.json"
     if out_path.exists():
         print(f"\nResults already exist: {out_path}")
         print("Delete to re-run.")
