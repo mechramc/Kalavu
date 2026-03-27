@@ -1,0 +1,129 @@
+{
+  "n_points": 17,
+  "formula": "gain = 0.1630 * div + (10.7869)",
+  "slope": 0.16304038997302123,
+  "intercept": 10.786919552641601,
+  "r2": 0.04991390332921898,
+  "p_value": 0.38870541142253695,
+  "std_err_slope": 0.18366241496330832,
+  "points": [
+    {
+      "label": "Qwen-1.5B",
+      "divergence_pct": 3.16,
+      "gain_pct": 1.06,
+      "group": "main"
+    },
+    {
+      "label": "Pythia-6.9B",
+      "divergence_pct": 8.73,
+      "gain_pct": 6.53,
+      "group": "main"
+    },
+    {
+      "label": "Pythia-1B",
+      "divergence_pct": 15.28,
+      "gain_pct": 7.49,
+      "group": "main"
+    },
+    {
+      "label": "Pythia-410M",
+      "divergence_pct": 15.65,
+      "gain_pct": 7.72,
+      "group": "main"
+    },
+    {
+      "label": "Exp2: Private",
+      "divergence_pct": 18.52,
+      "gain_pct": 10.17,
+      "group": "main"
+    },
+    {
+      "label": "Exp1: Cross-lingual",
+      "divergence_pct": 25.65,
+      "gain_pct": 21.76,
+      "group": "main"
+    },
+    {
+      "label": "crossover_50steps",
+      "divergence_pct": 2.044465,
+      "gain_pct": 5.060269,
+      "group": "crossover",
+      "steps": 50
+    },
+    {
+      "label": "crossover_100steps",
+      "divergence_pct": 2.635138,
+      "gain_pct": 5.942002,
+      "group": "crossover",
+      "steps": 100
+    },
+    {
+      "label": "crossover_500steps",
+      "divergence_pct": 4.102054,
+      "gain_pct": 9.897214,
+      "group": "crossover",
+      "steps": 500
+    },
+    {
+      "label": "crossover_1000steps",
+      "divergence_pct": 4.369704,
+      "gain_pct": 12.939265,
+      "group": "crossover",
+      "steps": 1000
+    },
+    {
+      "label": "crossover_2000steps",
+      "divergence_pct": 4.140142,
+      "gain_pct": 16.52841,
+      "group": "crossover",
+      "steps": 2000
+    },
+    {
+      "label": "crossover_5000steps",
+      "divergence_pct": 2.291377,
+      "gain_pct": 18.807322,
+      "group": "crossover",
+      "steps": 5000
+    },
+    {
+      "label": "crossover_10000steps",
+      "divergence_pct": -0.282479,
+      "gain_pct": 17.880857,
+      "group": "crossover",
+      "steps": 10000
+    },
+    {
+      "label": "crossover_20000steps",
+      "divergence_pct": -2.960427,
+      "gain_pct": 15.990103,
+      "group": "crossover",
+      "steps": 20000
+    },
+    {
+      "label": "20-contrib, seed=42",
+      "divergence_pct": 15.71,
+      "gain_pct": 16.7895,
+      "group": "twenty_contributor",
+      "seed": 42
+    },
+    {
+      "label": "20-contrib, seed=137",
+      "divergence_pct": 15.64,
+      "gain_pct": 16.6522,
+      "group": "twenty_contributor",
+      "seed": 137
+    },
+    {
+      "label": "20-contrib, seed=2026",
+      "divergence_pct": 15.7,
+      "gain_pct": 16.6785,
+      "group": "twenty_contributor",
+      "seed": 2026
+    }
+  ],
+  "sources": {
+    "main": "C:\\Github\\Kalavai\\results\\analysis\\regression_fit.json",
+    "crossover": "C:\\Github\\Kalavai\\results\\pythia\\crossover_regression_points.json",
+    "twenty_contributor": "C:\\Github\\Kalavai\\results\\phase2\\twenty_contributor"
+  }
+}
