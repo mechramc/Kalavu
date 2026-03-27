@@ -278,7 +278,8 @@ def evaluate_benchmark(model, tokenizer, benchmark_name: str, device: str,
             return {"accuracy": correct / total if total else 0.0, "n": total}
 
         elif benchmark_name == "piqa":
-            ds = load_dataset("piqa", split="validation", streaming=True)
+            ds = load_dataset("piqa", split="validation", streaming=True,
+                              trust_remote_code=True)
             correct, total = 0, 0
             for item in ds:
                 if total >= n_examples: break
@@ -326,7 +327,14 @@ def evaluate_benchmark(model, tokenizer, benchmark_name: str, device: str,
                 if not target_ids: total += 1; continue
                 with torch.no_grad():
                     if is_moe:
-                        logits = moe(ctx_ids)[0, -1]
+                        output = model(ctx_ids)
+                        if isinstance(output, tuple):
+                            raw_logits = output[1]
+                        elif hasattr(output, "logits"):
+                            raw_logits = output.logits
+                        else:
+                            raw_logits = output
+                        logits = raw_logits[0, -1]
                     else:
                         logits = model(input_ids=ctx_ids).logits[0, -1]
                 pred = logits.argmax().item()
@@ -449,6 +457,12 @@ def save_benchmark_figure(all_results: dict):
 # ============================================================================
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="KALAVAI: Downstream Benchmarks — Pythia-410M")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Path for output JSON (default: results/pythia/benchmarks_seed42.json)")
+    args = parser.parse_args()
+
     print("=" * 70)
     print("KALAVAI: Downstream Benchmarks — Pythia-410M")
     print("=" * 70)
@@ -538,7 +552,7 @@ def main():
             eval_model = model if not is_moe else model
             res = evaluate_benchmark(
                 eval_model, tokenizer, bm, device,
-                is_moe=is_moe, n_examples=500,
+                is_moe=is_moe, n_examples=2000,
             )
             acc_str = f"{res['accuracy']*100:.1f}%" if res.get("accuracy") is not None else "ERROR"
             chance = RANDOM_CHANCE.get(bm, 0.0)
@@ -613,7 +627,7 @@ def main():
         "revision": REVISION,
         "seed": SEED,
         "benchmarks": BENCHMARKS,
-        "n_examples_per_benchmark": 500,
+        "n_examples_per_benchmark": 2000,
         "moe_evaluation_method": "manual_loglikelihood_option_b",
         "note": "Pythia-410M at step10000 — scores may be near-random on harder tasks",
         "model_variants": {
@@ -631,7 +645,8 @@ def main():
         "near_random_overall": near_random_overall,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-    out_path = RESULTS_DIR / "benchmarks_seed42.json"
+    out_path = Path(args.output) if args.output else RESULTS_DIR / "benchmarks_seed42.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
     print(f"Saved: {out_path}")

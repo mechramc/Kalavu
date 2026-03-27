@@ -1,0 +1,253 @@
+{
+  "experiment": "downstream_benchmarks",
+  "model_id": "EleutherAI/pythia-410m",
+  "revision": "step10000",
+  "seed": 42,
+  "benchmarks": [
+    "hellaswag",
+    "arc_easy",
+    "piqa",
+    "winogrande",
+    "lambada_openai",
+    "sciq"
+  ],
+  "n_examples_per_benchmark": 2000,
+  "moe_evaluation_method": "manual_loglikelihood_option_b",
+  "note": "Pythia-410M at step10000 \u2014 scores may be near-random on harder tasks",
+  "model_variants": {
+    "base": {
+      "hellaswag": {
+        "accuracy": 0.33,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.4052631578947368,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.5074980268350434,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.393,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.712,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "code_specialist": {
+      "hellaswag": {
+        "accuracy": 0.331,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.39824561403508774,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.5074980268350434,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.3935,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.706,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "science_specialist": {
+      "hellaswag": {
+        "accuracy": 0.338,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.41228070175438597,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.4956590370955012,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.4005,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.698,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "fiction_specialist": {
+      "hellaswag": {
+        "accuracy": 0.326,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.4070175438596491,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.5011838989739542,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.391,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.701,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "weight_averaged": {
+      "hellaswag": {
+        "accuracy": 0.3335,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.40350877192982454,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.4996053670086819,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.404,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.709,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "moe_fused": {
+      "hellaswag": {
+        "accuracy": 0.3315,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.39824561403508774,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.5074980268350434,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.401,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.713,
+        "n": 1000,
+        "error": null
+      }
+    },
+    "monolithic": {
+      "hellaswag": {
+        "accuracy": 0.3255,
+        "n": 2000,
+        "error": null
+      },
+      "arc_easy": {
+        "accuracy": 0.4,
+        "n": 570,
+        "error": null
+      },
+      "piqa": {
+        "accuracy": null,
+        "n": 0,
+        "error": "Dataset scripts are no longer supported, but found piqa.py"
+      },
+      "winogrande": {
+        "accuracy": 0.5082872928176796,
+        "n": 1267,
+        "error": null
+      },
+      "lambada_openai": {
+        "accuracy": 0.395,
+        "n": 2000,
+        "error": null
+      },
+      "sciq": {
+        "accuracy": 0.711,
+        "n": 1000,
+        "error": null
+      }
+    }
+  },
+  "random_chance_baselines": {
+    "hellaswag": 0.25,
+    "arc_easy": 0.25,
+    "piqa": 0.5,
+    "winogrande": 0.5,
+    "lambada_openai": 0.0,
+    "sciq": 0.25
+  },
+  "near_random_overall": false,
+  "timestamp": "2026-03-26T22:32:26Z"
+}
