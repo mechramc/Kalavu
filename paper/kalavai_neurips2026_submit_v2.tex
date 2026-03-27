@@ -1093,6 +1093,9 @@ Base model   & 35.4 & 43.6 & 61.2 & 66.8 & 51.0 & 51.6 \\
 
 At 1B scale, the MoE model leads on HellaSwag (35.0\% vs.\ 34.4\% base), the benchmark most sensitive to language modelling quality. Monolithic training produces the worst average accuracy (49.3\%), below even individual specialists (49.1--49.6\%), suggesting mixed-domain gradient interference degrades general reasoning as well as language modelling. At 6.9B, the MoE leads on four of five benchmarks, with an average improvement of +0.56pp over base. Downstream improvements are modest at these scales; we expect larger differentiation at 13B and above.
 
+\paragraph{GSM8K evaluation (math specialist, Pythia-410M).}
+We evaluated the math specialist from the 5-domain scaling experiment (Section~\ref{app:scaling}) on GSM8K~\citep{cobbe2021training} using 4-shot chain-of-thought prompting on 500 test examples. Base model accuracy: 1.60\% (8/500). Math specialist accuracy: 1.20\% (6/500). Both are near-chance for a generative benchmark with no forced-choice structure. This result is expected: Pythia-410M trained on 300B tokens has not developed multi-step arithmetic reasoning, and 2,000 fine-tuning steps on a math corpus cannot instil this capability at 410M scale. The result is reported here for completeness; the math specialist's contribution to the 5-domain cooperative is measured by perplexity improvement on math text ($\mathcal{L}_\text{math}^\text{base} = 2.611 \to \mathcal{L}_\text{math}^\text{spec} = 1.934$, $-25.9\%$), not downstream reasoning accuracy.
+
 \section{Qwen-1.5B Result}
 \label{app:qwen}
 
