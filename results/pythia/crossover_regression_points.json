@@ -1,0 +1,128 @@
+{
+  "regression_points": [
+    {
+      "label": "crossover_50steps",
+      "steps": 50,
+      "mean_divergence": 2.044465,
+      "per_domain_divergence": {
+        "code": 20.325676,
+        "science": 2.558221,
+        "fiction": -16.750501
+      },
+      "best_spec_ew_loss": 1.662937,
+      "moe_ew_loss": 2.545619,
+      "gain_vs_spec_pct": -53.079702,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_100steps",
+      "steps": 100,
+      "mean_divergence": 2.635138,
+      "per_domain_divergence": {
+        "code": 20.631976,
+        "science": 3.606039,
+        "fiction": -16.3326
+      },
+      "best_spec_ew_loss": 1.656544,
+      "moe_ew_loss": 2.51666,
+      "gain_vs_spec_pct": -51.922315,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_500steps",
+      "steps": 500,
+      "mean_divergence": 4.102053,
+      "per_domain_divergence": {
+        "code": 21.431432,
+        "science": 6.068962,
+        "fiction": -15.194234
+      },
+      "best_spec_ew_loss": 1.639858,
+      "moe_ew_loss": 2.405839,
+      "gain_vs_spec_pct": -46.710203,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_1000steps",
+      "steps": 1000,
+      "mean_divergence": 4.369704,
+      "per_domain_divergence": {
+        "code": 21.54575,
+        "science": 6.429611,
+        "fiction": -14.866249
+      },
+      "best_spec_ew_loss": 1.637472,
+      "moe_ew_loss": 2.331234,
+      "gain_vs_spec_pct": -42.367869,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_2000steps",
+      "steps": 2000,
+      "mean_divergence": 4.140142,
+      "per_domain_divergence": {
+        "code": 21.037645,
+        "science": 5.821176,
+        "fiction": -14.438394
+      },
+      "best_spec_ew_loss": 1.648077,
+      "moe_ew_loss": 2.24039,
+      "gain_vs_spec_pct": -35.939644,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_5000steps",
+      "steps": 5000,
+      "mean_divergence": 2.291377,
+      "per_domain_divergence": {
+        "code": 18.644307,
+        "science": 2.122607,
+        "fiction": -13.892783
+      },
+      "best_spec_ew_loss": 1.69803,
+      "moe_ew_loss": 2.181847,
+      "gain_vs_spec_pct": -28.492842,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_10000steps",
+      "steps": 10000,
+      "mean_divergence": -0.282479,
+      "per_domain_divergence": {
+        "code": 15.440348,
+        "science": -2.66932,
+        "fiction": -13.618464
+      },
+      "best_spec_ew_loss": 1.764902,
+      "moe_ew_loss": 2.209193,
+      "gain_vs_spec_pct": -25.173692,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    },
+    {
+      "label": "crossover_20000steps",
+      "steps": 20000,
+      "mean_divergence": -2.960426,
+      "per_domain_divergence": {
+        "code": 12.204672,
+        "science": -7.596274,
+        "fiction": -13.489677
+      },
+      "best_spec_ew_loss": 1.832436,
+      "moe_ew_loss": 2.262342,
+      "gain_vs_spec_pct": -23.460901,
+      "base_ew_loss": 2.65103,
+      "freeze": 0
+    }
+  ],
+  "n_points": 8,
+  "model": "EleutherAI/pythia-410m@step10000",
+  "eval_protocol": "corrected per-domain bs=4 EW-avg",
+  "note": "Derived from training_duration_crossover checkpoints. Uses freeze=0 specialists."
+}
