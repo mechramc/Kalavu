@@ -1,0 +1,160 @@
+{
+  "description": "Leave-one-out regression analysis on 6-point divergence\u2013gain dataset",
+  "dataset_note": "2-seed clean result for Exp1 cross-lingual = 21.76%",
+  "full_ols": {
+    "slope": 0.8169,
+    "intercept": -2.726,
+    "r2": 0.8561
+  },
+  "loo_primary": {
+    "crosslingual_gain_used_pct": 21.76,
+    "per_condition": [
+      {
+        "label": "Qwen-1.5B",
+        "div_pct": 3.16,
+        "gain_actual_pct": 1.06,
+        "loo_slope": 0.9262,
+        "loo_intercept": -4.7981,
+        "loo_train_r2": 0.8079,
+        "gain_predicted_pct": -1.8714,
+        "residual_pct": 2.9314,
+        "abs_residual_pct": 2.9314
+      },
+      {
+        "label": "Pythia-6.9B",
+        "div_pct": 8.73,
+        "gain_actual_pct": 6.53,
+        "loo_slope": 0.8726,
+        "loo_intercept": -4.0212,
+        "loo_train_r2": 0.8783,
+        "gain_predicted_pct": 3.5962,
+        "residual_pct": 2.9338,
+        "abs_residual_pct": 2.9338
+      },
+      {
+        "label": "Pythia-1B",
+        "div_pct": 15.28,
+        "gain_actual_pct": 7.49,
+        "loo_slope": 0.8239,
+        "loo_intercept": -2.373,
+        "loo_train_r2": 0.8806,
+        "gain_predicted_pct": 10.2169,
+        "residual_pct": -2.7269,
+        "abs_residual_pct": 2.7269
+      },
+      {
+        "label": "Pythia-410M",
+        "div_pct": 15.65,
+        "gain_actual_pct": 7.7,
+        "loo_slope": 0.8277,
+        "loo_intercept": -2.4078,
+        "loo_train_r2": 0.8832,
+        "gain_predicted_pct": 10.5459,
+        "residual_pct": -2.8459,
+        "abs_residual_pct": 2.8459
+      },
+      {
+        "label": "Exp2 (private)",
+        "div_pct": 18.52,
+        "gain_actual_pct": 10.17,
+        "loo_slope": 0.8548,
+        "loo_intercept": -2.7974,
+        "loo_train_r2": 0.8824,
+        "gain_predicted_pct": 13.0332,
+        "residual_pct": -2.8632,
+        "abs_residual_pct": 2.8632
+      },
+      {
+        "label": "Exp1 cross-lingual",
+        "div_pct": 25.65,
+        "gain_actual_pct": 21.76,
+        "loo_slope": 0.5122,
+        "loo_intercept": 0.3064,
+        "loo_train_r2": 0.8952,
+        "gain_predicted_pct": 13.4442,
+        "residual_pct": 8.3158,
+        "abs_residual_pct": 8.3158
+      }
+    ],
+    "loo_mae_all_6_pct": 3.7695,
+    "loo_mae_5_excl_crosslingual_pct": 2.8602,
+    "largest_residual": {
+      "label": "Exp1 cross-lingual",
+      "residual_pct": 8.3158
+    }
+  },
+  "loo_sensitivity_3seed": {
+    "crosslingual_gain_used_pct": 16.55,
+    "note": "Cross-lingual point replaced with 3-seed mean (16.55%); all other points identical",
+    "per_condition": [
+      {
+        "label": "Qwen-1.5B",
+        "div_pct": 3.16,
+        "gain_actual_pct": 1.06,
+        "loo_slope": 0.6177,
+        "loo_intercept": -0.6678,
+        "loo_train_r2": 0.8663,
+        "gain_predicted_pct": 1.2841,
+        "residual_pct": -0.2241,
+        "abs_residual_pct": 0.2241
+      },
+      {
+        "label": "Pythia-6.9B",
+        "div_pct": 8.73,
+        "gain_actual_pct": 6.53,
+        "loo_slope": 0.6755,
+        "loo_intercept": -1.9793,
+        "loo_train_r2": 0.9685,
+        "gain_predicted_pct": 3.918,
+        "residual_pct": 2.612,
+        "abs_residual_pct": 2.612
+      },
+      {
+        "label": "Pythia-1B",
+        "div_pct": 15.28,
+        "gain_actual_pct": 7.49,
+        "loo_slope": 0.6299,
+        "loo_intercept": -0.6316,
+        "loo_train_r2": 0.9452,
+        "gain_predicted_pct": 8.9928,
+        "residual_pct": -1.5028,
+        "abs_residual_pct": 1.5028
+      },
+      {
+        "label": "Pythia-410M",
+        "div_pct": 15.65,
+        "gain_actual_pct": 7.7,
+        "loo_slope": 0.6318,
+        "loo_intercept": -0.6547,
+        "loo_train_r2": 0.9459,
+        "gain_predicted_pct": 9.2332,
+        "residual_pct": -1.5332,
+        "abs_residual_pct": 1.5332
+      },
+      {
+        "label": "Exp2 (private)",
+        "div_pct": 18.52,
+        "gain_actual_pct": 10.17,
+        "loo_slope": 0.6361,
+        "loo_intercept": -0.8452,
+        "loo_train_r2": 0.9321,
+        "gain_predicted_pct": 10.936,
+        "residual_pct": -0.766,
+        "abs_residual_pct": 0.766
+      },
+      {
+        "label": "Exp1 cross-lingual",
+        "div_pct": 25.65,
+        "gain_actual_pct": 16.55,
+        "loo_slope": 0.5122,
+        "loo_intercept": 0.3064,
+        "loo_train_r2": 0.8952,
+        "gain_predicted_pct": 13.4442,
+        "residual_pct": 3.1058,
+        "abs_residual_pct": 3.1058
+      }
+    ],
+    "loo_mae_all_6_pct": 1.624,
+    "loo_mae_5_excl_crosslingual_pct": 1.3276
+  }
+}

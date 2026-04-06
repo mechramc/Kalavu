@@ -66,9 +66,9 @@ Below $\approx$3.3\% divergence the formula predicts near-zero gain; practitione
 
 In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
 The key property is privacy-preserving distributed training: each contributor's data never leaves their environment, yet the fused model achieves simultaneous specialist-level quality on every domain ($+7.72\%$ vs.\ best specialist) that centralised training cannot replicate without pooling all data.
-Fusion gains are consistent across scales: $+7.70\%$ at 410M (3-seed mean; seed 42: $+7.72\%$, $\pm$0.02pp), $+7.49\%$ at 1B ($\pm$0.01\%, 3 seeds), $+6.53\%$ at 6.9B.
+Fusion gains are consistent across scales: $+7.70\%$ at 410M (3-seed mean; seed 42: $+7.72\%$, $\pm$0.02pp), $+7.49\%$ at 1B ($\pm$0.01pp, 3 seeds), $+6.53\%$ at 6.9B ($\pm$0.024pp, 3 seeds).
 The fused model achieves oracle-optimal routing: the learned router matches the domain oracle with gap $<10^{-5}$ nats.
-Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.76\%$, with Yoruba perplexity falling $41.9\to7.7$.
+Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.76\%$ on 2 of 3 seeds (seed 42 router collapse documented in Section~4.7; 3-seed mean $+16.55\%$), with Yoruba perplexity falling $41.9\to7.7$.
 A 20-contributor federation (10 languages + 10 domains) achieves $+16.71\%$ ($\pm$0.07pp, 3 seeds) vs.\ best specialist.
 
 Three structural requirements bound the protocol. \emph{Shared initialisation} is necessary: checkpoints diverging by as little as one training stage degrade routing clarity. \emph{Frozen layers} are optional below 10,000 specialist training steps---peak gain $+17.7\%$ at 5,000 steps without freezing---and recommended beyond that threshold ($+2.4$pp advantage at 20,000 steps). \emph{Routing must be learned}: uniform equal-weight averaging degrades by $-1.2\%$ vs.\ best specialist; a trained linear or MLP router achieves oracle-optimal assignment ($<10^{-5}$ nats gap from domain-level oracle). Hard and soft routing are equivalent once gates are trained.
@@ -104,7 +104,7 @@ This observation is not entirely new---the branch-train-mix (BTX) paradigm \cite
   \item \textbf{A mechanistic account.} Shared initialisation preserves representational compatibility; specialists exhibit catastrophic forgetting on out-of-domain tokens; learned MoE routing recovers full-domain coverage. These three facts jointly explain why the protocol succeeds---and why routing must be trained rather than uniform.
   \item \textbf{Operational guidelines.} Frozen layers are optional below 10,000 training steps and recommended beyond. Shared initialisation is the only hard coordination requirement: checkpoint mismatch degrades routing clarity even when absolute performance loss appears modest.
   \item \textbf{Capacity controls.} A Pythia-1.4B model (3.5$\times$ parameters, centralised training) achieves $+10.87\%$ vs.\ best specialist---exceeding the cooperative gain ($+7.72\%$). The cooperative advantage is privacy-preserving distributed training, not architectural performance supremacy.
-  \item \textbf{High-divergence validation.} Phase 2 extends the protocol to private professional domains ($+10.17\%$, medical/legal/patent) and cross-lingual settings ($+21.76\%$, Tamil/Yoruba/Welsh/Code; Yoruba perplexity $41.9\to7.7$). Gain scales most steeply where the base model is least competent.
+  \item \textbf{High-divergence validation.} Phase 2 extends the protocol to private professional domains ($+10.17\%$, medical/legal/patent) and cross-lingual settings ($+21.76\%$ on 2 of 3 seeds, $+16.55\%$ 3-seed mean; Tamil/Yoruba/Welsh/Code; Yoruba perplexity $41.9\to7.7$; seed 42 router collapse documented in Section~4.7). Gain scales most steeply where the base model is least competent.
   \item \textbf{The \kalavai protocol.} A four-step cooperative training workflow with zero communication during training. Code, experiment scripts, and all result artefacts are released publicly.
 \end{itemize}
 
@@ -212,7 +212,7 @@ where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain e
 
 \begin{table}[t]
 \centering
-\caption{Main results across three model scales. \textbf{Per-domain equal-weight evaluation}: each domain evaluated separately at bs=4; equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$ (Appendix~\ref{app:evalcorrection}). 410M results: 3-seed means (seeds 42/137/2026). 6.9B: seed 42. Absolute base loss values differ from appendix ablation tables, which use a mixed-domain protocol; improvement percentages are internally consistent within each section.}
+\caption{Main results across three model scales. \textbf{Per-domain equal-weight evaluation}: each domain evaluated separately at bs=4; equal-weight average $= (\mathcal{L}_\text{code} + \mathcal{L}_\text{sci} + \mathcal{L}_\text{fiction})/3$ (Appendix~\ref{app:evalcorrection}). All \kalavai (MoE) rows: 3-seed means (seeds 42/137/2026); specialist and monolithic baselines are single-seed where not marked. Absolute base loss values differ from appendix ablation tables, which use a mixed-domain protocol; improvement percentages are internally consistent within each section.}
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule

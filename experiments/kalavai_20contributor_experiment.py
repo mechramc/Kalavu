@@ -916,7 +916,19 @@ def main():
     parser.add_argument("--router-only", action="store_true",
                         help="Skip specialist training/eval; retrain only the router "
                              "using saved checkpoints and prior eval_matrix.")
+    parser.add_argument("--router-steps", type=int, default=None,
+                        help="Override ROUTER_STEPS constant (e.g. 2000 or 4000 for FE-01/02 sweep).")
+    parser.add_argument("--seeds", type=str, default=None,
+                        help="Comma-separated seeds to run, e.g. '42,137,2026'. Overrides SEEDS constant.")
     args = parser.parse_args()
+
+    global ROUTER_STEPS, SEEDS
+    if args.router_steps is not None:
+        ROUTER_STEPS = args.router_steps
+        print(f"[override] ROUTER_STEPS = {ROUTER_STEPS}")
+    if args.seeds is not None:
+        SEEDS = [int(s.strip()) for s in args.seeds.split(",")]
+        print(f"[override] SEEDS = {SEEDS}")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device}")
