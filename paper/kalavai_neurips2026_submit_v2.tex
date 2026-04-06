@@ -726,6 +726,8 @@ Together, these findings validate the core premise of \kalavai: contributors spe
 
 \paragraph{Broader impact.} \kalavai lowers the compute barrier for training competitive language models. Any group that can collectively afford the inference compute of $N$ models can produce a model that matches a single model with $N$-times the training budget. The protocol is most impactful for under-resourced language communities (Phase 2 Exp 1: Yoruba PPL 41.9$\to$7.7 with no English data sharing) and organisations with data privacy constraints (Phase 2 Exp 2: medical/legal/patent +10.17\% with zero data sharing). We release all code, experiment scripts, and result artefacts at \url{https://github.com/mechramc/Kalavai}.
 
+The same privacy property that makes the protocol beneficial introduces a dual-use risk: contributors can train specialists on data that is entirely invisible to the coordinator, which could allow harmful or biased knowledge to be incorporated into the fused model without centralised oversight. The $N{\times}$ inference overhead provides practical friction against casual misuse at scale, but does not eliminate the concern for motivated actors. Production deployments of the protocol should include contributor vetting and checkpoint validation as part of their governance design.
+
 \bibliographystyle{plainnat}
 \bibliography{references}
 

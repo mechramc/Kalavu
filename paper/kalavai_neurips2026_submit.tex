@@ -725,12 +725,17 @@ Together, these findings validate the core premise of \kalavai: contributors spe
 
 \paragraph{Broader impact.} \kalavai lowers the compute barrier for training competitive language models. Any group that can collectively afford the inference compute of $N$ models can produce a model that matches a single model with $N$-times the training budget. The protocol is most impactful for under-resourced language communities (Phase 2 Exp 1: Yoruba PPL 41.9$\to$7.7 with no English data sharing) and organisations with data privacy constraints (Phase 2 Exp 2: medical/legal/patent +10.17\% with zero data sharing). Code, experiment scripts, and result artefacts will be released upon publication.
 
+The same privacy property that makes the protocol beneficial introduces a dual-use risk: contributors can train specialists on data that is entirely invisible to the coordinator, which could allow harmful or biased knowledge to be incorporated into the fused model without centralised oversight. The $N{\times}$ inference overhead provides practical friction against casual misuse at scale, but does not eliminate the concern for motivated actors. Production deployments of the protocol should include contributor vetting and checkpoint validation as part of their governance design.
+
 \bibliographystyle{plainnat}
 \bibliography{references}
 
 % ============================================================
 % APPENDIX
 % ============================================================
+
+% NeurIPS checklist (required -- desk rejection if missing)
+% Placed after references and appendix per submission guidelines
 
 \appendix
 
@@ -1270,5 +1275,7 @@ During development, an initial evaluation protocol produced +14.2\% at Pythia-41
 \paragraph{Additional 6.9B fix.} The 6.9B result was stabilised by seeded shuffling of the evaluation dataset (original: mean +2.72\%, std $\pm$8.17\% across seeds; corrected: +6.53\% $\pm$0.024\% over 3 seeds, computed from stored per-domain losses without re-running specialists). The high variance in the original 6.9B result was caused by non-deterministic chunk ordering producing different effective evaluation sets per seed.
 
 \paragraph{Corrected infrastructure.} The corrected evaluation protocol is implemented in \texttt{experiments/kalavai\_eval\_utils.py} (\texttt{eval\_all\_domains}, \texttt{eval\_loss\_domain}). All experiments import this module rather than implementing inline evaluation, preventing recurrence. Original result files were re-evaluated under the corrected protocol.
+
+\input{checklist}
 
 \end{document}
