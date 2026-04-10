@@ -734,6 +734,10 @@ The memory footprint remains $N\times$, since all specialist weights must be loa
   \item We do not claim the gains are large on English domains where the base model is already competent (+7.72\% at 410M). The protocol's value scales with domain difficulty and data uniqueness; contributors whose data fills genuine gaps in the base model produce higher divergence and correspondingly larger gains.
 \end{itemize}
 
+\paragraph{Cooperative sparsity as a structural advantage.} Frontier MoE systems demonstrate that higher routing sparsity yields better performance for fixed FLOPs: Kimi K2 \citep{moonshotai2025kimik2} deploys 384 experts with 8 active (sparsity ratio 48), and DeepSeek-V3 \citep{liu2024deepseekv3} uses auxiliary-loss-free bias vectors to sustain load balance without interference gradients. \kalavai achieves sparsity as an emergent property of cooperative training: with $N=20$ contributors, the learned router concentrates gate mass on the domain-relevant specialist (2.2 expert switches per hybrid-domain prompt; Appendix~\ref{app:routing}), yielding a natural sparsity ratio of 5--10 without any auxiliary load-balancing loss. Unlike architectural MoE where sparsity must be imposed, cooperative sparsity arises from specialist domain separation---the router has no incentive to distribute gate mass broadly when each specialist is competent only on its training domain. \kalavai operates at granularity $G=2$ (full-width specialists, $d_\text{expert}=d_\text{model}$) across all scales, contrasting with frontier MoE systems that increase $G$ to 30--50 via sub-model experts; this is a deliberate protocol constraint, as full-width specialists are required to preserve the zero-communication training guarantee.
+
+\paragraph{Future work.} Auxiliary-loss-free load balancing \citep{liu2024deepseekv3}---bias vectors updated via the sign of mean load deviation, decoupled from the primary training objective---may improve routing stability when contributors join or leave the cooperative asynchronously, since auxiliary loss terms interact poorly with heterogeneous domain distributions across contributors. Extending the protocol to genuinely distributed deployment (asynchronous checkpoint submission, contributor vetting at scale, real network coordination) is the primary engineering requirement for production cooperative training.
+
 % ============================================================
 \section{Conclusion}
 \label{sec:conclusion}
@@ -1143,21 +1147,21 @@ Table~\ref{tab:routing} shows token-level gate weights for five hybrid-domain pr
 \toprule
 \textbf{Prompt} & \textbf{Token} & \textbf{Dominant Expert} & \textbf{Weight} \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Write Python code to simulate the plot of Romeo and Juliet''}}
+\multirow{5}{*}{\parbox{3.5cm}{``Write Python code to simulate the plot of Romeo and Juliet''}}
   & ``Write''    & Fiction & 0.787 \\
   & ``Python''   & Fiction & 0.821 \\
   & ``simulate'' & Fiction & 0.929 \\
   & ``plot''     & Code    & 0.540 \\
   & ``Juliet''   & Fiction & 1.000 \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Derive the equation for protein folding using Python pandas''}}
+\multirow{5}{*}{\parbox{3.5cm}{``Derive the equation for protein folding using Python pandas''}}
   & ``Derive''   & Fiction & 0.703 \\
   & ``protein''  & Science & 0.959 \\
   & ``folding''  & Fiction & 0.962 \\
   & ``Python''   & Code    & 0.585 \\
   & ``pandas''   & Code    & 0.998 \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Use calculus to analyze character development in Hamlet''}}
+\multirow{4}{*}{\parbox{3.5cm}{``Use calculus to analyze character development in Hamlet''}}
   & ``Use''      & Fiction & 0.852 \\
   & ``analyze''  & Science & 0.920 \\
   & ``character'' & Science & 0.794 \\

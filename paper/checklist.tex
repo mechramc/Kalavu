@@ -17,7 +17,7 @@
 \item {\bf Limitations}
     \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Section~5 discusses the main limitations: the $N{\times}$ inference overhead that scales with cooperative size; the regression formula's empirical basis ($n=6$ in-sample conditions); router collapse at high divergence under certain random seeds (Section~4.7); failure of LoRA-based specialist training to achieve sufficient divergence (Section~3); and the 6.9B experiments being evaluated at a single seed due to compute constraints. The 20-contributor experiment identifies dialogue and instructions as domains where fine-tuning on available data actively hurts divergence, and this is noted alongside the result.
+    \item[] Justification: Section~5 discusses the main limitations: the $N{\times}$ inference overhead that scales with cooperative size; the regression formula's empirical basis ($n=6$ in-sample conditions); router collapse at high divergence under certain random seeds (Section~4.7); failure of LoRA-based specialist training to achieve sufficient divergence (Section~3). The 20-contributor experiment identifies dialogue and instructions as domains where fine-tuning on available data actively hurts divergence, and this is noted alongside the result.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper has no limitation while the answer \answerNo{} means that the paper has limitations, but those are not discussed in the paper.
@@ -47,7 +47,7 @@
     \item {\bf Experimental result reproducibility}
     \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Section~4.1 specifies the base model checkpoints (Pythia step10000, Qwen-2.5-1.5B), domains and datasets, sequence length (512 tokens), batch sizes (bs=4 for evaluation, physical bs=4 with gradient accumulation for router training), learning rates ($2\times10^{-5}$ specialist, $2\times10^{-4}$ router), optimizer (AdamW), and freeze configurations tested. The evaluation protocol --- per-domain separate evaluation at bs=4 with equal-weight averaging --- is described in Section~4.1 and fully documented in Appendix~F, including the two bugs in the original protocol and their fixes. Random seeds used for all multi-seed results are listed explicitly (42, 137, 2026).
+    \item[] Justification: Section~4.1 specifies the base model checkpoints (Pythia step10000, Qwen-1.5B), domains and datasets, sequence length (512 tokens), batch sizes (bs=4 for evaluation, physical bs=4 with gradient accumulation for router training), learning rates ($2\times10^{-5}$ specialist, $2\times10^{-4}$ router), optimizer (AdamW), and freeze configurations tested. The evaluation protocol --- per-domain separate evaluation at bs=4 with equal-weight averaging --- is described in Section~4.1 and fully documented in Appendix~F, including the two bugs in the original protocol and their fixes. Random seeds used for all multi-seed results are listed explicitly (42, 137, 2026).
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper does not include experiments.
@@ -67,7 +67,7 @@
 \item {\bf Open access to data and code}
     \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Anonymised experiment scripts, evaluation utilities, and result JSON artefacts for all reported experiments are provided as supplementary material. All base models (Pythia, Qwen-2.5) and training datasets (CodeSearchNet, SciQ, PG-19, Wikipedia) are publicly available on HuggingFace Hub. The supplementary code includes a README with environment setup and reproduction instructions; full code will be released publicly upon publication.
+    \item[] Justification: Anonymised experiment scripts, evaluation utilities, and result JSON artefacts for all reported experiments are provided as supplementary material. All base models (Pythia, Qwen-1.5B) and training datasets (CodeSearchNet, SciQ, PG-19, Wikipedia) are publicly available on HuggingFace Hub. The supplementary code includes a README with environment setup and reproduction instructions; full code will be released publicly upon publication.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that paper does not include experiments requiring code.
@@ -162,7 +162,7 @@
 \item {\bf Licenses for existing assets}
     \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
     \item[] Answer: \answerYes{}
-    \item[] Justification: All models and datasets are properly cited in the references. Pythia is released under Apache~2.0; Qwen-2.5 under its permissive Qwen License; CodeSearchNet under MIT; SciQ under CC-BY~4.0; PG-19 under Apache~2.0; Wikipedia data under CC-BY-SA~4.0. No dataset or model weights are redistributed.
+    \item[] Justification: All models and datasets are properly cited in the references. Pythia is released under Apache~2.0; Qwen-1.5B under its permissive Qwen License; CodeSearchNet under MIT; SciQ under CC-BY~4.0; PG-19 under Apache~2.0; Wikipedia data under CC-BY-SA~4.0. No dataset or model weights are redistributed.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper does not use existing assets.

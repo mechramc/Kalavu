@@ -2,6 +2,55 @@
 
 ---
 
+## Checkpoint 6: NeurIPS Sprint — Paper Reviewer-Ready + Regression Extension Designed (2026-04-10)
+
+**Status**: No experiments running. Next GPU run: P1 + P2 regression extension (parallel, ~$7 total)
+
+### Completed this session
+
+**Full 3-pass NeurIPS reviewer rewrite:** COMPLETE
+- Pass 1: Abstract intuition-first, formal contributions list, oracle/GO language removed
+- Pass 2: Regression language preserved exactly (CRITICAL CONSTRAINT); n=6 caveat added; non-academic language cleaned
+- Pass 3: Intuition sentences, motivation signals (Intuitively/Surprisingly/In practice) across all 5 contributions; narrative tension in introduction; result interpretation sentences throughout
+- PDF: 35 pages, 0 fatal errors, 4 Overfull \hbox <20pt
+
+**Discussion section additions:** COMPLETE
+- Cooperative sparsity paragraph: G=2 metric, Kimi K2/DeepSeek-V3 comparison, emergent sparsity ratio 5–10
+- Future work paragraph: auxiliary-loss-free balancing, distributed deployment
+
+**Paper reviewer assessment:**
+- Rating: 7.5/10
+- NeurIPS acceptance probability: ~40–50%
+- Main weaknesses: n=6 regression, single-machine simulation, loss-only results
+
+**Regression extension designed:** COMPLETE
+- P1: `experiments/kalavai_regression_p1_2domain.py` — 2 specialists (code+science), expected div ~11%
+- P2: `experiments/kalavai_regression_p2_4domain.py` — 4 specialists (code+science+fiction+legal), expected div ~19–22%
+- Both use NExpertMoE (generalised N-expert class, linear router)
+- Both use same per-domain equal-weight evaluation protocol as main experiments
+- Results save to: `results/regression_extension/`
+- Compute: ~$7 total, run in parallel on two A10G pods
+
+### How to resume
+
+```bash
+cd C:/Github/Kalavai
+git pull
+
+# Run regression extension (two pods in parallel):
+python experiments/kalavai_regression_p1_2domain.py   # Pod 1 (~3-4h)
+python experiments/kalavai_regression_p2_4domain.py   # Pod 2 (~4-5h)
+
+# Check results:
+ls results/regression_extension/
+cat results/regression_extension/p1_2domain_summary.json
+cat results/regression_extension/p2_4domain_summary.json
+
+# If both points on regression line: update paper n=6→n=8, re-fit OLS, update figure
+```
+
+---
+
 ## Checkpoint 5: NeurIPS Sprint — FE-03 Complete + Paper Updated (2026-04-08)
 
 **Status**: No experiments running. Next GPU run: FE-04/05 (replacement domain selection + training) or P3 (6.9B freeze sweep)

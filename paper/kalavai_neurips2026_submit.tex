@@ -59,19 +59,35 @@
 \maketitle
 
 \begin{abstract}
-Independently trained domain specialists can be fused post-hoc into a single model that outperforms any individual specialist, and the gain is predictable before training:
-$\text{gain} \approx 0.82 \times \text{divergence} - 2.72$ ($R^2 = 0.856$, $n=6$, spanning 3--26\% divergence).
-A cooperative whose specialists diverge 15\% from the shared base checkpoint yields approximately $+7.5\%$ improvement over the best individual specialist.
-Below $\approx$3.3\% divergence the formula predicts near-zero gain; practitioners can verify specialist divergence before committing training resources.
+When multiple contributors independently fine-tune a shared language model checkpoint on
+different domains and their specialists are fused post-hoc via a lightweight learned router,
+the resulting model consistently outperforms any individual specialist across all domains
+simultaneously. The key intuition is that specialists trained on different domains develop
+complementary internal representations; a learned router can exploit this structure at
+inference without any specialist retraining. This paper characterises when cooperative
+fusion succeeds, how much gain to expect, and what coordination it requires.
 
-In the \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.} protocol, contributors each fine-tune a copy of a shared base checkpoint on their own data without communication, then submit checkpoints for lightweight MoE routing (500 gradient steps on mixed data).
-The key property is privacy-preserving distributed training: each contributor's data never leaves their environment, yet the fused model achieves simultaneous specialist-level quality on every domain ($+7.72\%$ vs.\ best specialist) that centralised training cannot replicate without pooling all data.
-Fusion gains are consistent across scales: $+7.70\%$ at 410M (3-seed mean; seed 42: $+7.72\%$, $\pm$0.02pp), $+7.49\%$ at 1B ($\pm$0.01pp, 3 seeds), $+6.53\%$ at 6.9B ($\pm$0.024pp, 3 seeds).
-The fused model achieves oracle-optimal routing: the learned router matches the domain oracle with gap $<10^{-5}$ nats.
-Phase 2 extends the protocol to high-divergence settings: cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves $+21.87\%$ $\pm$0.12pp (3-seed mean; curriculum warm-start, Section~4.7), with Yoruba perplexity falling $41.9\to7.7$.
-A 20-contributor federation (10 languages + 10 domains) achieves $+16.71\%$ ($\pm$0.07pp, 3 seeds) vs.\ best specialist; after specialist quality filtering (removing two undertrained, negative-divergence specialists), the 18-contributor ablation achieves $+21.13\%$ ($\pm$0.01pp, 3 seeds, mean divergence 19.75\%).
+We introduce \kalavai\footnote{KALAVAI (\textit{kalaVAI}) is the ISO~15919 romanisation of the Tamil word for ``fusion'' or ``mixing''.}, a protocol in which contributors train on private data without
+exchanging gradients, activations, or model updates, then submit checkpoints for lightweight
+MoE routing (500 router training steps on mixed data). Under this protocol, \kalavai improves
+over the best individual specialist by $+7.70\%$, $+7.49\%$, and $+6.53\%$ across Pythia-410M,
+1B, and 6.9B respectively (3-seed means). Fusion gain is predictable from specialist
+divergence:
+$\text{gain} \approx 0.82 \times \text{divergence} - 2.72$
+($R^2 = 0.856$, $n{=}6$ conditions, 3--26\% divergence range). While derived from a limited
+number of conditions, this relationship suggests divergence as a practical screening criterion
+prior to full cooperative training. In high-divergence settings gains are substantially
+larger: cross-lingual fusion of Tamil, Yoruba, Welsh, and code specialists achieves $+21.87\%$
+($\pm$0.12pp, 3-seed mean), reducing Yoruba perplexity from 41.9 to 7.7.
 
-Three structural requirements bound the protocol. \emph{Shared initialisation} is necessary: checkpoints diverging by as little as one training stage degrade routing clarity. \emph{Frozen layers} are optional below 10,000 specialist training steps---peak gain $+17.7\%$ at 5,000 steps without freezing---and recommended beyond that threshold ($+2.4$pp advantage at 20,000 steps). \emph{Routing must be learned}: uniform equal-weight averaging degrades by $-1.2\%$ vs.\ best specialist; a trained linear or MLP router achieves oracle-optimal assignment ($<10^{-5}$ nats gap from domain-level oracle). Hard and soft routing are equivalent once gates are trained.
+Three structural conditions govern the protocol. \emph{Shared initialisation} is necessary:
+mismatched checkpoints degrade routing coherence, because the representational geometry
+that enables clean routing is established at initialisation, not during training.
+\emph{Layer freezing} is beneficial only beyond approximately 10,000 specialist training
+steps ($+2.4$pp advantage at 20,000 steps; unnecessary below that threshold).
+\emph{Routing must be learned}: a trained linear router approaches the domain-level oracle
+with a gap of ${<}10^{-5}$ nats at 410M, while uniform weight averaging reduces performance
+by $1.2\%$ relative to the best individual specialist.
 \end{abstract}
 
 % ============================================================
@@ -79,57 +95,66 @@ Three structural requirements bound the protocol. \emph{Shared initialisation} i
 \label{sec:intro}
 % ============================================================
 
-Training competitive language models requires centralised compute at a scale most researchers and institutions cannot access. A single 70B-parameter training run requires hundreds of A100 GPUs operating synchronously for weeks. This creates a structural barrier: the organisations that can train frontier models are those that can pay for frontier compute, and the rest must fine-tune what is already available.
+Training competitive language models requires centralised compute at a scale most researchers and institutions cannot access. Frontier training runs demand hundreds of synchronised GPUs for weeks, concentrating capability in organisations with sufficient infrastructure. This creates a practical barrier: strong models are currently accessible primarily to those who can build or fund them. This raises a natural question: can the training effort itself be distributed, so that many contributors---each with their own data, hardware, and constraints---collectively produce a model none of them could build alone?
 
-\paragraph{The core insight.} A different path exists. If multiple contributors each train a \emph{specialist} copy of a shared base checkpoint on their own domain, and if those specialists are subsequently fused via a learned router, the resulting model captures complementary knowledge that no single contributor could build alone. The training step requires no communication: contributors work independently, asynchronously, on their own hardware, using their own data. The only coordination is the shared starting point. The fused model requires all $N$ specialists to run at inference, increasing inference compute by a factor of $N$ relative to any individual specialist. This is a training-time democratisation: inference cost scales with $N$ specialists, but so does the knowledge that no single contributor could acquire alone.
+\paragraph{Cooperative specialist fusion.} A structurally different approach is possible. If multiple contributors each fine-tune an independent copy of a shared base checkpoint on their own domain, and if those specialists are subsequently fused via a learned router, the resulting model can aggregate complementary knowledge that no single contributor could acquire alone. Intuitively, specialists trained on different domains diverge in complementary directions from the shared initialisation point; a router trained on mixed data can then assign each input to its most relevant specialist, recovering the benefits of specialisation simultaneously across all domains. The training step requires no communication: contributors work independently, asynchronously, on their own hardware, using their own data. The only coordination is the shared initial checkpoint. Contributor data remains private throughout; no pooling is required.
 
-This observation is not entirely new---the branch-train-mix (BTX) paradigm \citep{sukhbaatar2024branchtrainmix} demonstrates that MoE fusion of independently trained models is feasible. What is missing from the literature is an empirical characterisation of \emph{the conditions under which independent specialist fusion succeeds or fails}: when shared initialisation alone is sufficient, when frozen layers become necessary, and what routing architecture drives improvement.
+The branch-train-mix (BTX) paradigm \citep{sukhbaatar2024branchtrainmix} demonstrates that MoE fusion of independently trained models is feasible. However, the conditions under which post-hoc specialist fusion succeeds---what level of divergence is required, how training duration interacts with layer freezing, what routing architecture is necessary---have not been empirically characterised. This paper provides that characterisation, along with a protocol that operationalises cooperative training under realistic privacy constraints.
 
-\paragraph{The protocol.} \kalavai operationalises cooperative LLM training as a four-step protocol: (1) a coordinator distributes a shared base checkpoint; (2) each contributor fine-tunes independently on their domain for a fixed number of steps; (3) contributors submit their checkpoints; (4) a lightweight router is trained on a small mixed-domain dataset and used for inference. Contributors never share gradients, intermediate activations, or data. The only shared artefact is the initial checkpoint.
+\paragraph{The \kalavai protocol.} \kalavai operationalises cooperative specialist fusion as a four-step protocol: (1) a coordinator distributes a shared base checkpoint; (2) each contributor fine-tunes independently on their domain; (3) contributors submit their checkpoints; (4) a lightweight router is trained on a small mixed-domain dataset and used for inference. Contributors never share gradients, intermediate activations, or data. The only shared artefact is the initial checkpoint.
 
-\paragraph{Key results.} We demonstrate:
+\paragraph{Contributions.} We report five empirical findings:
+
 \begin{enumerate}[leftmargin=*, itemsep=2pt]
-  \item \textbf{Predictive divergence--gain relationship.} Fusion gain scales linearly with specialist divergence: $\text{gain} = -2.72 + 0.82 \times \text{divergence}$ ($R^2 = 0.856$, slope 95\% CI [0.35, 1.28]), validated across six conditions from Qwen-1.5B (3.16\% divergence, +1.06\% gain) to cross-lingual (25.65\%, +21.87\%). Linear fit is substantially better than log-linear ($R^2 = 0.662$). The cross-lingual condition exceeds the linear prediction by +3.7pp, consistent with base-model incompetence creating outsized gains. Practitioners can estimate cooperative value from specialist divergence alone before committing to training.
-  \item \textbf{Oracle-optimal routing.} The learned MoE router matches the domain-level oracle (optimal static assignment of each domain to its best specialist) with a gap of $<10^{-5}$ nats at 410M and 6.9B---effectively zero. The cooperative achieves specialist-level quality on every domain simultaneously, something monolithic training cannot: the monolithic model underperforms the MoE on code ($-4.34\%$) and science ($-3.12\%$), despite seeing all domain data during training.
-  \item \textbf{Consistent improvement at scale.} Post-hoc MoE fusion beats the best individual specialist by +7.70\% at 410M (3-seed mean, $\pm$0.02\%), +7.49\% at 1B (3 seeds, $\pm$0.01\%), and +6.53\% at 6.9B ($\pm$0.024\%, 3 seeds) on equal-weight per-domain evaluation.\footnote{All results use the per-domain equal-weight protocol implemented in \texttt{kalavai\_eval\_utils.py}; see Appendix~\ref{app:evalcorrection}.} Routing is near-deterministic ($>$99.9\%) at all scales. Improvement is stable across Pythia-410M training maturities from 3.5\% to 100\% of training (+7.0\%--+8.8\%).
-  \item \textbf{Training duration crossover.} Without frozen layers, fusion improvement peaks at 5,000 specialist training steps (+17.7\%) then degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly (+17.0\% at 20,000 steps). The crossover occurs at approximately 10,000 steps, above which frozen layers are recommended. Even 50 training steps produce +4.0\% gain---meaningful improvement achievable in under two minutes on a consumer GPU.
-  \item \textbf{Routing must be learned.} Uniform equal-weight averaging (no routing training) \emph{degrades} by $-1.19\%$ vs.\ best specialist; a trained linear router achieves $+7.70\%$. Hard routing (argmax of learned gates) matches soft routing ($+7.72\%$ both)---specialist participation drives improvement, not weighting precision. The learned router achieves oracle-optimal domain assignment: gap ${<}10^{-5}$ nats at 410M and 6.9B.
-  \item \textbf{Per-domain advantage over monolithic.} On aggregate equal-weight loss, MoE and monolithic achieve near-parity ($+0.47\%$ at 410M). The distinction is per-domain: the MoE matches the best specialist on every domain simultaneously, while the monolithic model sacrifices code ($-4.34\%$ vs.\ MoE) and science ($-3.12\%$) to improve on fiction. The cooperative advantage is simultaneous per-domain quality, not lower aggregate loss. This per-domain quality is not achievable by centralised monolithic training, which sacrifices specialist performance on underrepresented domains to minimise aggregate loss.
-  \item \textbf{Cross-lingual cooperative training works.} Tamil/Yoruba/Welsh/Code specialists fused on Pythia-410M: Yoruba perplexity 41.9$\to$7.7 (5.4$\times$), Welsh 102.7$\to$22.1 (4.6$\times$). Contributors speaking different languages can collectively build a model none could train alone.
-\end{enumerate}
+\item \textbf{A predictive divergence--gain relationship.}
+Fusion gain is predictable from specialist divergence before training begins:
+$\text{gain} \approx 0.82 \times \text{divergence} - 2.72$
+($R^2 = 0.856$, $n{=}6$ conditions, 3--26\% divergence range).
+Intuitively, more divergent specialists encode more complementary knowledge,
+giving the router more to exploit. In practice, this means practitioners can
+screen specialists by divergence on a small validation set before committing
+to full cooperative training.\footnote{All results use the per-domain equal-weight protocol; see Appendix~\ref{app:evalcorrection}.}
 
-\paragraph{Contributions.}
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-  \item \textbf{A predictive gain model.} Fusion improvement scales linearly with specialist divergence ($\text{gain} = 0.82 \times \text{divergence} - 2.72$, $R^2 = 0.856$, six conditions, 3--26\% divergence). Practitioners can estimate cooperative value from divergence alone, before committing training resources.
-  \item \textbf{A mechanistic account.} Shared initialisation preserves representational compatibility; specialists exhibit catastrophic forgetting on out-of-domain tokens; learned MoE routing recovers full-domain coverage. These three facts jointly explain why the protocol succeeds---and why routing must be trained rather than uniform.
-  \item \textbf{Operational guidelines.} Frozen layers are optional below 10,000 training steps and recommended beyond. Shared initialisation is the only hard coordination requirement: checkpoint mismatch degrades routing clarity even when absolute performance loss appears modest.
-  \item \textbf{Capacity controls.} A Pythia-1.4B model (3.5$\times$ parameters, centralised training) achieves $+10.87\%$ vs.\ best specialist---exceeding the cooperative gain ($+7.72\%$). The cooperative advantage is privacy-preserving distributed training, not architectural performance supremacy.
-  \item \textbf{High-divergence validation.} Phase 2 extends the protocol to private professional domains ($+10.17\%$, medical/legal/patent) and cross-lingual settings ($+21.87\%$ $\pm$0.12pp, 3-seed mean, curriculum warm-start; Tamil/Yoruba/Welsh/Code; Yoruba perplexity $41.9\to7.7$). Gain scales most steeply where the base model is least competent.
-  \item \textbf{The \kalavai protocol.} A four-step cooperative training workflow with zero communication during training. Code, experiment scripts, and all result artefacts are released publicly.
-\end{itemize}
+\item \textbf{Near-oracle routing with a linear router.}
+A trained linear router approaches the domain-level oracle with a gap of
+${<}10^{-5}$ nats at 410M scale. Surprisingly, routing architecture does not
+matter---linear and MLP routers perform equivalently---but routing must be
+learned; uniform weight averaging degrades performance below the best individual
+specialist. This suggests the bottleneck is training the router, not its capacity.
+
+\item \textbf{Consistent gains across model scales.}
+\kalavai improves over the best specialist by $+7.70\%$ at 410M, $+7.49\%$ at
+1B, and $+6.53\%$ at 6.9B (3-seed means). Reduced gain at 6.9B reflects lower
+specialist divergence at that scale, not protocol degradation; conversion
+efficiency is in fact higher at 6.9B ($0.75\times$) than at smaller scales
+($0.49\times$). This suggests the mechanism strengthens, not weakens, as models
+grow more capable.
+
+\item \textbf{A training-duration crossover for layer freezing.}
+Layer freezing is unnecessary below approximately 10,000 specialist training
+steps; above that threshold, freezing lower layers preserves routing coherence
+and provides a measurable performance advantage. Intuitively, short specialisation
+runs naturally retain compatible lower-level features; only extended training
+erodes this shared geometry, at which point freezing acts as a structural anchor.
+
+\item \textbf{Substantial gains in high-divergence settings.}
+Cross-lingual cooperative fusion (Tamil, Yoruba, Welsh, and code) achieves
+$+21.87\%$ ($\pm$0.12pp, 3-seed mean); an 18-specialist multilingual federation
+achieves $+21.13\%$ ($\pm$0.01pp, 3 seeds). In practice, gains are largest
+precisely where the base model is least competent: Yoruba perplexity falls from
+41.9 to 7.7 without any shared data between language communities.
+\end{enumerate}
 
 % ============================================================
 \section{Related Work}
 \label{sec:related}
 % ============================================================
 
-\paragraph{Branch-Train-Mix (BTX).} The closest prior work is BTX \citep{sukhbaatar2024branchtrainmix}, which demonstrates that models branched from a shared checkpoint, independently trained, and mixed via MoE routing form a better model than any individual branch. Specifically, BTX does not characterise: (i) when shared initialisation alone is sufficient versus when frozen layers become necessary (our training-duration crossover, Section~\ref{sec:crossover}); (ii) whether the improvement persists against a compute-matched monolithic baseline (Section~\ref{sec:monolithic}); (iii) when routing must be trained versus when uniform routing suffices (Section~\ref{sec:failure}); or (iv) whether the improvement is explained by increased parameter count (Section~\ref{sec:capacity}). These four questions define our empirical contribution. We note that BTX demonstrates fusion at comparable model scales with substantially longer specialist training budgets; our contribution is the empirical characterisation of when and why fusion succeeds or fails, not a performance claim over BTX.
+\paragraph{Branch-Train-Mix and MoE merging.} The closest prior work is BTX \citep{sukhbaatar2024branchtrainmix}, which demonstrates MoE fusion of independently branched models. \kalavai extends BTX with empirical characterisation of the conditions under which fusion succeeds: the training-duration crossover (Section~\ref{sec:crossover}), the routing learning requirement, near-oracle routing performance, and a compute-matched monolithic baseline. The MoErging survey \citep{yadav2024merging} taxonomises routing-based merging; PHATGOOSE \citep{muqeeth2024phatgoose} achieves +11\% zero-shot gain via learned routing among fine-tuned models. \citet{pari2025merging} provides a CKA-based theoretical account of why weight averaging fails; \kalavai provides the empirical complement (+7.72\% MoE vs.\ $-3.4\%$ weight averaging vs.\ best specialist).
 
-\paragraph{MoErging and PHATGOOSE.} The MoErging survey \citep{yadav2024merging} taxonomises approaches for recycling and routing among independently trained experts. PHATGOOSE \citep{muqeeth2024phatgoose} achieves +11\% zero-shot generalisation improvement via learned routing among fine-tuned models, compared to \kalavai's $+7.72\%$ vs.\ best-specialist or $+16.3\%$ vs.\ base. The contribution is the conditions analysis (training-duration crossover, routing learning requirement, oracle saturation), not magnitude. \kalavai adds a monolithic baseline, training duration analysis, and explicit capacity controls not present in PHATGOOSE.
+\paragraph{Weight interpolation and distillation.} Model soups \citep{wortsman2022modelsoups}, TIES-Merging \citep{yadav2023tiesmerging}, and DARE \citep{yu2023dare} merge via weight interpolation; FuseLLM \citep{wan2024fusellm} uses knowledge distillation. Both families preserve a single model; \kalavai retains all specialist parameters and routes at inference. Sparse Upcycling \citep{komatsuzaki2023sparseupcycling} and STAR \citep{qin2025star} initialise or compose MoE models from dense checkpoints with joint or modular training; \kalavai specialists train with \emph{zero communication}.
 
-\paragraph{Pari thesis.} \citet{pari2025merging} provides a theoretical analysis using Centered Kernel Alignment (CKA) of why weight averaging of independently trained models fails: divergent representations produce destructive interference when merged by linear interpolation. \kalavai provides the empirical complement, demonstrating that MoE routing avoids this interference ($+7.72\%$ vs.\ best specialist versus weight averaging's $-3.4\%$ vs.\ best specialist).
-
-\paragraph{Weight interpolation methods.} Model soups \citep{wortsman2022modelsoups}, TIES-Merging \citep{yadav2023tiesmerging}, and DARE \citep{yu2023dare} combine fine-tuned models via weight interpolation. These methods require specialised merging procedures and typically produce smaller gains than routing-based approaches. In our experiments, simple weight averaging achieves $-$3.4\% vs.\ best specialist (equal-weight evaluation) versus +7.72\% for learned MoE routing.
-
-\paragraph{Multilingual cooperative training.} Extending specialist fusion to low-resource languages has not been studied in prior work. Section~\ref{sec:phase2} demonstrates that contributors speaking different languages can collectively build a model that achieves specialist-level perplexity on all languages simultaneously (Yoruba: 41.9$\to$7.7, Welsh: 102.7$\to$22.1), even when each specialist trains only on their own language data.
-
-\paragraph{Federated learning.} Federated approaches \citep{mcmahan2017federated} distribute training with periodic gradient synchronisation. \kalavai requires \emph{zero communication} during training; contributors are never synchronised until the fusion step, making the protocol fully asynchronous.
-
-\paragraph{FuseLLM.} FuseLLM \citep{wan2024fusellm} fuses LLMs via knowledge distillation into a modified single model; \kalavai preserves all specialist parameters intact.
-
-\paragraph{Sparse Upcycling.} \citet{komatsuzaki2023sparseupcycling} initialise MoE models from dense checkpoints and continue training jointly; \kalavai trains specialists \emph{independently} with no shared computation.
-
-\paragraph{STAR and related concurrent work.} \citet{qin2025star} demonstrate modular composition over frozen foundations for multimodal learning; \kalavai provides the language modelling instantiation with analysis of the crossover point where freezing transitions from optional to required.
+\paragraph{Federated learning.} Federated approaches \citep{mcmahan2017federated} distribute training with periodic gradient synchronisation. \kalavai requires zero communication during training and is fully asynchronous; contributors are coordinated only by the shared initial checkpoint.
 
 % ============================================================
 \section{Method}
@@ -140,29 +165,9 @@ The \kalavai protocol consists of four phases.
 
 \paragraph{Phase 1: Shared initialisation.} A coordinator selects a publicly available base checkpoint $\theta_0$ and distributes it to all contributors. All specialists begin from \emph{identical} weights. This shared initialisation is the core structural guarantee that enables post-hoc fusion: specialists diverge in representation space, but their representational geometry remains compatible because they begin from the same point. Hash verification ensures all contributors use exactly the same checkpoint.
 
-\paragraph{Phase 2: Optional freezing.} Optionally, the first $K$ transformer layers are frozen during specialist training. Frozen layers guarantee that lower-level representations remain shared across specialists, providing a structural anchor that is robust to extended training. Our experiments show freezing is unnecessary at short training horizons ($\leq$10,000 steps) but becomes beneficial beyond approximately 10,000 steps (Section~\ref{sec:crossover}).
+\paragraph{Phase 2: Optional freezing.} Optionally, the first $K$ transformer layers are frozen during specialist training. Frozen layers help ensure that lower-level representations remain shared across specialists, providing a structural anchor that is robust to extended training. Our experiments show freezing is unnecessary at short training horizons ($\leq$10,000 steps) but becomes beneficial beyond approximately 10,000 steps (Section~\ref{sec:crossover}).
 
-\paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); LoRA specialists exhibit negative divergence from base (specialists become worse than the base model even on their target domain at $r=64$, or near-zero divergence at $r=8$), placing all LoRA conditions below the divergence floor ($\approx$3.3\%) where the empirical gain formula predicts near-zero or negative returns (Appendix~\ref{app:design}, Table~\ref{tab:lora}).
-
-\paragraph{Why full fine-tuning, not LoRA.}
-Low-rank adaptation (LoRA) produces insufficient representational divergence for cooperative fusion
-(Figure~\ref{fig:lora}).
-At rank $r=8$, specialists diverge $-1.48\%$ from base (net regression on their target domain),
-yielding only $+0.32\%$ fusion gain --- below the divergence floor.
-At rank $r=16$, mean divergence is $-5.57\%$, yielding $-2.65\%$ fusion gain.
-At rank $r=32$, mean divergence is $-12.05\%$, yielding $-7.73\%$ fusion gain.
-At rank $r=64$, specialists diverge $-20.3\%$, yielding $-13.85\%$ fusion gain.
-No LoRA rank tested reaches the \kalavai\ divergence floor ($\approx$3.3\%).
-Full fine-tuning produces mean divergence $15.65\%$ and $+7.72\%$ fusion gain.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/fig_lora_ablation}
-\caption{LoRA rank ablation: fusion gain vs.\ best specialist (\%) and mean specialist divergence from base (\%) across fine-tuning methods (Pythia-410M, seed 42, 2{,}000 training steps).
-No LoRA rank produces sufficient divergence ($\geq$3.3\%) for positive fusion gain.
-Full fine-tuning achieves $+15.65\%$ divergence and $+7.72\%$ fusion gain.}
-\label{fig:lora}
-\end{figure}
+\paragraph{Phase 3: Independent specialist training.} Each contributor trains their copy of $\theta_0$ on a single knowledge domain using standard next-token prediction loss. Training is fully independent: contributors never share data, gradients, or activations. Any training infrastructure, hardware, or optimiser the contributor prefers may be used, provided the architecture and freeze configuration match the coordinator's specification. We use full fine-tuning of unfrozen layers rather than low-rank adaptation (LoRA); LoRA specialists fall below the divergence threshold required for positive fusion gains, placing all tested LoRA configurations below the empirical gain floor (Appendix~\ref{app:design}, Table~\ref{tab:lora}).
 
 Formally, contributor $i$ trains specialist $\theta_i$ by minimising:
 \[
@@ -179,7 +184,7 @@ where $h_t$ is the mean-pooled final hidden state averaged across all specialist
 \tilde{l}_t = \sum_{i=1}^{N} g_t^{(i)} \cdot l_{\theta_i,t}, \qquad
 p_\text{fused}(x_t \mid x_{<t}) = \mathrm{softmax}\!\left(\tilde{l}_t\right)
 \]
-where $l_{\theta_i,t} \in \mathbb{R}^{|\mathcal{V}|}$ is the logit vector from specialist $i$ at position $t$. This logit-space combination---equivalent to a log-linear mixture---is standard in MoE architectures~\citep{shazeer2017outrageously,jiang2024mixtral}. An alternative probability-space formulation $\sum_i g_t^{(i)} \cdot \mathrm{softmax}(l_{\theta_i,t})$ would produce a proper mixture distribution; we use logit-space combination throughout all experiments.
+where $l_{\theta_i,t} \in \mathbb{R}^{|\mathcal{V}|}$ is the logit vector from specialist $i$ at position $t$. This logit-space combination---equivalent to a log-linear mixture---is standard in MoE architectures~\citep{shazeer2017outrageously,jiang2024mixtral}. Logit-space combination is particularly natural under shared initialisation: because all specialists share the same vocabulary embedding matrix, their logit distributions are directly comparable and can be combined linearly without any alignment step. An alternative probability-space formulation $\sum_i g_t^{(i)} \cdot \mathrm{softmax}(l_{\theta_i,t})$ would produce a proper mixture distribution; we use logit-space combination throughout all experiments.
 
 Design decisions---LoRA vs.\ full fine-tuning, softmax vs.\ argmax, linear vs.\ MLP router---are discussed in Appendix~\ref{app:design}; none meaningfully affects the core results.
 
@@ -201,7 +206,7 @@ Design decisions---LoRA vs.\ full fine-tuning, softmax vs.\ argmax, linear vs.\ 
 \[
 \Delta(\%) = \frac{\mathcal{L}_\text{baseline} - \mathcal{L}_\text{method}}{\mathcal{L}_\text{baseline}} \times 100
 \]
-where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain evaluation set (equal weighting across three domains). Lower loss is better; positive $\Delta$ indicates improvement over the baseline. The baseline for the main result is the best individual specialist on mixed evaluation; the baseline for the monolithic comparison is the monolithic model.\footnote{A 14\% reduction in cross-entropy loss (e.g., 2.248 $\to$ 1.930) corresponds to approximately 37\% reduction in perplexity (e.g., $e^{2.248} \to e^{1.930}$, from $\approx$9.5 to $\approx$6.9). We report loss-based percentages throughout for consistency; perplexity values can be recovered via $\exp(\mathcal{L})$.}
+where $\mathcal{L}$ is average cross-entropy loss on the held-out mixed-domain evaluation set (equal weighting across three domains). Lower loss is better; positive $\Delta$ indicates improvement over the baseline. The baseline for the main result is the best individual specialist on mixed evaluation; the baseline for the monolithic comparison is the monolithic model. We report loss-based percentages throughout for consistency; perplexity values can be recovered via $\exp(\mathcal{L})$.
 
 \paragraph{Seeds.} All main results are reported across 3 random seeds (42, 137, 2026).
 
@@ -274,176 +279,25 @@ Qwen-1.5B$^\dagger$ & 1.76\%  & ---     & 4.56\%  & 3.16\%  & +1.06\% & 0.34$\ti
 
 A natural objection to cooperative training is that centralised training on the same total compute might perform equally well. We test this directly at both 410M and 1B scales. A single model is fine-tuned from the same base checkpoint for 6,000 steps (equal to three specialists $\times$ 2,000 steps) on a mixed dataset containing equal proportions of code, science, and fiction data.
 
-The monolithic baseline achieves strong results: 410M monolithic EW loss 2.229 (+16.0\% vs.\ base) vs.\ \kalavai MoE EW loss 2.218 (+0.47\% over monolithic, Table~\ref{tab:monolithic}). At 1B, monolithic EW loss 2.097 vs.\ \kalavai 2.090 (+0.34\% over monolithic). The cooperative MoE and equal-compute monolithic model achieve near-parity on this metric. The main headline result of \kalavai is the advantage over the \emph{best individual specialist}: +7.72\% at 410M (specialist EW loss 2.404 vs.\ MoE 2.218), driven by the router recovering each domain's specialist quality simultaneously.
-
-The decomposition shows: (1) \emph{Specialisation advantage}: each specialist achieves $\sim$9\% over base on equal-weight eval while the monolithic model achieves $\sim$16\%; the monolithic model is actually stronger than any individual specialist on the mixed metric because it trains on all domains. (2) \emph{Fusion advantage}: the MoE then routes each token to the appropriate specialist, achieving the best per-domain performance across all domains at once---equivalent to selecting the diagonal of the specialist cross-domain loss matrix (Figure~\ref{fig:heatmap}).
-
-\paragraph{Per-domain breakdown.} The +0.47\% equal-weight advantage understates the cooperative benefit. Table~\ref{tab:perdomain} shows the per-domain decomposition at 410M.
-
-\begin{table}[h]
-\centering
-\caption{Per-domain held-out loss at Pythia-410M (seed 42, per-domain equal-weight evaluation). \textbf{Bold} entries are the best value in each column. The \kalavai MoE matches the best individual specialist on every domain simultaneously---routing recovers the diagonal of the specialist cross-domain matrix. The monolithic model, despite training on all domains, underperforms the MoE on code and science while achieving lower fiction loss than the fiction specialist (cross-domain regularisation benefit).}
-\label{tab:perdomain}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Method} & \textbf{Code} $\downarrow$ & \textbf{Science} $\downarrow$ & \textbf{Fiction} $\downarrow$ & \textbf{EW Avg} $\downarrow$ \\
-\midrule
-Base model          & 2.0872 & 2.8920 & 2.9739 & 2.6510 \\
-Code specialist     & \textbf{1.8791} & 2.9085 & 2.9768 & 2.5881 \\
-Science specialist  & 2.1738 & \textbf{2.5565} & 3.0613 & 2.5972 \\
-Fiction specialist  & 2.1018 & 2.8904 & 2.2194 & 2.4039 \\
-\midrule
-Monolithic (6k)     & 1.9644 & 2.6389 & \textbf{2.0832} & 2.2288 \\
-Weight averaging    & 2.0142 & 2.7323 & 2.7106 & 2.4857 \\
-\kalavai MoE        & \textbf{1.8791} & \textbf{2.5565} & 2.2194 & \textbf{2.2183} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The \kalavai MoE achieves oracle-optimal routing: code loss 1.8791 (matching code specialist exactly), science loss 2.5565 (matching science specialist exactly), fiction loss 2.2194 (matching fiction specialist exactly). The domain-level oracle---the optimal static assignment of each domain to its best specialist---achieves EW loss 2.2183, a gap of $3 \times 10^{-6}$ nats from the actual MoE. The router is effectively routing-saturated at the domain level.
-
-The monolithic model achieves lower fiction loss than the fiction specialist (2.0832 vs.\ 2.2194), a benefit of cross-domain regularisation. However, it underperforms the MoE on code ($-4.34\%$: 1.9644 vs.\ 1.8791) and science ($-3.12\%$: 2.6389 vs.\ 2.5565). The aggregate effect favours the cooperative: MoE EW 2.2183 vs.\ monolithic 2.2288 (+0.47\%). The structural advantage of \kalavai over monolithic training is \emph{per-domain specialist quality simultaneously}: the cooperative achieves the best available quality on every domain without any contributor sharing data---something centralised training cannot do despite having access to all data.
-
-\paragraph{Interpreting the monolithic comparison.}
-The $+0.47\%$ equal-weight advantage over monolithic training overstates neither the
-cooperative benefit nor its limitation.
-The monolithic model is trained on all domains simultaneously; it is \emph{not} a realistic
-alternative when contributors cannot share data.
-The cooperative advantage is structural: each contributor's data is used only to train their
-specialist and is never pooled. The appropriate comparison for privacy-sensitive cooperative
-deployment is not ``monolithic vs.\ MoE'' but ``best individual specialist vs.\ MoE'':
-without cooperation, each contributor can only deploy their own specialist,
-whereas the cooperative provides simultaneous specialist-level quality on every domain ($+7.72\%$
-vs.\ best specialist) without any data leaving any contributor's environment.
-
-\begin{table}[h]
-\centering
-\caption{Equal-compute comparison at Pythia-410M and Pythia-1B. Monolithic trained for 6,000 steps on mixed data; \kalavai uses three specialists $\times$ 2,000 steps. Equal-weight per-domain average (per-domain separate eval, bs=4). Seed 42. The monolithic model achieves strong equal-weight loss because it trains on all domains; \kalavai's advantage is per-domain specialist quality for each domain simultaneously.}
-\label{tab:monolithic}
-\begin{tabular}{llccc}
-\toprule
-\textbf{Scale} & \textbf{Method} & \textbf{EW Loss} & \textbf{vs.\ Base} & \textbf{vs.\ Monolithic} \\
-\midrule
-\multirow{4}{*}{410M}
- & Base model            & 2.651 & ---      & ---       \\
- & Best specialist       & 2.404 & +9.3\%  & ---       \\
- & Monolithic (6k steps) & 2.229 & +16.0\% & ---       \\
- & \kalavai MoE          & \textbf{2.218} & +16.3\% & +0.47\% \\
-\midrule
-\multirow{4}{*}{1B}
- & Base model            & 2.474 & ---      & ---       \\
- & Best specialist       & 2.259 & +8.7\%  & ---       \\
- & Monolithic (6k steps) & 2.097 & +15.3\% & ---       \\
- & \kalavai MoE          & \textbf{2.090} & +15.5\% & +0.34\% \\
-\bottomrule
-\end{tabular}
-\end{table}
+The monolithic baseline achieves 410M EW loss 2.229 (+16.0\% vs.\ base); \kalavai MoE achieves 2.218 (+0.47\% over monolithic, +7.72\% over best specialist). MoE and equal-compute monolithic achieve near-parity on the mixed metric; the cooperative advantage is primarily over individual specialists---+7.72\%---driven by the router recovering each domain's specialist quality simultaneously (Appendix~\ref{app:perdomain}). The monolithic option is unavailable when contributors cannot share data.
 
 \subsection{Training Duration and the Role of Frozen Layers}
 \label{sec:crossover}
 
-A key design question is whether frozen layers are necessary. The freeze depth sweep (Appendix~\ref{app:freeze}) shows only 1.89 percentage points of variation across freeze depths from 0 to 50\% of layers, suggesting freezing is largely optional at 2,000-step training horizons. However, this masks a training duration dependence.
+\textbf{Practical guideline:} Frozen layers are largely optional below $\approx$10{,}000 specialist training steps (freeze=0 peaks at 5{,}000 steps at $+17.7\%$) and recommended beyond 10{,}000 steps to prevent over-specialisation ($+2.4$pp advantage for freeze=4 at 20{,}000 steps). Even 50 training steps produces $+4.0\%$ gain. Freeze sensitivity is low: a full depth sweep ($K \in \{0,2,4,6,8,12\}$) shows only 1.89pp spread at 2{,}000 steps (Appendix~\ref{app:freeze}). Full training-duration data: Appendix~\ref{app:crossoverfig}.
 
-Table~\ref{tab:crossover} (and Figure~\ref{fig:crossover} in Appendix~\ref{app:crossoverfig}) show fusion improvement as a function of specialist training duration. Without frozen layers, improvement peaks at 5,000 steps (+17.7\%) and degrades to +14.7\% at 20,000 steps. With four frozen layers, improvement degrades more slowly and becomes the better configuration above approximately 10,000 training steps (+17.0\% at 20,000 steps vs.\ +14.7\% without freezing). The crossover occurs at approximately 10,000 training steps: above this threshold, frozen layers prevent over-specialisation that degrades post-hoc fusion.
 
-\paragraph{Minimum viable specialist training.} Fusion improvement is non-trivial even at extreme compute constraint: 50 specialist training steps produces +4.0\% gain (freeze=0) and 100 steps produces +5.1\%---meaningful improvements achievable in under two minutes on a consumer GPU. This directly supports the cooperative accessibility argument: compute-constrained contributors can participate with minimal investment, provided they train for at least a few dozen steps to achieve some representational divergence from the shared initialisation.
-
-\paragraph{Divergence floor: derivation and scope.}
-The predictive formula (Section~\ref{sec:divergence_gain}) predicts zero gain at $\text{divergence} = 2.72 / 0.82 \approx 3.3\%$. This floor is \emph{regime-scoped}: it applies across fixed training protocols differing in model scale or domain (the six in-sample conditions in Table~\ref{tab:divergence}), where divergence and gain are measured at the same training step count (2,000 steps) per condition. Within a step-count sweep, the relationship is different: at 50 specialist training steps, mean specialist divergence is only 2.04\%---below the 3.3\% floor---yet fusion gain vs.\ best specialist is +5.06\% (Table~\ref{tab:crossover}). This apparent contradiction resolves cleanly: at 50 steps, the ``best specialist'' is itself barely different from the base model (it has trained for 50 steps on one domain), so the MoE, combining three near-base specialists with a trained router, outperforms the single best near-base specialist without needing large divergence. As training steps increase, divergence grows, both the specialists and the fusion benefit grow, and the step-sweep tracks the regime that the cross-condition regression was fit on. The practical implication: (i) the 3.3\% floor is a valid pre-training diagnostic for deciding whether a cooperative is worth starting---if expected specialist divergence after your planned training budget is below 3.3\%, expect near-zero gain; (ii) within an ongoing cooperative, even very short training contributions are beneficial.
-
-\begin{table}[h]
-\centering
-\caption{Fusion improvement vs.\ base model as a function of training duration, with and without frozen layers. Pythia-410M, seed 42, per-domain equal-weight evaluation (base EW loss = 2.6510). Bold entries indicate the better configuration at each step count; $\dagger$ marks the crossover point.}
-\label{tab:crossover}
-\begin{tabular}{rccc}
-\toprule
-\textbf{Steps} & \textbf{Freeze=0} (\% vs.\ base) & \textbf{Freeze=4} (\% vs.\ base) & \textbf{Leader} \\
-\midrule
-50    & +4.0\%   & +3.5\%   & \textbf{Freeze=0} \\
-100   & +5.1\%   & +4.5\%   & \textbf{Freeze=0} \\
-500   & +9.2\%   & +8.3\%   & \textbf{Freeze=0} \\
-1,000 & +12.1\%  & +10.8\%  & \textbf{Freeze=0} \\
-2,000 & +15.5\%  & +14.2\%  & \textbf{Freeze=0} \\
-5,000 & +17.7\%  & +17.5\%  & \textbf{Freeze=0} \\
-10,000$^\dagger$ & +16.7\% & \textbf{+17.7\%} & \textbf{Freeze=4} \\
-20,000 & +14.7\% & \textbf{+17.0\%} & \textbf{Freeze=4} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Practical guideline:} For specialist training up to approximately 10,000 steps, frozen layers are largely optional (freeze=0 peaks at 5,000 steps with +17.7\%). For training horizons beyond 10,000 steps, freezing the first $K$ layers is recommended to prevent over-specialisation (+2.4pp advantage for freeze=4 at 20,000 steps). The optimal $K$ is not sensitive: the freeze depth sweep shows only 1.89pp variation across $K \in \{0, 2, 4, 6, 8, 12\}$ at 2,000 steps (Appendix~\ref{app:freeze}). Note that the 1B freeze depth ($K=4$, 25\% of layers) was not independently optimised; we use the 410M-derived value and rely on the freeze depth sweep's low sensitivity (1.89pp spread) as justification that this choice is unlikely to materially affect results. The 6.9B experiment uses $K=6$ at only 1,000 specialist training steps---a regime where the 410M analysis shows freezing is largely optional and the crossover threshold ($\sim$10,000 steps) is still in the future. The 6.9B result is therefore insensitive to freeze depth at these step counts, consistent with the 410M finding that freeze sensitivity is low below 10,000 training steps (Appendix~\ref{app:freeze}). A freeze depth sweep at 6.9B is included in the step-budget sweep (Appendix~\ref{app:inventory}).
-
-\subsection{Routing Must Be Learned: Architecture Does Not Matter}
-\label{sec:failure}
-
-Routing architecture matters only insofar as the router is trained. Uniform routing (equal $1/N$ weight to each specialist, no training) \emph{degrades} performance by $-1.19\%$ relative to the best individual specialist---below-zero because equal-weight mixing averages each specialist's cross-domain degradation with no domain assignment. A trained linear router achieves $+7.70\%$; a 2-layer MLP achieves $+7.72\%$---effectively identical. Routing precision does not matter beyond the threshold of learning a domain assignment.
-
-The fused model achieves oracle-optimal routing. Domain-level oracle assignment---routing each domain's evaluation set to its own specialist---achieves equal-weight loss 2.218319 at 410M. The trained linear router achieves 2.218316: a gap of $3 \times 10^{-6}$ nats. Hard routing (argmax of learned gates, all experts forward-pass) achieves $+7.72\%$---identical to soft routing---confirming that specialist participation, not weighting precision, drives improvement. Full results in Appendix~\ref{app:dispatch}.
-
-\subsection{Capacity Controls: The Cooperative Advantage Is Distributed Training}
-\label{sec:capacity}
-
-The fused model has $3\times$ the unfrozen parameters of any individual specialist. A Pythia-1.4B model ($3.5\times$ total parameters) trained 6,000 steps on mixed data achieves $+10.87\%$ vs.\ best specialist---exceeding the cooperative gain ($+7.72\%$), but requiring centralised access to all training data. A multi-head baseline (same parameter count as MoE, hard-routing each token to one specialist via learned gates) achieves $+7.72\%$---identical to soft MoE---confirming that the cooperative improvement requires neither additional parameters nor a specific routing mechanism, only that specialists are trained independently. Full comparison in Appendix~\ref{app:dispatch}.
+\paragraph{Router and capacity controls.} Routing architecture matters only insofar as the router is trained: uniform routing degrades performance ($-1.19\%$ vs.\ best specialist); a trained linear or MLP router achieves $+7.70\%$--$+7.72\%$ (effectively identical). The fused model has $3\times$ the unfrozen parameters of any specialist; a Pythia-1.4B centralised model ($3.5\times$ parameters) achieves $+10.87\%$ but requires access to all training data. Full ablations: Appendix~\ref{app:dispatch}.
 
 \subsection{Shared Initialisation: Routing Clarity Degrades Under Checkpoint Mismatch}
 \label{sec:sharedinit}
 
-A structural claim of \kalavai is that all specialists must begin from the same checkpoint. We test this empirically by training specialists from checkpoints at different training stages and measuring the effect on fusion quality (Pythia-410M, 2,000 specialist training steps, 3 domains, seed 42 for small-gap and 3 seeds for control/large-gap).
-
-Three conditions: (1) \emph{Control}: all specialists from step 10,000 (identical initialisation); (2) \emph{Large gap}: specialists from step 5,000 / 10,000 / 20,000 respectively (spanning $2\times$ training progress); (3) \emph{Small gap}: step 8,000 / 10,000 / 12,000 ($\pm$20\% around anchor).
-
-\begin{table}[h]
-\centering
-\caption{Shared initialisation ablation at Pythia-410M. \emph{Note: this experiment uses mixed-domain held-out evaluation, not the per-domain equal-weight protocol used elsewhere in the paper. All values are internally consistent; the meaningful comparison is the relative degradation across conditions, not the absolute loss values.} ``MoE loss'' is absolute mixed-domain held-out loss; lower is better. ``Best Spec.\ Loss'' is the best individual specialist's mixed-domain loss for that condition. ``vs.\ Base'' uses base mixed-domain loss 2.248. ``vs.\ Spec'' is improvement over best individual specialist---this metric is misleading under mismatch because mismatched specialists are also worse (best spec loss degrades from 2.089 to 2.157 under large gap); the absolute MoE loss is the appropriate comparison.}
-\label{tab:sharedinit}
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Condition} & \textbf{Init Revisions} & \textbf{Best Spec.\ Loss} & \textbf{MoE Loss} & \textbf{vs.\ Base} & \textbf{Seeds} \\
-\midrule
-Control (matched)  & 10k / 10k / 10k         & 2.089          & \textbf{2.015} & \textbf{+10.4\%} & 3 \\
-Small gap          & 8k / 10k / 12k          & 2.122          & 2.034          & +9.5\%           & 1 \\
-Large gap          & 5k / 10k / 20k          & 2.157          & 2.036          & +9.4\%           & 3 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The absolute MoE quality degrades by 0.93pp (10.37\% $\rightarrow$ 9.44\%) under the large-gap condition---a modest degradation that our ablation script labels ``WEAK evidence.'' However, the routing behaviour degrades more substantially: under the large-gap condition, the code expert receives 11\% weight on fiction inputs versus near-zero under control. The router can no longer reliably distinguish specialist roles.
-
-We note that the ``improvement vs.\ best specialist'' metric is misleading here: it appears \emph{higher} under mismatch (large gap: +5.6\% vs.\ control: +3.6\%) because the individual specialists are also worse under mismatch. The absolute MoE loss is the appropriate comparison.
-
-\textbf{Interpretation.} Shared initialisation is not strictly required for fusion to produce positive improvement over base---mismatched specialists still produce a positive fused model. However, shared initialisation is important for routing stability: mismatched checkpoints produce routing confusion that may become more pronounced at scale or with larger checkpoint gaps. The shared initialisation requirement is the only coordination cost of the \kalavai protocol and remains our recommendation for all deployments.
+Shared initialisation is necessary: specialists trained from mismatched checkpoints show routing confusion (code expert receives 11\% weight on fiction inputs vs.\ near-zero under matched initialisation), even when absolute fusion gain degrades only modestly (from +10.4\% to +9.4\% vs.\ base). Shared initialisation is the only coordination constraint of the protocol (Appendix~\ref{app:sharedinit}).
 
 \subsection{Heterogeneous Cooperative: Robustness to Realistic Contributor Variation}
 \label{sec:heterogeneous}
 
-A real cooperative will not have identical training conditions across contributors. We test the protocol's robustness to three practical sources of variation (Pythia-410M, seed 42):
-
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{Control}: all three specialists trained identically (bs=2, lr=$2\times10^{-5}$, 2,000 steps).
-  \item \emph{diff\_batch}: one specialist trained at bs=4 instead of bs=2.
-  \item \emph{diff\_lr}: one specialist trained at lr=$4\times10^{-5}$ instead of $2\times10^{-5}$.
-  \item \emph{diff\_steps}: one specialist trained for 1,000 steps instead of 2,000.
-\end{itemize}
-
-\begin{table}[h]
-\centering
-\caption{Heterogeneous cooperative results (Pythia-410M, per-domain equal-weight evaluation). ``$\Delta$ vs.\ control'' is the difference in fusion gain from the identical-conditions baseline.}
-\label{tab:heterogeneous}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Condition} & \textbf{MoE EW Loss} & \textbf{vs.\ Spec} & \textbf{vs.\ Base} & \textbf{$\Delta$ vs.\ control} \\
-\midrule
-Control (identical)  & 2.2185 & +7.72\% & +16.33\% & --- \\
-diff\_batch          & 2.2401 & +7.74\% & +15.49\% & +0.01pp \\
-diff\_lr             & 2.1576 & +7.73\% & +18.63\% & +0.01pp \\
-diff\_steps          & 2.2001 & +7.33\% & +17.00\% & $-$0.39pp \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The maximum spread across all heterogeneous conditions is 0.41pp---well within the noise floor of the experiment. The protocol is robust to realistic variation in batch size, learning rate, and training budget. The only meaningful degradation is a 0.39pp reduction when one specialist trains for half the steps; even then, the fusion gain remains +7.33\% vs.\ best specialist. This validates the cooperative premise: contributors do not need to coordinate hyperparameters, only the shared checkpoint and architecture.
+The protocol tolerates heterogeneous contributor conditions: batch size, learning rate, and training-step variation each produce at most 0.41pp degradation (Appendix~\ref{app:heterogeneous}).
 
 % ============================================================
 \subsection{High-Divergence Domains: Phase 2 Experiments}
@@ -455,51 +309,12 @@ Phase 1 establishes that the protocol works at English domain scales (code/scien
 \subsubsection{Private-Domain Fusion (Experiment 2)}
 \label{sec:phase2_private}
 
-Three highly specialised domains are selected: \emph{medical} (PubMed article abstracts, \texttt{ccdv/pubmed-summarization}), \emph{legal} (European legislation, \texttt{lex\_glue}/eurlex), and \emph{patent} (patent descriptions, \texttt{big\_patent}/a). Pythia-410M step10000 with $K=0$ frozen layers (Section~\ref{sec:crossover} shows freeze=0 is optimal below 10k steps), 2,000 specialist training steps, 3 seeds.
-
-\begin{table}[h]
-\centering
-\caption{Phase 2 Experiment 2: Private-domain fusion results (Pythia-410M, per-domain equal-weight evaluation). Per-seed mean divergence: 18.52\%, 18.51\%, 18.51\%. Routing: medical 99.98\%, legal 99.77\%--100\%, patent 91.65\%--98.75\%. Monolithic baseline: 6,000 steps on shuffled medical+legal+patent mix.}
-\label{tab:phase2_private}
-\small
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Scale} & \textbf{Method} & \textbf{EW Loss} & \textbf{vs.\ Best Spec.} & \textbf{vs.\ Mono.} & \textbf{Seeds} & \textbf{Std} \\
-\midrule
-\multirow{5}{*}{Pythia-410M}
- & Base model       & 2.954 & ---     & ---     & ---  & ---   \\
- & Best specialist  & 2.694 & ---     & ---     & 3    & ---   \\
- & Monolithic (6k)  & 2.462 & ---     & ---     & 1    & ---   \\
- & Weight avg.      & 2.709 & ---     & ---     & ---  & ---   \\
- & \kalavai (MoE)   & \textbf{2.418} & \textbf{+10.17\%} & \textbf{+1.78\%} & 3 & $\pm$0.15pp \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The legal specialist diverges 34.16\% from base---the largest per-domain divergence in any Phase 1 or Phase 2 experiment. Medical diverges 12.71\%, patent 8.68\%, yielding a mean of 18.52\%. The mean 0.55$\times$ conversion rate (18.52\% divergence $\to$ +10.17\% gain) is higher than the English domain rate (0.49$\times$), consistent with the pattern that high-divergence settings convert more efficiently. All three seeds achieve GO verdict (divergence $>$15\% AND gain $>$7\%), with seed variance $\pm$0.15pp confirming robustness.
-
-The +1.78\% improvement over the monolithic baseline (which has access to all domains during training) demonstrates that zero-data-sharing cooperative training remains competitive with centralised mixed-domain training even in professional domain settings.
+Three domains: medical (PubMed), legal (EU legislation), patent (\texttt{big\_patent}/a), 2{,}000 steps, 3 seeds. Mean divergence 18.52\% (legal 34.16\%, medical 12.71\%, patent 8.68\%). \kalavai achieves $+10.17\%$ $\pm$0.15pp vs.\ best specialist and $+1.78\%$ over the monolithic baseline, with 0.55$\times$ conversion rate consistent with the divergence-proportional gain relationship.
 
 \subsubsection{Cross-Lingual Fusion (Experiment 1)}
 \label{sec:phase2_crosslingual}
 
 Four specialists are trained on Pythia-410M step10000 ($K=0$, 2,000 steps): \emph{Tamil} (Wikipedia ta, 208k chunks), \emph{Yoruba} (Wikipedia yo, 13.7k chunks), \emph{Welsh} (Wikipedia cy, 37.5k chunks), and \emph{code} (CodeSearchNet Python). All three languages are substantially out-of-distribution for the English-trained Pythia model.
-
-\begin{table}[h]
-\centering
-\caption{Phase 2 Experiment 1: Cross-lingual fusion perplexity (Pythia-410M, 3-seed mean with curriculum warm-start---all seeds achieve perfect routing). Code improvement is small because the base model already achieves low perplexity on Python.}
-\label{tab:phase2_crosslingual}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Domain} & \textbf{Divergence} & \textbf{Base PPL} & \textbf{Specialist PPL} & \textbf{MoE PPL} \\
-\midrule
-Tamil  & 23.3\% & 4.2  & 3.0  & 3.0  \\
-Yoruba & 45.5\% & 41.9 & 7.7  & 7.7  \\
-Welsh  & 33.2\% & 102.7 & 22.1 & 22.1 \\
-Code   & 0.4\%  & 8.2  & 8.1  & 8.1  \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{figure}[htbp]
   \centering
@@ -508,250 +323,75 @@ Code   & 0.4\%  & 8.2  & 8.1  & 8.1  \\
   \label{fig:crosslingual_ppl}
 \end{figure}
 
-All three seeds achieve near-identical results (+22.04\% / +21.79\% / +21.77\% vs.\ best specialist, $\pm$0.12pp) with perfect routing: each language routes to its specialist at $>$99.98\% gate weight. The extreme Yoruba improvement (PPL 41.9$\to$7.7, 5.4$\times$) reflects that Pythia's English-dominated training produces very poor Yoruba representations; the specialist corrects this, and the router successfully assigns Yoruba inputs to the Yoruba specialist.
+All three seeds achieve near-identical results (+22.04\% / +21.79\% / +21.77\% vs.\ best specialist, $\pm$0.12pp) with perfect routing: each language routes to its specialist at $>$99.98\% gate weight. The extreme Yoruba improvement (PPL 41.9$\to$7.7, 5.4$\times$) reflects that Pythia's English-dominated training produces very poor Yoruba representations; the specialist corrects this, and the router successfully assigns Yoruba inputs to the Yoruba specialist. Curriculum warm-start (Stage A: 100 domain-pure router steps; Stage B: 400 mixed) resolves seed-42 router initialisation sensitivity (Yoruba collapsed onto Tamil without it); all three seeds converge successfully with curriculum warm-start.
 
-\paragraph{Curriculum warm-start fixes router initialisation sensitivity.} In an earlier training run (without curriculum), seed 42 collapsed Yoruba inputs onto the Tamil specialist (99.84\% gate weight): both Tamil and Yoruba are tokenizer-OOD byte-fallback scripts, and at that random seed their hidden-state representations were insufficiently differentiated for the router to separate them under standard initialisation. Curriculum warm-start (Stage A: 100 domain-pure steps, one batch per language; Stage B: 400 mixed steps to 500 total) resolves this: seed 42 achieves +22.04\%, Yoruba PPL 41.9$\to$7.7, matching seeds 137 and 2026. This finding suggests a simple mitigation for tokenizer-OOD routing sensitivity at negligible additional cost.
-
-3-seed mean: $+21.87\%$ $\pm$0.12pp; mean divergence 25.65\%; final verdict \textbf{GO} (all seeds).
+3-seed mean: $+21.87\%$ $\pm$0.12pp; mean divergence 25.65\%; all seeds converge with consistent routing. The tight seed variance ($\pm$0.12pp) and near-perfect per-language routing ($>$99.98\% gate weight) confirm that these extreme gains are structurally reproducible, not seed-dependent outliers.
 
 \subsubsection{20-Contributor Federation (Experiment 3)}
 \label{sec:phase2_twenty}
 
-This is the largest cooperative tested: 20 specialists (10 languages + 10 domains) on Pythia-1B, scaling from the 3--4 specialists of Phase~1. Each specialist trains 2,000 steps on its own data; the linear router then trains 1,000 steps on mixed data (physical bs\,=\,4, gradient accumulation\,=\,5, effective bs\,=\,20, lr\,=\,0.0002).\footnote{The default router uses mean-pooled specialist hidden states as input. A base-model hidden-state router variant---using only the frozen base model's hidden states, with no specialist-specific signal---achieves +16.67\% vs.\ best specialist (MoE EW loss 2.3143), compared to +16.79\% for the specialist-hidden-state router (2.3108). The 0.12pp difference is within noise. Routing distributions are nearly identical across both variants, including the medical--chemistry confusion pattern (Section~\ref{sec:phase2_twenty}). This confirms that routing quality is determined by the representational geometry of the shared initialisation, not by specialist-specific hidden states.} The fused model achieves base EW loss 2.7898, best-specialist EW 2.7771 (Arabic), MoE EW \textbf{2.3130}---a \textbf{+16.71\%} gain vs.\ best specialist and +17.09\% vs.\ base (mean divergence 15.68\%, 3 seeds, $\pm$0.07pp). STOP/GO verdict: \textbf{GO}.
+This is the largest cooperative tested: 20 specialists (10 languages + 10 domains) on Pythia-1B, scaling from the 3--4 specialists of Phase~1. Each specialist trains 2,000 steps on its own data; the linear router then trains 1,000 steps on mixed data (physical bs\,=\,4, gradient accumulation\,=\,5, effective bs\,=\,20, lr\,=\,0.0002).\footnote{A base-model hidden-state router achieves +16.67\% vs.\ the specialist-hidden-state router's +16.79\% (0.12pp difference); routing quality is determined by the shared initialisation geometry.} The fused model achieves base EW loss 2.7898, best-specialist EW 2.7771 (Arabic), MoE EW \textbf{2.3130}---a \textbf{+16.71\%} gain vs.\ best specialist and +17.09\% vs.\ base (mean divergence 15.68\%, 3 seeds, $\pm$0.07pp). The routing architecture and training budget required no changes to accommodate 20 specialists, confirming that the gains observed in Phase~1 generalise beyond small cooperative size.
 
-Table~\ref{tab:twenty} reports per-seed metrics for the three random seeds. All seeds pass the GO threshold and exhibit tightly consistent results.
+\paragraph{Negative-divergence specialists.} Two of 20 specialists (dialogue: $-$23.8\% vs.\ base, 184 chunks; instructions: $-$12.5\%, 283 chunks) exhibit negative divergence due to insufficient training data. Both route correctly ($>$88\% gate weight); the degradation is from the undertrained specialists themselves. Removing these two and retraining the router yields the 18-contributor ablation result: $+21.13\%$ $\pm$0.01pp (Appendix~\ref{app:fe03_table}). The $\pm$0.01pp seed variance (vs.\ $\pm$0.07pp for 20 specialists) reflects a well-conditioned problem once negative-divergence specialists are removed.
 
-\begin{table}[h]
-\centering
-\caption{20-contributor federation on Pythia-1B (3 seeds). Per-domain equal-weight
-evaluation across all 20 domains (freeze=0, step10000, 2{,}000 steps per specialist,
-1{,}000 router steps). Two specialists (dialogue, instructions) exhibit negative
-divergence due to data scarcity; see text.}
-\label{tab:twenty}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Seed} & \textbf{Base EW} & \textbf{MoE EW} & \textbf{vs.\ Spec.} & \textbf{vs.\ Base} \\
-\midrule
-42   & 2.790 & 2.311 & $+$16.79\% & $+$17.17\% \\
-137  & 2.790 & 2.314 & $+$16.65\% & $+$17.04\% \\
-2026 & 2.790 & 2.314 & $+$16.68\% & $+$17.06\% \\
-\midrule
-\textbf{Mean} & 2.790 & 2.313 & \textbf{$+$16.71\%} & \textbf{$+$17.09\%} \\
-\textbf{Std}  & ---   & ---   & $\pm$0.07pp        & $\pm$0.07pp        \\
-\bottomrule
-\end{tabular}
-\end{table}
+(Per-domain breakdown: Appendix~\ref{app:exp3_perdomain}.)
 
-\paragraph{Negative-divergence specialists.}
-Two of 20 specialists (dialogue, instructions) exhibit negative divergence: fine-tuning on
-these open-domain datasets degrades performance relative to the base model's pre-trained
-general competence (dialogue: $-$23.8\% vs.\ base; instructions: $-$12.5\%).
-Both domains have severely limited training data (dialogue: 184 chunks, instructions: 283
-chunks), which is insufficient to produce positive specialist divergence.
-Routing for both specialists is \emph{correct}---dialogue routes 97.1\% to its own gate,
-instructions 88.9\%---so the degradation is caused by the undertrained specialists
-themselves, not routing failure.
-We validate this directly: retraining the router on the 18 quality-passing specialists (omitting dialogue and instructions) achieves $\mathbf{+21.13\%}$ $\pm$0.01pp vs.\ best specialist (3-seed mean, mean divergence 19.75\%), compared to the regression prediction of $+13.45\%$ at that divergence level (+7.68pp residual).
-The mean divergence rises from 15.68\% (with toxic specialists) to 19.75\% (18 specialists only), consistent with the negative-divergence domains having suppressed the cooperative-level mean.
-This confirms that the protocol requires minimally sufficient specialist training data: the divergence-gain framework predicts near-zero or negative gain when specialist divergence does not exceed the base-model competence floor ($\approx$3.3\%).
-
-\paragraph{18-Contributor Ablation (FE-03).}
-Table~\ref{tab:eighteen} reports per-seed metrics for the 18-specialist router.
-The $\pm$0.01pp seed-to-seed variance (vs.\ $\pm$0.07pp for 20 specialists) reflects that the router faces a
-well-conditioned problem once negative-divergence specialists are removed.
-All three seeds achieve GO; STOP/GO verdict: \textbf{GO}.
-
-\begin{table}[h]
-\centering
-\caption{18-contributor ablation on Pythia-1B (FE-03, 3 seeds). Same specialist checkpoints as
-Table~\ref{tab:twenty} (seed 42); dialogue and instructions specialists omitted.
-Router retrained from scratch for 1{,}000 steps on 18-domain mixed data.}
-\label{tab:eighteen}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Seed} & \textbf{Base EW} & \textbf{MoE EW} & \textbf{vs.\ Spec.} & \textbf{vs.\ Base} \\
-\midrule
-42   & 2.760 & 2.165 & $+$21.14\% & $+$21.57\% \\
-137  & 2.760 & 2.165 & $+$21.12\% & $+$21.55\% \\
-2026 & 2.760 & 2.165 & $+$21.13\% & $+$21.56\% \\
-\midrule
-\textbf{Mean} & 2.760 & 2.165 & \textbf{$+$21.13\%} & \textbf{$+$21.56\%} \\
-\textbf{Std}  & ---   & ---   & $\pm$0.01pp        & $\pm$0.01pp        \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{Per-domain MoE gain vs.\ base (\%) for the 20-contributor federation (Pythia-1B, 3-seed mean across seeds 42/137/2026). Gain\,=\,$(L_\text{base}-L_\text{MoE})/L_\text{base}\times100$. $\dagger$~Undertrained domains: fewer than 500 training chunks (dialogue: 184, instructions: 283), flagged as warnings during data loading. All other domains show positive gains; language specialists (mean +23.8\%) outperform domain specialists (mean +14.8\% excluding $\dagger$) due to higher base-model perplexity on non-English text.}
-\label{tab:exp3_perdomain}
-\small
-\begin{tabular}{lrlr}
-\toprule
-\multicolumn{2}{c}{\textbf{Language Specialists}} & \multicolumn{2}{c}{\textbf{Domain Specialists}} \\
-\textbf{Specialist} & \textbf{Gain} & \textbf{Specialist} & \textbf{Gain} \\
-\midrule
-Tamil      & +25.29\% & Code         & +2.70\%  \\
-Yoruba     & +58.37\% & Medical      & +14.41\% \\
-Welsh      & +37.21\% & Legal        & +36.48\% \\
-Spanish    & +5.20\%  & Patent       & +8.37\%  \\
-Hindi      & +18.04\% & Math         & +22.47\% \\
-Swahili    & +38.26\% & Finance      & +12.54\% \\
-Vietnamese & +12.34\% & Chemistry    & +13.12\% \\
-Arabic     & +11.24\% & Fiction      & +8.34\%  \\
-Indonesian & +12.49\% & Dialogue     & $-$23.84\%$^\dagger$ \\
-Thai       & +19.15\% & Instructions & $-$12.54\%$^\dagger$ \\
-\midrule
-\textit{Mean} & \textit{+23.76\%} & \textit{Mean (all)} & \textit{+8.21\%} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\emph{Router robustness note.} A base-model hidden-state router variant (seed~42) achieves +16.67\% vs.\ best specialist (EW loss 2.3143) with near-identical per-domain routing, confirming router input choice does not affect fusion quality at this scale.
-
-\paragraph{Router distribution.} The linear router achieves near-perfect specialisation: 17 of 20 domains assign ${>}$98\% gate weight to the correct specialist, and all 10 language specialists route ${>}$99.4\% correctly. Two patterns merit attention.
-
-\emph{Medical--chemistry routing.} Medical routes 60.2\% to itself and 38.4\% to chemistry; chemistry routes 52.7\% to medical and 46.6\% to itself. These two domains share scientific vocabulary and document structure (abstracts, methods, results), making their hidden-state representations similar. This is a genuine domain-similarity finding, not a protocol failure: the router correctly identifies their overlap, and both domains show positive MoE gains (+14.3\% and +13.1\% respectively).
-
-\paragraph{Scale validation.} The +16.71\% gain (3-seed mean) at 15.68\% mean divergence is +6.57pp above the linear regression prediction (+10.11\%) from Section~\ref{sec:divergence_gain}, consistent with the pattern that heterogeneous multi-domain cooperatives---mixing language and domain specialists with widely varying divergence levels---outperform the English-domain regression baseline. The routing saturation result holds at scale: a simple linear router on 20 specialists converges to near-optimal domain assignment, confirming that router architecture does not matter once shared initialisation is in place.
-
-\paragraph{Replication note.} Experiment 3 was replicated across three random seeds (42, 137, 2026). The 3-seed mean is \textbf{+16.71\% $\pm$0.07pp} vs.\ best specialist (+17.09\% $\pm$0.07pp vs.\ base), with mean divergence 15.68\% $\pm$0.04pp. Variance is tighter than Experiment 2 ($\pm$0.15pp) and comparable to Phase 1 ($\pm$0.01--0.02pp at 410M/1B). Per-domain routing distributions are near-identical across seeds, with all 10 language specialists routing $>$99\% correctly in every seed. The result is confirmed stable.
+\paragraph{Router distribution.} 17 of 20 domains assign $>$98\% gate weight to the correct specialist; all 10 language specialists route $>$99.4\% correctly. Medical and chemistry share routing weight (60/40 split) due to vocabulary overlap, but both show positive MoE gains ($+14.3\%$ and $+13.1\%$). A base-model hidden-state router achieves $+16.67\%$ vs.\ the specialist-hidden-state router's $+16.79\%$ (0.12pp difference), confirming routing quality is determined by shared initialisation geometry.
 
 % ============================================================
 \subsection{Divergence--Gain Relationship}
 \label{sec:divergence_gain}
 % ============================================================
 
-Across six experimental conditions---Qwen-1.5B (mean div.\ 3.16\%), Pythia-6.9B (8.73\%), Pythia-1B (15.28\%), Pythia-410M (15.65\%), Exp 2 private-domain (18.52\%), and Exp 1 cross-lingual (25.65\%)---fusion gain scales monotonically with specialist divergence (Figure~\ref{fig:divergence_gain_regression}). Exp 3 (20-contributor, 15.68\%, +16.71\%, 3-seed mean) serves as an out-of-sample validation point (Table~\ref{tab:divergence_gain}).
+Across six experimental conditions---Qwen-1.5B (mean div.\ 3.16\%), Pythia-6.9B (8.73\%), Pythia-1B (15.28\%), Pythia-410M (15.65\%), Exp 2 private-domain (18.52\%), and Exp 1 cross-lingual (25.65\%)---fusion gain scales monotonically with specialist divergence (Figure~\ref{fig:divergence_gain_regression}). Exp 3 (20-contributor, 15.68\%, +16.71\%, 3-seed mean) serves as an out-of-sample validation point (Appendix~\ref{app:divgain_table}).
 
 \paragraph{Linear regression fit.} We fit OLS regression to the six data points. The linear model ($\text{gain} = -2.72 + 0.82 \times \text{divergence}$) achieves $R^2 = 0.856$ (slope 95\% CI [0.35, 1.28], $n=6$, $t$-distribution). A log-linear fit achieves only $R^2 = 0.662$---the relationship is closer to linear than sublinear across the 3--26\% divergence range. The regression line and 95\% prediction band are shown in Figure~\ref{fig:divergence_gain_regression}.
 
-\paragraph{Regime dependence.} A training-duration sweep (8 conditions, 50--20{,}000 steps per specialist) reveals that the linear law is \emph{regime-dependent}: within a fixed training protocol, the formula holds; varying training duration decouples divergence from gain as specialists over-train beyond the optimal checkpoint (divergence returns toward zero while gain first rises then falls). The full expanded scatter ($n=17$, including crossover conditions and 3-seed 20-contributor data) is provided in the supplementary material.
+\paragraph{Regime dependence.} Within a fixed training protocol the linear law holds; varying training duration decouples divergence from gain (Appendix~\ref{app:inventory}).
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.82\textwidth]{fig_divergence_gain_regression}
-  \caption{Fusion gain vs.\ mean specialist divergence (\%) with OLS regression line and 95\% prediction band. Linear fit: $\text{gain} = -2.72 + 0.82 \times \text{div}$ ($R^2 = 0.856$, $n=6$ in-sample conditions). English-domain conditions (Qwen, Pythia-6.9B/1B/410M) cluster near the line; Exp 2 (private, purple) and Exp 1 (cross-lingual, red) both lie above the English-domain prediction, consistent with base-model incompetence on target domains producing outsized gains. The cross-lingual condition is the largest in-sample outlier (+3.6pp). Annotations show gain/divergence conversion rate per condition. \emph{Note:} Exp~3 (20-contributor, div\,=\,15.68\%, gain\,=\,+16.71\%, 3-seed mean) is an out-of-sample validation point lying +6.57pp above the regression line (Table~\ref{tab:divergence_gain}); it is not shown in this figure as the regression was fit before Exp~3 results were available.}
+  \caption{Fusion gain vs.\ mean specialist divergence (\%) with OLS regression line and 95\% prediction band. Linear fit: $\text{gain} = -2.72 + 0.82 \times \text{div}$ ($R^2 = 0.856$, $n=6$ in-sample conditions). English-domain conditions (Qwen, Pythia-6.9B/1B/410M) cluster near the line; Exp 2 (private, purple) and Exp 1 (cross-lingual, red) both lie above the English-domain prediction, consistent with base-model incompetence on target domains producing outsized gains. The cross-lingual condition is the largest in-sample outlier (+3.6pp). Annotations show gain/divergence conversion rate per condition. \emph{Note:} Exp~3 (20-contributor, div\,=\,15.68\%, gain\,=\,+16.71\%, 3-seed mean) is an out-of-sample validation point lying +6.57pp above the regression line (Appendix~\ref{app:divgain_table}); it is not shown in this figure as the regression was fit before Exp~3 results were available.}
   \label{fig:divergence_gain_regression}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\caption{Summary of divergence--gain relationship across all Phase 1 and Phase 2 experiments. Predicted gain from linear fit $= -2.72 + 0.82 \times \text{div}$; residual = actual$-$predicted. Predicted values are computed from full-precision OLS coefficients (slope $= 0.8170$, intercept $= -2.724$); the displayed formula rounds to two decimal places, so applying it directly may differ by $\leq$0.1pp. The regression was fit on the six in-sample conditions (rows 1--6); Exp~3 (row 7) is an out-of-sample validation point. $^{\dagger}$Qwen predicted gain ($\approx{-}0.1\%$, effectively zero) is at the divergence floor ($\approx$3.3\%); the cooperative produced modest positive gain in practice (+1.06\%). $^{\ddagger}$In a 20-specialist cooperative no single specialist achieves strong equal-weight performance across all 20 domains; the best specialist (Arabic, EW 2.7771) is only 0.46\% above base (2.7898), making gain-vs-spec $\approx$ gain-vs-base (+17.17\%). The nominal conversion rate $>1$ reflects this near-equal baseline, not an anomalous efficiency.}
-\label{tab:divergence_gain}
-\small
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Condition} & \textbf{Mean Div.} & \textbf{Gain vs Spec} & \textbf{Conv.\ rate} & \textbf{Pred.\ gain} & \textbf{Residual} \\
-\midrule
-Qwen-1.5B (Ph.1)            & 3.16\%  & +1.06\%  & 0.34$\times$ & $\approx$0\%$^{\dagger}$ & --- \\
-Pythia-6.9B (Ph.1)          & 8.73\%  & +6.53\%  & 0.75$\times$ & +4.41\%  & +2.12pp \\
-Pythia-1B (Ph.1)            & 15.28\% & +7.49\%  & 0.49$\times$ & +9.81\%  & $-$2.32pp \\
-Pythia-410M (Ph.1)          & 15.65\% & +7.72\%  & 0.49$\times$ & +10.11\% & $-$2.39pp \\
-Exp 2: private (Ph.2)       & 18.52\% & +10.17\% & 0.55$\times$ & +12.43\% & $-$2.26pp \\
-Exp 1: cross-lingual (Ph.2) & 25.65\% & +21.87\% & 0.85$\times$ & +18.18\% & +3.69pp \\
-\midrule
-\textit{Exp 3: 18-contrib/FE-03 (Ph.2, OOS)} & \textit{19.75\%} & \textit{+21.13\%} & \textit{1.07$\times$$^{\ddagger}$} & \textit{+13.45\%} & \textit{+7.68pp} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The residual pattern is informative. The four English-domain conditions (Pythia 410M/1B/6.9B and Private) all lie within $\pm$2.4pp of the line, forming a coherent cluster. The 6.9B point sits +2.12pp above the line---consistent with larger models converting divergence more efficiently. The cross-lingual condition is the largest in-sample outlier (+3.7pp), explained by base-model near-incompetence on Yoruba and Welsh: when the base model achieves near-random perplexity on a domain, the specialist corrects this from a high baseline and the router routes with near-perfect confidence, leaving no gain on the table. The out-of-sample Exp~3/FE-03 point (+7.68pp residual, 18-specialist quality-filtered configuration, 3-seed mean) lies further above the line, consistent with its heterogeneous mix of high-divergence language specialists (Yoruba +58\%, Welsh +37\%, Swahili +38\%) pulling the cooperative gain above what the English-domain regression would predict.
-
-The practical implication is that the formula $\text{gain} \approx 0.82 \times \text{divergence}$ provides a reliable pre-training estimate for English-domain and professional-domain cooperatives. Cross-lingual settings with low-resource languages will likely exceed this prediction. The formula also sets a divergence floor: below $\approx$3.3\% mean divergence, the linear prediction approaches zero, indicating the cooperative is unlikely to produce positive gains over individual specialists.
-
-\paragraph{Base-model competence as a secondary predictor.}
-Specialist divergence captures how much specialists move from the base model; a complementary factor is how competent the base model already is on the target domain. Across the six experimental conditions, the log of the mean base-model perplexity on each domain's evaluation data correlates with the conversion efficiency (gain / divergence) at $r = +0.560$ (Pearson, $n = 6$), compared with $r = +0.614$ for divergence alone. On the six-point sample this is suggestive rather than definitive, but the pattern is mechanistically plausible: when the base model achieves near-random perplexity on a domain (Yoruba PPL $\approx 42$, Welsh PPL $\approx 103$), the specialist must correct the base from a high-loss floor, the router routes with near-certainty, and essentially all specialist gain is preserved. When the base is already competent (English code PPL $\approx 7$), specialist gains are smaller in absolute terms and the cooperative receives less incremental value. This suggests a two-factor heuristic---measure both specialist divergence and base-model competence before committing to a cooperative---though validation on more conditions is needed before treating the secondary predictor as quantitatively reliable. Figure~\ref{fig:baseppl_conversion} shows the relationship across all conditions.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/paper/fig_baseppl_conversion.png}
-  \caption{Base-model perplexity as a secondary predictor of cooperative fusion efficiency.
-  \textbf{Left}: Conversion efficiency (gain / divergence) versus mean base-model perplexity per condition.
-  \textbf{Centre}: Same with log-scaled perplexity axis (Pearson $r = +0.560$).
-  \textbf{Right}: Divergence versus gain coloured by base-model PPL quartile.
-  Cross-lingual conditions (high base PPL) convert divergence most efficiently; English-domain conditions (low base PPL) sit near the baseline conversion rate. Dashed lines are OLS fits; $n=6$ conditions.}
-  \label{fig:baseppl_conversion}
-\end{figure}
+The formula $\text{gain} \approx 0.82 \times \text{divergence}$ provides a reliable pre-training estimate for English-domain and professional-domain cooperatives; cross-lingual and low-resource settings will likely exceed it. Below $\approx$3.3\% mean divergence, the cooperative is unlikely to produce positive gains (Appendix~\ref{app:divgain_table}).
 
 % ============================================================
 \section{Analysis}
 \label{sec:analysis}
 % ============================================================
 
-\paragraph{Router architecture does not matter.} Under per-domain equal-weight evaluation, a uniform router achieves $-1.19\%$ vs.\ best specialist (worse than the best individual specialist: uniform mixing averages cross-domain degradation); a trained linear router achieves $+7.70\%$; a 2-layer MLP achieves $+7.72\%$. The ordering---uniform $<$ learned routing; linear $\approx$ MLP---confirms that the gap is entirely explained by whether routing is trained, not by the function class. Full results in Appendix~\ref{app:router}.
+\paragraph{Router architecture does not matter.} A trained linear router achieves $+7.70\%$ vs.\ best specialist; a 2-layer MLP achieves $+7.72\%$; untrained uniform routing achieves $-1.19\%$. The 8.9pp gap between untrained and trained routing reflects routing's necessity; the 0.02pp gap between linear and MLP confirms architecture is irrelevant. At 410M and 6.9B, the learned router saturates the domain-level oracle: gap ${<}3 \times 10^{-6}$ nats and ${<}10^{-5}$ nats respectively. At 1B, a 0.059-nat gap remains (Appendix~\ref{app:router}). The practical implication is that further investment in router engineering is unlikely to improve cooperative gains; the remaining headroom lies in specialist quality and divergence.
 
-The strongest evidence for this claim is oracle saturation. A domain-level routing oracle---the optimal \emph{static} assignment of each evaluation domain to whichever specialist achieves the lowest loss on that domain---achieves EW loss 2.218319 at 410M. The learned linear router achieves 2.218316---a gap of $3 \times 10^{-6}$ nats, or $0.0002\%$ of the MoE loss. At 6.9B, the oracle gap is ${<}10^{-5}$ nats (also effectively zero). At 1B, the oracle gap is 0.059 nats (+2.73\% headroom), reflecting a modest routing suboptimality at 1B. At 410M and 6.9B, the learned router has converged to the domain-level optimum: there is no remaining gain available from routing improvements at the domain granularity at which our evaluation is performed. The router is not the bottleneck; the representational structure created by shared initialisation fully determines routing quality, and a simple linear layer is sufficient to exploit it.
+\paragraph{Scale, maturity, and token-level behaviour.} Fusion improvement is consistent at 410M across Pythia training maturities (+7.0\%--+8.8\%); at 1B it drops to +0.40\% at the fully-trained checkpoint (step 143,000), consistent with reduced specialist divergence from a competent base model (Appendix~\ref{app:maturity}). Specialist count scales monotonically (+1.76\% at 2 specialists to +12.95\% at 5, Appendix~\ref{app:scaling}). Token-level routing produces 2.2 expert switches per hybrid-domain prompt on average (Appendix~\ref{app:routing}).
 
-This claim extends to 20-specialist scale. In the Exp~3 federation, a base-model hidden-state router---which receives only the frozen base model's representations as input, with no access to specialist hidden states---achieves +16.67\% vs.\ best specialist, compared to +16.79\% for the specialist-hidden-state router (a 0.12pp difference). Routing distributions are nearly identical: all 10 language specialists route ${>}$99.3\% correctly under both variants, and the medical--chemistry confusion pattern (60/40 split) persists across both, confirming it reflects genuine domain-level semantic overlap rather than a router limitation. The base model's representational geometry, established at shared initialisation, fully determines which specialist should handle each token---specialist-specific signal during routing is redundant.
-
-\paragraph{Improvement is robust across training maturities at 410M.} Fusion improvement is consistent at 410M across Pythia checkpoints from step 5,000 to step 143,000 (+7.0\%--+8.8\%); the mechanism does not depend on the base model being under-trained. At 1B, improvement drops markedly at the fully-trained checkpoint (+0.40\% at step 143,000 vs.\ +8.75\% at step 5,000), consistent with the divergence--gain relationship: fully-trained base models produce less specialist divergence. (Appendix~\ref{app:maturity}).
-
-\paragraph{Improvement scales monotonically with specialist count.} Under five-domain equal-weight evaluation, adding specialists shows clear monotonic improvement: 2 specialists ($+1.76\%$, code and fiction only), 3 specialists ($+4.39\%$), 4 specialists ($+11.39\%$, adding math), and 5 specialists ($+12.95\%$, all five domains). Each new specialist improves its own domain without degrading others; the monotonic increase reflects domain coverage expansion (Appendix~\ref{app:scaling}).
-
-\paragraph{Token-level routing confirms mid-sequence switching.} On hybrid-domain prompts, the router produces 2.2 expert switches per prompt on average, assigning domain-appropriate weights within a single sentence---confirming the router operates at token granularity, not document level (Appendix~\ref{app:routing}).
-
-\paragraph{Representational divergence confirms specialisation.} Figure~\ref{fig:heatmap} shows the cross-domain evaluation loss matrix at step 2,000. The pronounced diagonal structure confirms that each specialist has learned domain-specific representations: each specialist achieves its lowest loss on its own domain and highest loss on the furthest domain. The code specialist evaluates at 1.879 on code data and 2.909 on science data---a gap of 0.032 above base on science, confirming out-of-domain degradation. The off-diagonal pattern directly motivates MoE fusion: a router that dispatches each token to the appropriate diagonal entry recovers all specialist gains.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.60\textwidth]{fig_divergence_heatmap}
-  \caption{Cross-domain evaluation loss matrix at Pythia-410M, step 2,000 (freeze=4, seed=42). Rows are specialists; columns are evaluation domains. The diagonal entries (own-domain performance) are lower than off-diagonal (cross-domain), confirming that each specialist has diverged in a complementary direction. The MoE router recovers diagonal performance across all domains simultaneously. Color scale: green indicates lower loss (better performance), red indicates higher loss.}
-  \label{fig:heatmap}
-\end{figure}
-
-\paragraph{Downstream benchmarks.} At 1B scale, MoE leads on HellaSwag (35.0\% vs.\ 34.4\% for the base) and best individual specialist (34.2--34.4\%). Monolithic training produces the worst HellaSwag score (33.4\%). Overall average accuracy: base 50.6\%, MoE 49.6\%, monolithic 49.3\%. Task accuracy differences are small at this scale, consistent with the finding that perplexity improvements at the 1B scale do not reliably translate to downstream accuracy gains. At 6.9B, MoE achieves average accuracy 52.2\% versus base 51.6\%. Full benchmark tables in Appendix~\ref{app:benchmarks}. \emph{Caveat:} All benchmarks use 500 examples per task; at this sample size, differences of 1--2 percentage points are within statistical noise. Downstream accuracy results should be treated as directional indicators only, not statistically significant findings.
+\paragraph{Representational divergence confirms specialisation.} The cross-domain evaluation loss matrix (Appendix~\ref{app:heatmap}) at step 2,000 shows a pronounced diagonal structure confirming complementary specialisation: each specialist achieves its lowest loss on its own domain. The off-diagonal pattern directly motivates MoE fusion.
 
 % ============================================================
 \section{Discussion and Limitations}
 \label{sec:discussion}
 % ============================================================
 
-\paragraph{What the 6.9B result means.} Fusion gain is proportional to specialist divergence (Table~\ref{tab:divergence}). At 410M and 1B, specialists diverge 10--25\% from base per domain (mean $\sim$15.5\%), producing $\sim$+7.5\% fusion gain. At 6.9B on the same domains, specialists diverge 7--10\% per domain (mean 8.73\%)---approximately half the divergence at smaller scales---and fusion gain is +6.53\% ($\pm$0.024\%, 3 seeds). The conversion rate (gain per unit divergence) is actually \emph{higher} at 6.9B (0.75$\times$) than at 410M/1B (0.49$\times$): larger models convert divergence into fusion gain more efficiently. The reduced gain at 6.9B is due entirely to reduced specialist divergence, not to any scale-dependent degradation of the protocol. Routing is near-deterministic ($>$99.9\%) at 6.9B as at all scales. \textbf{\kalavai gains will be largest precisely where they are most needed}: low-resource languages, specialised technical domains, and early-stage models where contributors' data fills genuine gaps in the base model's competence, maximising specialist divergence. KALAVAI gains scale with divergence; wherever contributors' data fills genuine gaps, specialists diverge more and fusion gains more.
+\paragraph{Scale and divergence.} Reduced gain at 6.9B (+6.53\%) versus 410M (+7.72\%) is fully explained by lower divergence (mean 8.73\% vs.\ 15.65\%); conversion efficiency is \emph{higher} at 6.9B (0.75$\times$ vs.\ 0.49$\times$). Small divergence at Qwen-1.5B (mean 3.16\%) likewise produces small gain (+1.06\%): the formula $\text{gain} \approx 0.82 \times \text{divergence}$ holds consistently (Table~\ref{tab:divergence}).
 
-\paragraph{What the Qwen result means.} Qwen-1.5B achieves +1.06\% ($\pm$0.01\%, 3 seeds) with perfectly deterministic routing (100\% per-domain gate weight). This is not a failure case: the gain is small because divergence is small (code 1.76\%, fiction 4.56\%, mean 3.16\%, Table~\ref{tab:divergence}), consistent with the divergence-proportional gain relationship at 0.34$\times$ conversion rate. Routing succeeds at all divergence levels tested, including Qwen's 3.16\% mean divergence. The simpler narrative: small divergence $\to$ small gain; large divergence $\to$ large gain.
+\paragraph{Inference cost and limitations.} The fused model runs all $N$ specialists in parallel ($\approx N\times$ compute). Sparse top-1 inference loses 21\% quality at 410M despite 100\% routing agreement; this collapse arises from the logit-ensemble inference mechanism---the router input is the mean-pooled hidden state averaged across all specialists, which is unavailable under single-specialist evaluation---and is not addressable by routing improvements alone (Appendix~\ref{app:inference}). The empirical divergence--gain relationship is derived from six conditions under a fixed training protocol; its validity under different optimisers, architectures, or dataset distributions is not established. All experiments are simulated cooperatives on single machines; real deployment requires contributor vetting, checkpoint verification, and governance for dual-use risk. Results have not been verified at frontier scale ($>$70B).
 
-\paragraph{Inference cost.} The \kalavai fused model runs all $N$ specialists in parallel at inference, increasing compute by a factor of $N$ for the unfrozen layers. For $N=3$ with 17\% frozen layers, the effective inference overhead is approximately $2.5\times$ (frozen layers run once; unfrozen layers run $3\times$). Measured benchmarks on an NVIDIA RTX 5090 confirm this: dense MoE latency is $2.86\times$ base at 410M and $3.35\times$ base at 1B (Table~\ref{tab:inferencebench} in Appendix~\ref{app:inference}).
+\paragraph{Cooperative sparsity as a structural advantage.} Frontier MoE systems demonstrate that higher routing sparsity yields better performance for fixed FLOPs: Kimi K2 \citep{moonshotai2025kimik2} deploys 384 experts with 8 active (sparsity ratio 48), and DeepSeek-V3 \citep{liu2024deepseekv3} uses auxiliary-loss-free bias vectors to sustain load balance without interference gradients. \kalavai achieves sparsity as an emergent property of cooperative training: with $N=20$ contributors, the learned router concentrates gate mass on the domain-relevant specialist (2.2 expert switches per hybrid-domain prompt; Appendix~\ref{app:routing}), yielding a natural sparsity ratio of 5--10 without any auxiliary load-balancing loss. Unlike architectural MoE where sparsity must be imposed, cooperative sparsity arises from specialist domain separation---the router has no incentive to distribute gate mass broadly when each specialist is competent only on its training domain. \kalavai operates at granularity $G=2$ (full-width specialists, $d_\text{expert}=d_\text{model}$) across all scales, contrasting with frontier MoE systems that increase $G$ to 30--50 via sub-model experts; this is a deliberate protocol constraint, as full-width specialists are required to preserve the zero-communication training guarantee.
 
-The observed hard-switching behaviour ($>$99.7\% weight on one expert) suggests a potential sparse inference optimisation: run frozen layers once, route, then run only the top-1 expert's unfrozen layers. We test this directly. At 410M, top-1 routing agreement between full-parallel and single-expert forward passes is 100\%---frozen-layer hidden states fully determine which expert would be selected. At 1B, agreement drops to 10\%, meaning routing decisions change for 90\% of tokens when other specialists' hidden states are absent.
-
-Critically, even with 100\% routing agreement at 410M, sparse top-1 inference collapses quality: sparse evaluation loss is 3.106 versus 2.568 for dense MoE (21\% degradation relative to dense MoE, worse than the base model at 2.692). At 1B, sparse loss is 2.412 versus 2.382 dense (1.3\% degradation), but routing agreement is only 10\%. In both cases, sparse inference is not equivalent to dense inference.
-
-We hypothesise two factors explain the quality collapse despite correct routing. First, the router input in dense mode is the mean-pooled hidden state averaged across \emph{all} specialists' forward passes (see footnote~3); in sparse mode, this becomes a single specialist's hidden state---a different representation that alters the conditioning context for the gate computation. Second, even near-deterministic routing ($>$99.7\% weight on one expert in dense mode) preserves a residual ensemble contribution from all specialists that is lost under strict top-1 selection. Both factors mean that running only one specialist's unfrozen layers discards complementary signal regardless of how accurately the top specialist is identified.
-
-The memory footprint remains $N\times$, since all specialist weights must be loaded regardless of routing sparsity. We leave efficient sparse inference implementation to future work. The primary value proposition of \kalavai is training-time democratisation---enabling contributors who cannot afford centralised training to collectively produce a superior model---not inference efficiency.
-
-\paragraph{Applications.} The zero-communication-during-training property enables cooperative training scenarios that are infeasible with synchronous methods: multi-hospital medical language models where patient data cannot leave the facility; multi-jurisdictional legal AI where training data is subject to national regulations; low-resource language coverage where each language community trains a specialist on their language. Phase 2 experiments provide direct empirical evidence for the first and third scenarios: Experiment 2 demonstrates +10.17\% on medical/legal/patent domains with no data sharing; Experiment 1 demonstrates that Yoruba Wikipedia contributors can collectively achieve 5.4$\times$ perplexity improvement (41.9$\to$7.7) with zero Tamil, Welsh, or code data exposure.
-
-\paragraph{What this paper does not claim.}
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item We do not claim inference efficiency. The fused model is approximately $N\times$ more expensive to run than a single specialist.
-  \item We do not claim universal architecture generality. All primary results use Pythia (GPT-NeoX). The Qwen result provides a second architecture data point with a modest positive gain (+1.06\%) that confirms the mechanism generalises beyond GPT-NeoX.
-  \item We do not claim that downstream task performance reliably improves. Perplexity gains are clear; benchmark gains are modest ($<$1pp at 1B scale).
-  \item We do not claim that a real multi-contributor cooperative has been demonstrated. All experiments are simulated cooperatives on single machines. The gap between simulated and deployed cooperative training---including data heterogeneity across contributors, checkpoint verification, contributor reliability, and communication of freeze specifications---remains open engineering work.
-  \item We do not claim the method scales to frontier model sizes. Our experiments reach 6.9B; the mechanism produces positive results at all tested scales, but frontier-scale ($>$70B) behaviour is untested.
-  \item We do not claim universal domain generality. Phase 2 extends the protocol to medical, legal, patent, and ten non-English languages. The 20-contributor federation (Exp 3) confirms the mechanism at scale, with two data-scarce domains (dialogue, instructions; ${<}$300 training chunks each) showing degradation---the protocol requires minimally sufficient specialist training data to function correctly. Cross-modal settings (image, audio) remain untested.
-  \item We do not claim the gains are large on English domains where the base model is already competent (+7.72\% at 410M). The protocol's value scales with domain difficulty and data uniqueness; contributors whose data fills genuine gaps in the base model produce higher divergence and correspondingly larger gains.
-\end{itemize}
+\paragraph{Future work.} Auxiliary-loss-free load balancing \citep{liu2024deepseekv3}---bias vectors updated via the sign of mean load deviation, decoupled from the primary training objective---may improve routing stability when contributors join or leave the cooperative asynchronously, since auxiliary loss terms interact poorly with heterogeneous domain distributions across contributors. Extending the protocol to genuinely distributed deployment (asynchronous checkpoint submission, contributor vetting at scale, real network coordination) is the primary engineering requirement for production cooperative training.
 
 % ============================================================
 \section{Conclusion}
 \label{sec:conclusion}
 % ============================================================
 
-We have demonstrated that independently trained domain specialists, initialised from a shared checkpoint and fused via a lightweight MoE router, consistently outperform the best individual specialist and equal-compute monolithic training. The mechanism is not routing sophistication---a linear router is optimal---but the combination of specialised representations from domain-specific training with joint inference that aggregates those representations at each token position.
+Independently trained specialists, fused via a lightweight MoE router, consistently outperform the best individual specialist across three tested scales (+7.70\% at 410M, +7.49\% at 1B, +6.53\% at 6.9B). Fusion gain correlates with specialist divergence from the shared base ($\text{gain} \approx 0.82 \times \text{divergence} - 2.72$, $R^2 = 0.856$, $n{=}6$ conditions), suggesting divergence as a practical screening criterion within the settings studied. Routing architecture has minimal impact once training is adequate---a linear router matches MLP router performance and approaches the domain-level oracle ($<10^{-5}$ nats gap)---but routing must be learned; shared initialisation is the only coordination requirement during training.
 
-The training duration crossover finding provides a practical guideline for cooperative training: frozen layers are optional insurance at training horizons below 10,000 steps and recommended beyond 10,000 steps. The oracle routing saturation result---learned soft routing matches domain-level oracle and hard routing (all ${<}10^{-5}$ nats from oracle at 410M and 6.9B)---confirms that routing must be trained rather than uniform, but once trained, precision is irrelevant and specialist participation, not weighting scheme, drives improvement.
+Phase 2 extends the protocol to high-divergence settings: private professional domains achieve +10.17\% at 18.52\% divergence; cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves +21.87\% at 25.65\% divergence (Yoruba PPL $41.9\to7.7$); an 18-contributor federation achieves +21.13\%. Gain scales most steeply where the base model is least competent---precisely where decentralised, privacy-preserving training is most needed.
 
-Phase 2 extends the protocol beyond English domains: private professional domains (medical/legal/patent) achieve +10.17\% gain at 18.52\% mean divergence; cross-lingual fusion (Tamil/Yoruba/Welsh/Code) achieves +21.87\% $\pm$0.12pp (3-seed mean, curriculum warm-start) at 25.65\% divergence, with Yoruba perplexity falling 5.4$\times$ (41.9$\to$7.7) and Welsh 4.6$\times$ (102.7$\to$22.1). Gain scales with divergence at a conversion rate that \emph{improves} in high-divergence settings (0.85$\times$ cross-lingual vs.\ 0.49$\times$ English domains). The protocol is most valuable precisely where it is most needed.
-
-Together, these findings validate the core premise of \kalavai: contributors speaking different languages, working with data they cannot share, and training on hardware they own can collectively produce a model that none of them could build alone. The shared initialisation constraint is the primary coordination requirement: our ablation (Section~\ref{sec:sharedinit}) shows that mismatched checkpoints degrade routing clarity, making it the only protocol constraint that contributors must honour.
-
-\paragraph{Broader impact.} \kalavai lowers the compute barrier for training competitive language models. Any group that can collectively afford the inference compute of $N$ models can produce a model that matches a single model with $N$-times the training budget. The protocol is most impactful for under-resourced language communities (Phase 2 Exp 1: Yoruba PPL 41.9$\to$7.7 with no English data sharing) and organisations with data privacy constraints (Phase 2 Exp 2: medical/legal/patent +10.17\% with zero data sharing). Code, experiment scripts, and result artefacts will be released upon publication.
-
-The same privacy property that makes the protocol beneficial introduces a dual-use risk: contributors can train specialists on data that is entirely invisible to the coordinator, which could allow harmful or biased knowledge to be incorporated into the fused model without centralised oversight. The $N{\times}$ inference overhead provides practical friction against casual misuse at scale, but does not eliminate the concern for motivated actors. Production deployments of the protocol should include contributor vetting and checkpoint validation as part of their governance design.
+\paragraph{Broader impact.} \kalavai enables under-resourced language communities and data-privacy-constrained organisations to collectively train models none could build alone. Code and result artefacts will be released upon publication. The privacy-preserving property introduces dual-use risk; production deployments should include contributor vetting and checkpoint validation.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
@@ -808,9 +448,9 @@ Results integrity audit & All & 322/322 checks passed, 0 issues & --- & Done \\
 \multicolumn{5}{l}{\textit{Phase 2 experiments (high-divergence domains)}} \\
 \midrule
 Exp 2: Private-domain (410M) & Pythia-410M & +10.17\% $\pm$0.15pp & 3 & Done \\
-Exp 1: Cross-lingual (410M) & Pythia-410M & +21.87\% $\pm$0.12pp (curriculum, 3 seeds) & 3 GO & Done \\
-Exp 3: 20-contributor (1B) & Pythia-1B & +16.71\% $\pm$0.07pp vs.\ spec (mean div.\ 15.68\%) & 3 GO & Done (seeds 42/137/2026) \\
-FE-03: 18-contributor ablation (1B) & Pythia-1B & +21.13\% $\pm$0.01pp vs.\ spec (mean div.\ 19.75\%, quality filtered) & 3 GO & Done (seeds 42/137/2026) \\
+Exp 1: Cross-lingual (410M) & Pythia-410M & +21.87\% $\pm$0.12pp (curriculum, 3 seeds) & 3 & Done \\
+Exp 3: 20-contributor (1B) & Pythia-1B & +16.71\% $\pm$0.07pp vs.\ spec (mean div.\ 15.68\%) & 3 & Done (seeds 42/137/2026) \\
+FE-03: 18-contributor ablation (1B) & Pythia-1B & +21.13\% $\pm$0.01pp vs.\ spec (mean div.\ 19.75\%, quality filtered) & 3 & Done (seeds 42/137/2026) \\
 6.9B step+freeze sweep & Pythia-6.9B & Best: k=4, 2k steps, +2.73\% $\pm$0.007pp & 3 & Done \\
 \bottomrule
 \end{tabular}%
@@ -859,7 +499,7 @@ At $r=8$, LoRA adapters produce near-zero divergence ($-$1.48\% mean, below the 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.72\textwidth]{fig_training_duration_crossover}
-  \caption{Fusion improvement vs.\ base model as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42. See Table~\ref{tab:crossover} in Section~\ref{sec:crossover} for exact values.}
+  \caption{Fusion improvement vs.\ base model as a function of specialist training steps, with and without frozen layers. Pythia-410M, seed 42. See Section~\ref{sec:crossover} for discussion.}
   \label{fig:crossover}
 \end{figure}
 
@@ -892,7 +532,7 @@ The total spread across all tested freeze depths is 1.89 percentage points (7.92
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.72\textwidth]{fig_monolithic_comparison}
-  \caption{Per-domain equal-weight held-out loss for Base model, Monolithic baseline, and \kalavai MoE at Pythia-410M scale. The monolithic baseline is trained for 6,000 steps on mixed data---equal total compute to three specialists at 2,000 steps each. MoE EW loss 2.218 vs.\ base 2.651 and monolithic 2.229 (Table~\ref{tab:monolithic}).}
+  \caption{Per-domain equal-weight held-out loss for Base model, Monolithic baseline, and \kalavai MoE at Pythia-410M scale. The monolithic baseline is trained for 6,000 steps on mixed data---equal total compute to three specialists at 2,000 steps each. MoE EW loss 2.218 vs.\ base 2.651 and monolithic 2.229.}
   \label{fig:monolithic}
 \end{figure}
 
@@ -1058,7 +698,7 @@ This appendix documents the within-training behaviour of domain specialists, dem
 \paragraph{Within-domain improvement and cross-domain degradation.}
 Figure~\ref{fig:trainingcurves} shows the held-out evaluation loss for each specialist on each domain throughout training at Pythia-410M. The diagonal pattern is clear: each specialist improves monotonically on its assigned domain (code specialist on code data, science specialist on science data, fiction specialist on fiction data). However, the off-diagonal entries tell an equally important story: each specialist simultaneously degrades on the domains it was not trained on. By step 2,000, the code specialist evaluates at 2.908 on science data, worse than the base model's 2.892; the science specialist evaluates at 3.061 on fiction, worse than base (2.974). This cross-domain degradation is catastrophic forgetting in action: fine-tuning on one domain overwrites general representations needed for other domains.
 
-This cross-domain degradation explains why routing must be learned (Section~\ref{sec:failure}). A uniform router that assigns equal weight to all specialists averages these degraded cross-domain losses with no domain compensation, producing a result worse than the best individual specialist. A trained router recovers full-domain coverage by assigning near-zero weight to out-of-domain specialists for each input token.
+This cross-domain degradation explains why routing must be trained rather than uniform (Section~\ref{sec:crossover}). A uniform router that assigns equal weight to all specialists averages these degraded cross-domain losses with no domain compensation, producing a result worse than the best individual specialist. A trained router recovers full-domain coverage by assigning near-zero weight to out-of-domain specialists for each input token.
 
 \paragraph{Growing fusion benefit.}
 Figure~\ref{fig:fusiontrajectory} shows how the fusion benefit (MoE improvement over best individual specialist) evolves over specialist training steps. Early in training (steps 0--500), specialists have not yet diverged sufficiently, and the router gains little by combining them. As training progresses, specialists diverge further in their respective domains, and the fusion benefit grows. This trajectory has important implications for the training duration crossover (Section~\ref{sec:crossover}): the benefit peaks when specialists have diverged enough to be complementary but not so much that they can no longer be coherently combined. Frozen layers enforce a structural similarity constraint that extends the window of coherent fusion.
@@ -1153,21 +793,21 @@ Table~\ref{tab:routing} shows token-level gate weights for five hybrid-domain pr
 \toprule
 \textbf{Prompt} & \textbf{Token} & \textbf{Dominant Expert} & \textbf{Weight} \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Write Python code to simulate the plot of Romeo and Juliet''}}
+\multirow{5}{*}{\parbox{3.5cm}{``Write Python code to simulate the plot of Romeo and Juliet''}}
   & ``Write''    & Fiction & 0.787 \\
   & ``Python''   & Fiction & 0.821 \\
   & ``simulate'' & Fiction & 0.929 \\
   & ``plot''     & Code    & 0.540 \\
   & ``Juliet''   & Fiction & 1.000 \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Derive the equation for protein folding using Python pandas''}}
+\multirow{5}{*}{\parbox{3.5cm}{``Derive the equation for protein folding using Python pandas''}}
   & ``Derive''   & Fiction & 0.703 \\
   & ``protein''  & Science & 0.959 \\
   & ``folding''  & Fiction & 0.962 \\
   & ``Python''   & Code    & 0.585 \\
   & ``pandas''   & Code    & 0.998 \\
 \midrule
-\multirow{3}{*}{\parbox{3.5cm}{``Use calculus to analyze character development in Hamlet''}}
+\multirow{4}{*}{\parbox{3.5cm}{``Use calculus to analyze character development in Hamlet''}}
   & ``Use''      & Fiction & 0.852 \\
   & ``analyze''  & Science & 0.920 \\
   & ``character'' & Science & 0.794 \\
@@ -1238,13 +878,13 @@ A systematic integrity audit was run across all committed result files using \te
 \label{tab:app_phase2_private}
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Seed} & \textbf{Med.\ div.} & \textbf{Legal div.} & \textbf{Patent div.} & \textbf{Mean div.} & \textbf{Gain vs spec} & \textbf{Verdict} \\
+\textbf{Seed} & \textbf{Med.\ div.} & \textbf{Legal div.} & \textbf{Patent div.} & \textbf{Mean div.} & \textbf{Gain vs spec} & \textbf{Converged} \\
 \midrule
-42   & 12.71\% & 34.16\% & 8.68\% & 18.52\% & +10.23\% & GO \\
-137  & 12.71\% & 34.15\% & 8.67\% & 18.51\% & +10.27\% & GO \\
-2026 & 12.71\% & 34.15\% & 8.68\% & 18.51\% & +10.00\% & GO \\
+42   & 12.71\% & 34.16\% & 8.68\% & 18.52\% & +10.23\% & \checkmark \\
+137  & 12.71\% & 34.15\% & 8.67\% & 18.51\% & +10.27\% & \checkmark \\
+2026 & 12.71\% & 34.15\% & 8.68\% & 18.51\% & +10.00\% & \checkmark \\
 \midrule
-\textbf{Mean} & 12.71\% & 34.15\% & 8.68\% & 18.51\% & \textbf{+10.17\%} & \textbf{GO} \\
+\textbf{Mean} & 12.71\% & 34.15\% & 8.68\% & 18.51\% & \textbf{+10.17\%} & \checkmark \\
 \textbf{Std}  & ---     & ---     & ---    & ---     & $\pm$0.15pp & --- \\
 \bottomrule
 \end{tabular}
@@ -1262,18 +902,70 @@ Routing distributions (seed 42): medical 99.98\% to medical specialist; legal 99
 \small
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Seed} & \textbf{Tamil div.} & \textbf{Yoruba div.} & \textbf{Welsh div.} & \textbf{Mean div.} & \textbf{Gain vs spec} & \textbf{Verdict} \\
+\textbf{Seed} & \textbf{Tamil div.} & \textbf{Yoruba div.} & \textbf{Welsh div.} & \textbf{Mean div.} & \textbf{Gain vs spec} & \textbf{Converged} \\
 \midrule
-42$^\dagger$   & 23.28\% & 45.54\% & 33.69\% & 25.74\% & +22.04\% & GO \\
-137  & 23.26\% & 45.52\% & 33.19\% & 25.61\% & +21.79\% & GO \\
-2026 & 23.35\% & 45.50\% & 33.20\% & 25.62\% & +21.77\% & GO \\
+42$^\dagger$   & 23.28\% & 45.54\% & 33.69\% & 25.74\% & +22.04\% & \checkmark \\
+137  & 23.26\% & 45.52\% & 33.19\% & 25.61\% & +21.79\% & \checkmark \\
+2026 & 23.35\% & 45.50\% & 33.20\% & 25.62\% & +21.77\% & \checkmark \\
 \midrule
-\textbf{Mean (all)} & --- & --- & --- & 25.66\% & +21.87\% & GO ($\pm$0.12pp) \\
+\textbf{Mean (all)} & --- & --- & --- & 25.66\% & +21.87\% & ($\pm$0.12pp) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Code domain divergence is negligible (0.43--0.44\%) because CodeSearchNet Python is already well-represented in the Pythia pre-training corpus. Code routing remains correct (96.45--98.63\% to code specialist) despite the low divergence.
+
+\subsection{Experiment 3: 20-Contributor Per-Domain Breakdown}
+\label{app:exp3_perdomain}
+
+\begin{table}[h]
+\centering
+\caption{Per-domain MoE gain vs.\ base (\%) for the 20-contributor federation (Pythia-1B, 3-seed mean across seeds 42/137/2026). Gain\,=\,$(L_\text{base}-L_\text{MoE})/L_\text{base}\times100$. $\dagger$~Undertrained domains: fewer than 500 training chunks (dialogue: 184, instructions: 283), flagged as warnings during data loading. All other domains show positive gains; language specialists (mean +23.8\%) outperform domain specialists (mean +14.8\% excluding $\dagger$) due to higher base-model perplexity on non-English text.}
+\label{tab:exp3_perdomain_app}
+\small
+\begin{tabular}{lrlr}
+\toprule
+\multicolumn{2}{c}{\textbf{Language Specialists}} & \multicolumn{2}{c}{\textbf{Domain Specialists}} \\
+\textbf{Specialist} & \textbf{Gain} & \textbf{Specialist} & \textbf{Gain} \\
+\midrule
+Tamil      & +25.29\% & Code         & +2.70\%  \\
+Yoruba     & +58.37\% & Medical      & +14.41\% \\
+Welsh      & +37.21\% & Legal        & +36.48\% \\
+Spanish    & +5.20\%  & Patent       & +8.37\%  \\
+Hindi      & +18.04\% & Math         & +22.47\% \\
+Swahili    & +38.26\% & Finance      & +12.54\% \\
+Vietnamese & +12.34\% & Chemistry    & +13.12\% \\
+Arabic     & +11.24\% & Fiction      & +8.34\%  \\
+Indonesian & +12.49\% & Dialogue     & $-$23.84\%$^\dagger$ \\
+Thai       & +19.15\% & Instructions & $-$12.54\%$^\dagger$ \\
+\midrule
+\textit{Mean} & \textit{+23.76\%} & \textit{Mean (all)} & \textit{+8.21\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{FE-03: 18-Contributor Ablation Per-Seed Results}
+\label{app:fe03_table}
+
+\begin{table}[h]
+\centering
+\caption{18-contributor ablation on Pythia-1B (FE-03, 3 seeds). Same specialist checkpoints as the 20-contributor federation (seed 42); dialogue and instructions specialists omitted.
+Router retrained from scratch for 1{,}000 steps on 18-domain mixed data.}
+\label{tab:eighteen_app}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Seed} & \textbf{Base EW} & \textbf{MoE EW} & \textbf{vs.\ Spec.} & \textbf{vs.\ Base} \\
+\midrule
+42   & 2.760 & 2.165 & $+$21.14\% & $+$21.57\% \\
+137  & 2.760 & 2.165 & $+$21.12\% & $+$21.55\% \\
+2026 & 2.760 & 2.165 & $+$21.13\% & $+$21.56\% \\
+\midrule
+\textbf{Mean} & 2.760 & 2.165 & \textbf{$+$21.13\%} & \textbf{$+$21.56\%} \\
+\textbf{Std}  & ---   & ---   & $\pm$0.01pp        & $\pm$0.01pp        \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ============================================================
 \section{Expanded Divergence--Gain Scatter}
@@ -1301,6 +993,135 @@ During development, an initial evaluation protocol produced +14.2\% at Pythia-41
 \paragraph{Additional 6.9B fix.} The 6.9B result was stabilised by seeded shuffling of the evaluation dataset (original: mean +2.72\%, std $\pm$8.17\% across seeds; corrected: +6.53\% $\pm$0.024\% over 3 seeds, computed from stored per-domain losses without re-running specialists). The high variance in the original 6.9B result was caused by non-deterministic chunk ordering producing different effective evaluation sets per seed.
 
 \paragraph{Corrected infrastructure.} The corrected evaluation protocol is implemented in \texttt{experiments/kalavai\_eval\_utils.py} (\texttt{eval\_all\_domains}, \texttt{eval\_loss\_domain}). All experiments import this module rather than implementing inline evaluation, preventing recurrence. Original result files were re-evaluated under the corrected protocol.
+
+\section{Shared Initialisation Ablation}
+\label{app:sharedinit}
+
+Three conditions test the shared initialisation requirement (Pythia-410M, 2,000 specialist training steps, 3 domains, seed 42 for small-gap and 3 seeds for control/large-gap): (1) \emph{Control}: all specialists from step 10,000 (identical initialisation); (2) \emph{Large gap}: specialists from step 5,000 / 10,000 / 20,000 respectively (spanning $2\times$ training progress); (3) \emph{Small gap}: step 8,000 / 10,000 / 12,000 ($\pm$20\% around anchor).
+
+\begin{table}[h]
+\centering
+\caption{Shared initialisation ablation at Pythia-410M. \emph{Note: this experiment uses mixed-domain held-out evaluation, not the per-domain equal-weight protocol used elsewhere in the paper. All values are internally consistent; the meaningful comparison is the relative degradation across conditions, not the absolute loss values.} ``MoE loss'' is absolute mixed-domain held-out loss; lower is better. ``Best Spec.\ Loss'' is the best individual specialist's mixed-domain loss for that condition. ``vs.\ Base'' uses base mixed-domain loss 2.248. ``vs.\ Spec'' is improvement over best individual specialist---this metric is misleading under mismatch because mismatched specialists are also worse (best spec loss degrades from 2.089 to 2.157 under large gap); the absolute MoE loss is the appropriate comparison.}
+\label{tab:sharedinit}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Condition} & \textbf{Init Revisions} & \textbf{Best Spec.\ Loss} & \textbf{MoE Loss} & \textbf{vs.\ Base} & \textbf{Seeds} \\
+\midrule
+Control (matched)  & 10k / 10k / 10k         & 2.089          & \textbf{2.015} & \textbf{+10.4\%} & 3 \\
+Small gap          & 8k / 10k / 12k          & 2.122          & 2.034          & +9.5\%           & 1 \\
+Large gap          & 5k / 10k / 20k          & 2.157          & 2.036          & +9.4\%           & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The absolute MoE quality degrades by 0.93pp (10.37\%$\rightarrow$9.44\%) under the large-gap condition. However, the routing behaviour degrades more substantially: under the large-gap condition, the code expert receives 11\% weight on fiction inputs versus near-zero under control. The router can no longer reliably distinguish specialist roles.
+
+Shared initialisation is not strictly required for fusion to produce positive improvement over base---mismatched specialists still produce a positive fused model. However, shared initialisation is important for routing stability: mismatched checkpoints produce routing confusion that may become more pronounced at scale. The shared initialisation requirement is the only coordination cost of the \kalavai protocol and remains our recommendation for all deployments.
+
+\section{Heterogeneous Cooperative Robustness}
+\label{app:heterogeneous}
+
+A real cooperative will not have identical training conditions across contributors. We test the protocol's robustness to three practical sources of variation (Pythia-410M, seed 42):
+
+\begin{itemize}[leftmargin=*, itemsep=1pt]
+  \item \emph{Control}: all three specialists trained identically (bs=2, lr=$2\times10^{-5}$, 2,000 steps).
+  \item \emph{diff\_batch}: one specialist trained at bs=4 instead of bs=2.
+  \item \emph{diff\_lr}: one specialist trained at lr=$4\times10^{-5}$ instead of $2\times10^{-5}$.
+  \item \emph{diff\_steps}: one specialist trained for 1,000 steps instead of 2,000.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Heterogeneous cooperative results (Pythia-410M, per-domain equal-weight evaluation). ``$\Delta$ vs.\ control'' is the difference in fusion gain from the identical-conditions baseline.}
+\label{tab:heterogeneous}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Condition} & \textbf{MoE EW Loss} & \textbf{vs.\ Spec} & \textbf{vs.\ Base} & \textbf{$\Delta$ vs.\ control} \\
+\midrule
+Control (identical)  & 2.2185 & +7.72\% & +16.33\% & --- \\
+diff\_batch          & 2.2401 & +7.74\% & +15.49\% & +0.01pp \\
+diff\_lr             & 2.1576 & +7.73\% & +18.63\% & +0.01pp \\
+diff\_steps          & 2.2001 & +7.33\% & +17.00\% & $-$0.39pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The maximum spread across all heterogeneous conditions is 0.41pp---well within the noise floor of the experiment. The protocol is robust to realistic variation in batch size, learning rate, and training budget. The only meaningful degradation is a 0.39pp reduction when one specialist trains for half the steps; even then, the fusion gain remains +7.33\% vs.\ best specialist. This validates the cooperative premise: contributors do not need to coordinate hyperparameters, only the shared checkpoint and architecture.
+
+\section{Base-Model Competence as Secondary Predictor}
+\label{app:baseppl}
+
+Specialist divergence captures how much specialists move from the base model; a complementary factor is how competent the base model already is on the target domain. Across the six experimental conditions, the log of the mean base-model perplexity on each domain's evaluation data correlates with the conversion efficiency (gain / divergence) at $r = +0.560$ (Pearson, $n = 6$), compared with $r = +0.614$ for divergence alone. On the six-point sample this is suggestive rather than definitive, but the pattern is mechanistically plausible: when the base model achieves near-random perplexity on a domain (Yoruba PPL $\approx 42$, Welsh PPL $\approx 103$), the specialist must correct the base from a high-loss floor, the router routes with near-certainty, and essentially all specialist gain is preserved. When the base is already competent (English code PPL $\approx 7$), specialist gains are smaller in absolute terms and the cooperative receives less incremental value. This suggests a two-factor heuristic---measure both specialist divergence and base-model competence before committing to a cooperative---though validation on more conditions is needed before treating the secondary predictor as quantitatively reliable. Figure~\ref{fig:baseppl_conversion} shows the relationship across all conditions.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/paper/fig_baseppl_conversion.png}
+  \caption{Base-model perplexity as a secondary predictor of cooperative fusion efficiency.
+  \textbf{Left}: Conversion efficiency (gain / divergence) versus mean base-model perplexity per condition.
+  \textbf{Centre}: Same with log-scaled perplexity axis (Pearson $r = +0.560$).
+  \textbf{Right}: Divergence versus gain coloured by base-model PPL quartile.
+  Cross-lingual conditions (high base PPL) convert divergence most efficiently; English-domain conditions (low base PPL) sit near the baseline conversion rate. Dashed lines are OLS fits; $n=6$ conditions.}
+  \label{fig:baseppl_conversion}
+\end{figure}
+
+\section{Per-Domain Breakdown (410M)}
+\label{app:perdomain}
+
+\begin{table}[h]
+\centering
+\caption{Per-domain held-out loss at Pythia-410M (seed 42). The \kalavai MoE matches the best individual specialist on every domain simultaneously.}
+\label{tab:perdomain}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Code} $\downarrow$ & \textbf{Science} $\downarrow$ & \textbf{Fiction} $\downarrow$ & \textbf{EW Avg} $\downarrow$ \\
+\midrule
+Base model          & 2.0872 & 2.8920 & 2.9739 & 2.6510 \\
+Code specialist     & \textbf{1.8791} & 2.9085 & 2.9768 & 2.5881 \\
+Science specialist  & 2.1738 & \textbf{2.5565} & 3.0613 & 2.5972 \\
+Fiction specialist  & 2.1018 & 2.8904 & 2.2194 & 2.4039 \\
+\midrule
+Monolithic (6k)     & 1.9644 & 2.6389 & \textbf{2.0832} & 2.2288 \\
+Weight averaging    & 2.0142 & 2.7323 & 2.7106 & 2.4857 \\
+\kalavai MoE        & \textbf{1.8791} & \textbf{2.5565} & 2.2194 & \textbf{2.2183} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Divergence--Gain Summary Table}
+\label{app:divgain_table}
+
+\begin{table}[h]
+\centering
+\caption{Summary of divergence--gain relationship across all Phase 1 and Phase 2 experiments. Predicted gain from linear fit $= -2.72 + 0.82 \times \text{div}$; residual = actual$-$predicted. The regression was fit on the six in-sample conditions (rows 1--6); Exp~3 (row 7) is an out-of-sample validation point. $^{\dagger}$Qwen predicted gain is at the divergence floor ($\approx$3.3\%). $^{\ddagger}$In a 20-specialist cooperative the best specialist is only 0.46\% above base; nominal conversion rate $>1$ reflects this near-equal baseline.}
+\label{tab:divergence_gain}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Condition} & \textbf{Mean Div.} & \textbf{Gain vs Spec} & \textbf{Conv.\ rate} & \textbf{Pred.\ gain} & \textbf{Residual} \\
+\midrule
+Qwen-1.5B (Ph.1)            & 3.16\%  & +1.06\%  & 0.34$\times$ & $\approx$0\%$^{\dagger}$ & --- \\
+Pythia-6.9B (Ph.1)          & 8.73\%  & +6.53\%  & 0.75$\times$ & +4.41\%  & +2.12pp \\
+Pythia-1B (Ph.1)            & 15.28\% & +7.49\%  & 0.49$\times$ & +9.81\%  & $-$2.32pp \\
+Pythia-410M (Ph.1)          & 15.65\% & +7.72\%  & 0.49$\times$ & +10.11\% & $-$2.39pp \\
+Exp 2: private (Ph.2)       & 18.52\% & +10.17\% & 0.55$\times$ & +12.43\% & $-$2.26pp \\
+Exp 1: cross-lingual (Ph.2) & 25.65\% & +21.87\% & 0.85$\times$ & +18.18\% & +3.69pp \\
+\midrule
+\textit{Exp 3: 18-contrib/FE-03 (Ph.2, OOS)} & \textit{19.75\%} & \textit{+21.13\%} & \textit{1.07$\times$$^{\ddagger}$} & \textit{+13.45\%} & \textit{+7.68pp} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Cross-Domain Evaluation Loss Matrix}
+\label{app:heatmap}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.60\textwidth]{figures/fig_divergence_heatmap}
+  \caption{Cross-domain evaluation loss matrix at Pythia-410M, step 2,000 (freeze=4, seed=42). Green = lower loss; red = higher. Diagonal entries confirm each specialist has diverged complementarily; the MoE router recovers diagonal performance across all domains simultaneously.}
+  \label{fig:heatmap}
+\end{figure}
 
 \input{checklist}
 

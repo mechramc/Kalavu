@@ -1,13 +1,55 @@
 # KALAVAI — Project Status
 
-**Last Updated**: 2026-04-07
+**Last Updated**: 2026-04-10
 **Branch**: main
 **Tests**: 149 passing (src/kalavai lib) + 13/13 passing (experiments/tests/test_moe_gpu_offload.py)
 **Source Lines**: ~2,350 (src) + ~2,400 (tests)
 
 ---
 
-## Overall Progress
+## NeurIPS 2026 Paper Sprint
+
+**Submission deadline**: May 4, 2026 (abstract) / May 6, 2026 (full paper)
+**Experiment freeze**: April 28, 2026
+
+### Paper status
+
+| Item | Status |
+|------|--------|
+| Paper file | `paper/kalavai_neurips2026_submit.tex` |
+| Main body pages | 9 (bibliography page 10, appendix 11–35) |
+| Compilation | 0 fatal errors, 4 Overfull \hbox <20pt |
+| NeurIPS reviewer rating | 7.5/10, ~40–50% acceptance probability |
+| Abstract | Intuition-first, n=6 caveat, regression formula, key results |
+| Contributions | 5 items with Intuitively/Surprisingly/In practice signals |
+| Discussion | Cooperative sparsity paragraph (G=2, Kimi K2/DeepSeek-V3), future work |
+
+### Experiment results
+
+| Experiment | Result | Seeds |
+|-----------|--------|-------|
+| Phase 1: Pythia-410M 3-domain | +7.70% ±0.02pp vs best spec | 3 |
+| Phase 1: Pythia-1B 3-domain | +7.49% ±0.01pp vs best spec | 3 |
+| Phase 1: Pythia-6.9B 3-domain | +6.53% ±0.024pp vs best spec | 3 |
+| Exp1: Cross-lingual (curriculum) | +21.87% ±0.12pp vs best spec | 3 |
+| Exp2: Private-domain | +10.17% ±0.15pp vs best spec | 3 |
+| Exp3: 20-contributor federation | +16.71% ±0.07pp vs best spec | 3 |
+| FE-03: 18-contributor ablation | +21.13% ±0.01pp vs best spec | 3 |
+
+### Regression extension — next GPU run
+
+Designed to push the divergence-gain regression from n=6 to n=8.
+
+| Script | Domains | Expected div | Status |
+|--------|---------|-------------|--------|
+| `experiments/kalavai_regression_p1_2domain.py` | code + science | ~11% | **Ready to run** |
+| `experiments/kalavai_regression_p2_4domain.py` | code+science+fiction+legal | ~19–22% | **Ready to run** |
+
+Run both in parallel on two A10G pods (~$7 total, ~4h wallclock).
+
+---
+
+## Overall Library Progress
 
 | Phase | Status | Tasks | Description |
 |-------|--------|-------|-------------|
@@ -30,12 +72,12 @@
 ### CLI Commands (functional)
 
 ```bash
-kalavai --help                                    # CLI entry point
-kalavai --version                                 # 0.1.0
-kalavai coop create --name my-coop --modules 5    # Creates cooperative with all artifacts
-kalavai coop join ./my-coop --claim-module 1      # Claims a domain slot
-kalavai coop status ./my-coop                     # Rich table of module statuses
-kalavai coop status ./my-coop --json              # Machine-readable JSON output
+kalavai --help
+kalavai --version
+kalavai coop create --name my-coop --modules 5
+kalavai coop join ./my-coop --claim-module 1
+kalavai coop status ./my-coop
+kalavai coop status ./my-coop --json
 ```
 
 ### CLI Commands (stubbed — not yet wired)
@@ -110,34 +152,6 @@ kalavai fuse train <cooperative>
 | `test_seed.py` | 13 | Model forward pass, probe extraction, reproducibility |
 | `test_reference.py` | 5 | CKA reference computation |
 | `test_install.py` | 4 | CLI smoke tests |
-| `conftest.py` | — | Shared fixtures (config, cooperative dir, mock CUDA) |
+| `conftest.py` | — | Shared fixtures |
 
 **Total: 149 tests, 0 failures**
-
----
-
-## Key Technical Decisions
-
-1. **No external nanochat dependency** — built a minimal GPT-style transformer in `core/model.py` (RMSNorm, SwiGLU FFN, causal multi-head attention). Compatible with the spec's architecture config.
-
-2. **No minbpe dependency** — implemented BPE tokenizer from scratch in `coop/tokenizer.py`. Deterministic via fixed seed and tie-breaking.
-
-3. **Reproducible seed checkpoints** — torch.save embeds non-deterministic zip timestamps. Solved by serializing to BytesIO first, then writing raw bytes.
-
-4. **Architecture presets** — `coop create` maps `--target-params` (14M, 125M, 350M, 1B, 7B) to sensible transformer configs automatically.
-
-5. **All tests GPU-independent** — CUDA is mocked in hardware tests. Model tests use CPU with tiny configs.
-
----
-
-## Next Up: Phase 3 — Module Trainer
-
-The training loop with CKA anchor loss. Key tasks:
-- TASK-016: Nanochat model wrapper (probe extraction)
-- TASK-017: CKA anchor loss in training loop
-- TASK-018: Domain-aware data loading
-- TASK-019: Alignment pause/warning system
-- TASK-020: Training telemetry
-- TASK-021: Wire `kalavai train start` E2E
-- TASK-022: Submission validation
-- TASK-023: Wire `kalavai train submit` E2E
